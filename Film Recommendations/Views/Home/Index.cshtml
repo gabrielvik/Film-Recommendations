@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Film Recommendations";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="text-center">
+        <h1 class="display-3 mb-4">Welcome to FilmFinder</h1>
+        <p class="lead mb-4">
+            Not sure what movie to watch tonight? Tell us your mood or favorite genre, and we'll recommend the perfect film for you!
+        </p>
+        <form method="post">
+            <div class="form-group">
+                <input type="text" name="moviePreference" class="form-control form-control-lg"
+                       placeholder="e.g. Give me an exciting sci-fi movie similar to Inception" required />
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    Find My Films
+                </button>
+            </div>
+        </form>
+        <p class="mt-3 text-muted">
+            Discover hidden gems and blockbuster hits tailored just for you!
+        </p>
+    </div>
+</div>
