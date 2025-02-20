@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Film-Recommendation-Frontend</title>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+  <div class="min-h-screen flex flex-col">
+    <!-- Main content area -->
+    <main class="flex-grow flex flex-col items-center justify-center px-4">
+
+      <h1 class="mt-10 text-2xl font-semibold mb-2 text-center">
+        Vilken typ av film vill du se?
+      </h1>
+      <!-- Input form -->
+      <div class="w-full max-w-xl">
+        <form id="promptForm" class="flex space-x-2">
+          <input id="promptInput" placeholder="T.ex. 'Jag vill se en thriller...'"
+            class="flex-grow rounded border border-gray-700 px-3 py-2 focus:outline-none focus:border-blue-500 transition text-gray-100 bg-gray-700 resize-none"></input>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 transition">
+            Skicka
+          </button>
+        </form>
+      </div>
+
+      <!-- Suggested phrases -->
+      <div class="flex flex-wrap gap-2 justify-center mt-4">
+        <span class="suggestion bg-blue-900 text-blue-100 px-3 py-1 rounded-full cursor-pointer">
+          Filmer regisserade av Christopher Nolan
+        </span>
+      </div>
+
+      <!-- Movie Recommendations Container -->
+      <div id="movieRecommendations" class="w-full max-w-xl mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      </div>
+
+      <!-- Movie Details Modal -->
+      <div id="movieDetailsModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden z-50">
+        <div class="bg-gray-800 text-gray-100 rounded-lg p-6 max-w-3xl w-full relative">
+          <button id="closeModal"
+            class="absolute top-2 right-2 text-gray-400 hover:text-gray-100 text-2xl">&times;</button>
+          <div id="movieDetailsContent">
+            
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
