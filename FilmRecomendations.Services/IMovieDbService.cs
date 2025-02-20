@@ -2,7 +2,7 @@
 
 namespace FilmRecomendations.Services;
 
-interface IMovieDbService
+public interface IMovieDbService
 {
     /// <summary>
     /// Fetches all movie ids by searching the movie database by name

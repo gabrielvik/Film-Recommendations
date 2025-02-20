@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using FilmRecomendations.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,18 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHttpClient(name: "TMDb.WebApi",
-  configureClient: options =>
-  {
-      options.BaseAddress = builder.Configuration.GetSection("TMDb:BaseAddress").Get<Uri>();
-      options.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue(
-        "application/json", 1.0));
-
-      // Add the Authorization header here
-      options.DefaultRequestHeaders.Authorization =
-          new AuthenticationHeaderValue("Bearer", builder.Configuration["TMDb:ApiKey"]);
-  });
+builder.Services.AddScoped<IMovieDbService, MovieDbService>();
+builder.Services.AddHttpClient("TMDb.WebApi",
+    configureClient: options =>
+    {
+        options.BaseAddress = builder.Configuration.GetSection("TMDb:BaseAddress").Get<Uri>();
+        options.DefaultRequestHeaders.Accept.Add(
+            new MediaTypeWithQualityHeaderValue("application/json", 1.0));
+    });
 
 var app = builder.Build();
 
