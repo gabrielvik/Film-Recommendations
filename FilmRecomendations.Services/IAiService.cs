@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace FilmRecomendations.Services;
 
-namespace FilmRecomendations.Services;
-
-interface IAiService
+public interface IAiService
 {
+    Task<string> GetMovieRecommendationsAsync(string prompt);
 }
