@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FilmRecomendations.Models\FilmRecomendations.Models.csproj" />
     <ProjectReference Include="..\FilmRecomendations.Services\FilmRecomendations.Services.csproj" />
   </ItemGroup>
 

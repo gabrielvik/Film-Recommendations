@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilmRecomendations.WebApi",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilmRecomendations.Services", "FilmRecomendations.Services\FilmRecomendations.Services.csproj", "{5ED3C049-6DE5-4E4C-8ACD-D942EBDCFC6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilmRecomendations.Models", "FilmRecomendations.Models\FilmRecomendations.Models.csproj", "{C6D1F161-0322-403A-8720-274C86B878CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5ED3C049-6DE5-4E4C-8ACD-D942EBDCFC6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ED3C049-6DE5-4E4C-8ACD-D942EBDCFC6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ED3C049-6DE5-4E4C-8ACD-D942EBDCFC6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6D1F161-0322-403A-8720-274C86B878CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6D1F161-0322-403A-8720-274C86B878CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6D1F161-0322-403A-8720-274C86B878CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6D1F161-0322-403A-8720-274C86B878CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
