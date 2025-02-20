@@ -11,13 +11,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IMovieDbService, MovieDbService>();
-builder.Services.AddHttpClient("TMDb.WebApi",
-    configureClient: options =>
-    {
-        options.BaseAddress = builder.Configuration.GetSection("TMDb:BaseAddress").Get<Uri>();
-        options.DefaultRequestHeaders.Accept.Add(
-            new MediaTypeWithQualityHeaderValue("application/json", 1.0));
-    });
+builder.Services.AddHttpClient(name: "TMDb.WebApi",
+  configureClient: options =>
+  {
+      options.BaseAddress = builder.Configuration.GetSection("TMDb:BaseAddress").Get<Uri>();
+      options.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json", 1.0));
+  });
 
 var app = builder.Build();
 
