@@ -19,7 +19,7 @@ builder.Services.AddHttpClient(name: "TMDb.WebApi",
 
       // Add the Authorization header here
       options.DefaultRequestHeaders.Authorization =
-          new AuthenticationHeaderValue("Bearer", builder.Configuration["TMDb:ApiKey"]);
+          new AuthenticationHeaderValue("Bearer ", builder.Configuration["TMDb:ApiKey"]);
   });
 
 var app = builder.Build();
