@@ -11,8 +11,62 @@ document.querySelectorAll('.suggestion').forEach((bubble) => {
   });
 });
 
-// Handle form submission
-promptForm.addEventListener('submit', (e) => {
+// Handle form submission dummy data
+// promptForm.addEventListener('submit', (e) => {
+//   e.preventDefault();
+//   const userPrompt = promptInput.value.trim();
+//   if (!userPrompt) return;
+
+//   // Clear previous recommendations
+//   movieRecommendations.innerHTML = '';
+
+//   // Simulate an AI response (replace with your real fetch to .NET or other backend)
+//   setTimeout(() => {
+//     // Dummy movie data with extra details
+//     const movies = [
+//       {
+//         title: 'Interstellar',
+//         releaseYear: '2014',
+//         poster: 'https://m.media-amazon.com/images/I/91vIHsL-zjL._AC_SY879_.jpg',
+//         plot: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity’s survival.',
+//         rating: '8.6',
+//         director: 'Christopher Nolan',
+//         actors: 'Matthew McConaughey, Anne Hathaway, Jessica Chastain',
+//         genre: 'Adventure, Drama, Sci-Fi',
+//         length: '169 min',
+//         streaming: 'Netflix, Amazon Prime'
+//       },
+//       {
+//         title: 'Inception',
+//         releaseYear: '2010',
+//         poster: 'https://m.media-amazon.com/images/I/71txPolRqCL._AC_SY879_.jpg',
+//         plot: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.',
+//         rating: '8.8',
+//         director: 'Christopher Nolan',
+//         actors: 'Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page',
+//         genre: 'Action, Adventure, Sci-Fi',
+//         length: '148 min',
+//         streaming: 'Netflix, Hulu'
+//       },
+//       {
+//         title: 'The Dark Knight',
+//         releaseYear: '2008',
+//         poster: 'https://m.media-amazon.com/images/I/51YbLNGpkpL._AC_.jpg',
+//         plot: 'When the menace known as the Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.',
+//         rating: '9.0',
+//         director: 'Christopher Nolan',
+//         actors: 'Christian Bale, Heath Ledger, Aaron Eckhart',
+//         genre: 'Action, Crime, Drama',
+//         length: '152 min',
+//         streaming: 'HBO Max'
+//       }
+//     ];
+//     displayMovies(movies);
+//   }, 1000);
+// });
+
+// Handle form submission with API call
+promptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return;
@@ -20,52 +74,26 @@ promptForm.addEventListener('submit', (e) => {
   // Clear previous recommendations
   movieRecommendations.innerHTML = '';
 
-  // Simulate an AI response (replace with your real fetch to .NET or other backend)
-  setTimeout(() => {
-    // Dummy movie data with extra details
-    const movies = [
-      {
-        title: 'Interstellar',
-        releaseYear: '2014',
-        poster: 'https://m.media-amazon.com/images/I/91vIHsL-zjL._AC_SY879_.jpg',
-        plot: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity’s survival.',
-        rating: '8.6',
-        director: 'Christopher Nolan',
-        actors: 'Matthew McConaughey, Anne Hathaway, Jessica Chastain',
-        genre: 'Adventure, Drama, Sci-Fi',
-        length: '169 min',
-        streaming: 'Netflix, Amazon Prime'
-      },
-      {
-        title: 'Inception',
-        releaseYear: '2010',
-        poster: 'https://m.media-amazon.com/images/I/71txPolRqCL._AC_SY879_.jpg',
-        plot: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.',
-        rating: '8.8',
-        director: 'Christopher Nolan',
-        actors: 'Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page',
-        genre: 'Action, Adventure, Sci-Fi',
-        length: '148 min',
-        streaming: 'Netflix, Hulu'
-      },
-      {
-        title: 'The Dark Knight',
-        releaseYear: '2008',
-        poster: 'https://m.media-amazon.com/images/I/51YbLNGpkpL._AC_.jpg',
-        plot: 'When the menace known as the Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.',
-        rating: '9.0',
-        director: 'Christopher Nolan',
-        actors: 'Christian Bale, Heath Ledger, Aaron Eckhart',
-        genre: 'Action, Crime, Drama',
-        length: '152 min',
-        streaming: 'HBO Max'
-      }
-    ];
+   // Build the request URL with encoded prompt
+   const apiUrl = `http://localhost:5291/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
+
+  // Fetch movie recommendations from the backend API
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      console.error('Error fetching film recommendations:', response.statusText);
+      return;
+    }
+    const movies = await response.json();
+    console.log('Movies:', movies);
     displayMovies(movies);
-  }, 1000);
+  } catch (error) {
+    console.error('Error fetching film recommendations:', error);
+  }
+
 });
 
-// Utility function to display movie recommendations with smooth transitions, hover scaling, and a click event to show details
+
 function displayMovies(movies) {
   movies.forEach((movie) => {
     // Create the card container with additional classes for hover shadow, transition, scaling on hover, and appear animation
@@ -87,8 +115,8 @@ function displayMovies(movies) {
 
     // Create the movie poster image
     const posterImg = document.createElement('img');
-    posterImg.src = movie.poster;
-    posterImg.alt = movie.title;
+    posterImg.src = `https://via.placeholder.com/300x450?text=${encodeURIComponent(movie.movie_name)}`;
+    posterImg.alt = movie.movie_name;
     posterImg.classList.add('w-full', 'h-64', 'object-cover');
 
     // Create the movie title container
@@ -97,11 +125,11 @@ function displayMovies(movies) {
     
     const releaseYearText = document.createElement('h5');
     releaseYearText.classList.add('text-l', 'font-semibold');
-    releaseYearText.textContent = movie.releaseYear;
+    releaseYearText.textContent = movie.release_year;
     
     const titleText = document.createElement('h2');
     titleText.classList.add('text-lg', 'font-semibold');
-    titleText.textContent = movie.title;
+    titleText.textContent = movie.movie_name;
 
     titleDiv.appendChild(releaseYearText);
     titleDiv.appendChild(titleText);
