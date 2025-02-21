@@ -1,4 +1,5 @@
 using FilmRecomendations.Db;
+using FilmRecomendations.Db.DbModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ builder.Services.AddDbContext<FilmDbContext>(options =>
         builder.Configuration.GetConnectionString("FilmConnectionString")));
 
 //identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<FilmDbContext>()
         .AddDefaultTokenProviders();
 

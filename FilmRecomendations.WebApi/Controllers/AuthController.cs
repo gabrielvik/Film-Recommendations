@@ -64,4 +64,26 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequest)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = registerRequest.UserName,
+            Email = registerRequest.Email
+        };
+
+        var result = await _userManager.CreateAsync(user, registerRequest.Password);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
+        }
+
+        // Generate JWT token for the newly registered user
+        var token = GenerateJwtToken(user);
+
+        return Ok(new LoginResponseDto { Token = token, UserId = user.Id });
+    }
 }
