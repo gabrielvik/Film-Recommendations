@@ -8,7 +8,7 @@ namespace Film_Recommendations
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddHttpClient<IAiService, AiService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
