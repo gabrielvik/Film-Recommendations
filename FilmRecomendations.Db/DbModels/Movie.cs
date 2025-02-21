@@ -10,8 +10,10 @@ namespace FilmRecomendations.Db.DbModels;
 //we should only store the neccesary data related to the user, everything movie related can be fetched from TMDb
 public class Movie
 {
+    public Guid MovieId { get; set; }
+
     //should match TMDb Movieid
-    public int MovieId { get; set; }
+    public int? TMDbId { get; set; } = null;
 
     //null => not rated, true => liked, false => disliked
     public bool? Liked { get; set; } = null;
