@@ -73,10 +73,26 @@ public class TMDBService : ITMDBService
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var movie = JsonSerializer.Deserialize<Movie>(content, new JsonSerializerOptions
+                
+                // Log the first part of the response for debugging
+                _logger.LogDebug($"API Response: {content.Substring(0, Math.Min(500, content.Length))}");
+                
+                var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                });
+                };
+                
+                var movie = JsonSerializer.Deserialize<Movie>(content, options);
+                
+                // If poster path is still null, try to extract it directly
+                if (movie != null && string.IsNullOrEmpty(movie.PosterPath))
+                {
+                    using var document = JsonDocument.Parse(content);
+                    if (document.RootElement.TryGetProperty("poster_path", out var posterPathElement))
+                    {
+                        movie.PosterPath = posterPathElement.GetString();
+                    }
+                }
                 
                 return movie;
             }
