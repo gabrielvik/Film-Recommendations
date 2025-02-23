@@ -2,6 +2,7 @@
 using FilmRecomendations.Models.DTOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http.Headers;
 
 namespace FilmRecomendations.Services;
 
@@ -19,8 +20,10 @@ public class TMDBService : ITMDBService
         _configuration = configuration;
     }
 
-    public async Task<int> GetMovieIdAsync(string movieName, int releaseYear)
+    public async Task<MovieIdResponse> GetMovieIdAsync(string movieName, int releaseYear)
     {
+        var movieResponse = new MovieIdResponse();
+
         try
         {
             var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
@@ -36,14 +39,23 @@ public class TMDBService : ITMDBService
                 
                 var results = document.RootElement.GetProperty("results");
                 
+                // return id and poster_path of first result if found.
+
                 // Check if any results were found
                 if (results.GetArrayLength() > 0)
                 {
                     // Get the first result's ID
                     if (results[0].TryGetProperty("id", out var idElement))
                     {
-                        return idElement.GetInt32();
+
+                        movieResponse.Id = idElement.GetInt32();
                     }
+                    // Get the first result's poster path
+                    if (results[0].TryGetProperty("poster_path", out var posterPathElement))
+                    {
+                        movieResponse.poster_path = $"https://image.tmdb.org/t/p/w500{posterPathElement.GetString()}";
+                    }
+                    return movieResponse;
                 }
             }
             else
@@ -51,7 +63,7 @@ public class TMDBService : ITMDBService
                 _logger.LogWarning($"Failed to search for movie. Status code: {response.StatusCode}");
             }
             
-            return -1; // Return -1 if no movie found
+            return new MovieIdResponse();
         }
         catch (Exception ex)
         {
@@ -85,12 +97,12 @@ public class TMDBService : ITMDBService
                 var movie = JsonSerializer.Deserialize<Movie>(content, options);
                 
                 // If poster path is still null, try to extract it directly
-                if (movie != null && string.IsNullOrEmpty(movie.PosterPath))
+                if (movie != null && string.IsNullOrEmpty(movie.poster_path))
                 {
                     using var document = JsonDocument.Parse(content);
                     if (document.RootElement.TryGetProperty("poster_path", out var posterPathElement))
                     {
-                        movie.PosterPath = posterPathElement.GetString();
+                        movie.poster_path = posterPathElement.GetString();
                     }
                 }
                 

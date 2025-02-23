@@ -3,6 +3,7 @@ import './style.css';
 const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
 const movieRecommendations = document.getElementById('movieRecommendations');
+const loadingIndicator = document.getElementById('loadingIndicator');
 
 // Handle suggestion bubbles
 document.querySelectorAll('.suggestion').forEach((bubble) => {
@@ -73,6 +74,8 @@ promptForm.addEventListener('submit', async (e) => {
 
   // Clear previous recommendations
   movieRecommendations.innerHTML = '';
+  loadingIndicator.classList.remove('hidden');
+
 
    // Build the request URL with encoded prompt
    const apiUrl = `http://localhost:5291/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
@@ -89,8 +92,10 @@ promptForm.addEventListener('submit', async (e) => {
     displayMovies(movies);
   } catch (error) {
     console.error('Error fetching film recommendations:', error);
+  } finally {
+    // Hide the loading indicator after completion
+    loadingIndicator.classList.add('hidden');
   }
-
 });
 
 
@@ -115,7 +120,7 @@ function displayMovies(movies) {
 
     // Create the movie poster image
     const posterImg = document.createElement('img');
-    posterImg.src = `https://via.placeholder.com/300x450?text=${encodeURIComponent(movie.movie_name)}`;
+    posterImg.src = movie.poster_path;
     posterImg.alt = movie.movie_name;
     posterImg.classList.add('w-full', 'h-64', 'object-cover');
 
@@ -149,35 +154,77 @@ function displayMovies(movies) {
   });
 }
 
+
 // Function to show detailed movie information in the modal
+// function showMovieDetails(movie) {
+//   const modal = document.getElementById('movieDetailsModal');
+//   const modalContent = document.getElementById('movieDetailsContent');
+  
+//   // Populate modal content with movie details and interactive buttons
+//   modalContent.innerHTML = `
+//     <div class="flex flex-col md:flex-row">
+//       <img src="${movie.poster}" alt="${movie.title}" class="w-full md:w-1/3 rounded-lg object-cover">
+//       <div class="mt-4 md:mt-0 md:ml-6">
+//         <h2 class="text-2xl font-bold mb-2">${movie.title} (${movie.releaseYear})</h2>
+//         <p class="mb-2"><span class="font-semibold">Plot:</span> ${movie.plot}</p>
+//         <p class="mb-2"><span class="font-semibold">Rating:</span> ${movie.rating}</p>
+//         <p class="mb-2"><span class="font-semibold">Director:</span> ${movie.director}</p>
+//         <p class="mb-2"><span class="font-semibold">Actors:</span> ${movie.actors}</p>
+//         <p class="mb-2"><span class="font-semibold">Genre:</span> ${movie.genre}</p>
+//         <p class="mb-2"><span class="font-semibold">Length:</span> ${movie.length}</p>
+//         <p class="mb-2"><span class="font-semibold">Streaming:</span> ${movie.streaming}</p>
+//         <div class="mt-4 flex gap-4">
+//           <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Seen</button>
+//           <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Save</button>
+//           <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Like</button>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   // Show the modal
+//   modal.classList.remove('hidden');
+// }
+
 function showMovieDetails(movie) {
   const modal = document.getElementById('movieDetailsModal');
   const modalContent = document.getElementById('movieDetailsContent');
   
-  // Populate modal content with movie details and interactive buttons
-  modalContent.innerHTML = `
-    <div class="flex flex-col md:flex-row">
-      <img src="${movie.poster}" alt="${movie.title}" class="w-full md:w-1/3 rounded-lg object-cover">
-      <div class="mt-4 md:mt-0 md:ml-6">
-        <h2 class="text-2xl font-bold mb-2">${movie.title} (${movie.releaseYear})</h2>
-        <p class="mb-2"><span class="font-semibold">Plot:</span> ${movie.plot}</p>
-        <p class="mb-2"><span class="font-semibold">Rating:</span> ${movie.rating}</p>
-        <p class="mb-2"><span class="font-semibold">Director:</span> ${movie.director}</p>
-        <p class="mb-2"><span class="font-semibold">Actors:</span> ${movie.actors}</p>
-        <p class="mb-2"><span class="font-semibold">Genre:</span> ${movie.genre}</p>
-        <p class="mb-2"><span class="font-semibold">Length:</span> ${movie.length}</p>
-        <p class="mb-2"><span class="font-semibold">Streaming:</span> ${movie.streaming}</p>
-        <div class="mt-4 flex gap-4">
-          <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Seen</button>
-          <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Save</button>
-          <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Like</button>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // Show the modal
+  // Display a temporary loading message in the modal
+  modalContent.innerHTML = `<div class="text-center p-4">Loading movie details...</div>`;
   modal.classList.remove('hidden');
+
+  // Fetch detailed movie data using the movie_id property from the selected movie.
+  fetch(`http://localhost:5291/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error fetching movie details.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Display the fetched details. Adjust properties based on your DTO
+      modalContent.innerHTML = `
+        <div class="flex flex-col md:flex-row">
+          <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.Title}" class="w-full md:w-1/3 rounded-lg object-cover">
+          <div class="mt-4 md:mt-0 md:ml-6">
+            <h2 class="text-2xl font-bold mb-2">${data.original_title} (${data.release_date.substring(0, 4)})</h2>
+            <p class="mb-2"><span class="font-semibold">Plot:</span> ${data.overview}</p>
+            <p class="mb-2"><span class="font-semibold">Betyg:</span> ${data.vote_average}</p>
+            <p class="mb-2"><span class="font-semibold">Genres:</span> ${data.genres.map(genre => genre.name).join(', ')}</p>
+            <p class="mb-2"><span class="font-semibold">Längd:</span> ${data.runtime} min</p>
+            <div class="mt-4 flex gap-4">
+              <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Titta senare</button>
+              <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Like</button>
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error(error);
+      modalContent.innerHTML = `<div class="text-center p-4">Error loading movie details.</div>`;
+    });
 }
 
 // Event listener to close the modal and return to the movie grid

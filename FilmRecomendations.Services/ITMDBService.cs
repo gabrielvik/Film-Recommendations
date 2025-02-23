@@ -10,7 +10,7 @@ public interface ITMDBService
     /// <param name="movieName">Name of the movie</param>
     /// <param name="releaseYear">Release year of the movie</param>
     /// <returns>Movie ID from TMDB</returns>
-    Task<int> GetMovieIdAsync(string movieName, int releaseYear);
+    Task<MovieIdResponse> GetMovieIdAsync(string movieName, int releaseYear);
 
     /// <summary>
     /// Fetches movie details by movie id

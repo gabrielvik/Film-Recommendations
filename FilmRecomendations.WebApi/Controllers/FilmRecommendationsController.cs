@@ -50,14 +50,14 @@ public class FilmRecomendationsController : ControllerBase
                 return BadRequest("Valid release year is required");
             }
 
-            var movieId = await _tmdbService.GetMovieIdAsync(movieName, releaseYear);
+            var movieIdResponse = await _tmdbService.GetMovieIdAsync(movieName, releaseYear);
             
-            if (movieId <= 0)
+            if (movieIdResponse.Id <= 0)
             {
                 return NotFound($"Movie not found: {movieName} ({releaseYear})");
             }
             
-            return Ok(new { Id = movieId });
+            return Ok(movieIdResponse);
         }
         catch (Exception ex)
         {

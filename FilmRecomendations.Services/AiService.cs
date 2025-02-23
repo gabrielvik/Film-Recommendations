@@ -1,14 +1,20 @@
 ﻿using OpenAI.Chat;
+using System.Net.Http;
+using System.Text.Json;
+using System.Web;
 
 namespace FilmRecomendations.Services
 {
     public class AiService : IAiService
     {
         private readonly ChatClient _chatClient;
+        private ITMDBService _tmdbService;
 
-        public AiService()
+        public AiService(ITMDBService tmdbService)
         {
             _chatClient = InitializeChatClient();
+            _tmdbService = tmdbService;
+
         }
 
         private ChatClient InitializeChatClient()
@@ -53,7 +59,60 @@ namespace FilmRecomendations.Services
             ChatCompletion chatCompletion = await _chatClient.CompleteChatAsync(messages, completionOptions);
             string responseContent = chatCompletion.Content[0].Text;
 
-            return responseContent;
+
+            return await GetMovieIdAndPoster(responseContent);
         }
+
+        public async Task<string> GetMovieIdAndPoster(string gptResponse)
+        {
+             // Parse the GPT response to extract the list of movies.
+            var movieRecommendations = JsonSerializer.Deserialize<List<MovieRecommendation>>(gptResponse);
+            if (movieRecommendations == null || movieRecommendations.Count == 0)
+            {
+                return "[]";
+            }
+
+            var resultList = new List<MovieDetail>();
+
+            foreach (var rec in movieRecommendations)
+            {
+                
+                // Fetch the movie ID from TMDB.
+                var movieIdResponse = await _tmdbService.GetMovieIdAsync(rec.movie_name, rec.release_year);
+                if (movieIdResponse.Id <= 0)
+                {
+                    continue;
+                }
+
+                // Add the movie details to the result list.
+                resultList.Add(new MovieDetail
+                {
+                    movie_id = movieIdResponse.Id,
+                    movie_name = rec.movie_name,
+                    release_year = rec.release_year,
+                    poster_path = movieIdResponse.poster_path
+                });
+        
+            }
+
+            // Return aggregated results as a JSON array.
+            return JsonSerializer.Serialize(resultList);
+
+        }
+
+        private class MovieRecommendation
+        {
+            public string movie_name { get; set; }
+            public int release_year { get; set; }
+        }
+
+        private class MovieDetail
+        {
+            public int movie_id { get; set; }
+            public string movie_name { get; set; }
+            public int release_year { get; set; }
+            public string poster_path { get; set; }
+        }
+
     }
 }
