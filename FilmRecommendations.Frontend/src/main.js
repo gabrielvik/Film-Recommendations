@@ -4,6 +4,12 @@ const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
 const movieRecommendations = document.getElementById('movieRecommendations');
 const loadingIndicator = document.getElementById('loadingIndicator');
+const themeSwitcher = document.getElementById('themeSwitcher');
+
+themeSwitcher.addEventListener('click', () => {
+  // Toggle dark class on the <html> element
+  document.documentElement.classList.toggle('dark');
+});
 
 // Handle suggestion bubbles
 document.querySelectorAll('.suggestion').forEach((bubble) => {
@@ -105,7 +111,8 @@ function displayMovies(movies) {
     const movieCard = document.createElement('div');
     movieCard.classList.add(
       'movie-card',
-      'bg-gray-800',
+      'bg-white',     
+      'dark:bg-gray-800', 
       'rounded-lg',
       'overflow-hidden',
       'shadow-lg',
