@@ -8,10 +8,8 @@
   <link rel="stylesheet" href="/src/style.css" />
   <title>Film-Recommendation-Frontend</title>
 </head>
-
-<!-- Notice: We remove the default "dark" class here so that the toggle actually changes the appearance,
-     and use dark: variants throughout. -->
-<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+<body class="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+  <!-- Toggle light and darkmode-->
   <div class="absolute top-4 right-4">
     <button id="themeSwitcher" class="bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded">
       <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block" viewBox="0 0 20 20"
@@ -49,6 +47,11 @@
         <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
           Filmer regisserade av Christopher Nolan
         </span>
+        <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
+          Romantisk komedi från 00-talet
+        </span>
+        <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
+          Filmer för hela familjen
       </div>
 
       <!-- Loading Indicator -->
