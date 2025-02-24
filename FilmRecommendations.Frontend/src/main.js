@@ -104,6 +104,7 @@ function displayMovies(movies) {
     // Create the card container with additional classes for hover shadow, transition, scaling on hover, and appear animation
     const movieCard = document.createElement('div');
     movieCard.classList.add(
+      'movie-card',
       'bg-gray-800',
       'rounded-lg',
       'overflow-hidden',
@@ -122,7 +123,7 @@ function displayMovies(movies) {
     const posterImg = document.createElement('img');
     posterImg.src = movie.poster_path;
     posterImg.alt = movie.movie_name;
-    posterImg.classList.add('w-full', 'h-64', 'object-cover');
+    posterImg.classList.add('w-full', 'md:h-64', 'object-cover');
 
     // Create the movie title container
     const titleDiv = document.createElement('div');

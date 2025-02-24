@@ -21,3 +21,19 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Existing CSS for the modal is in index.html using Tailwind classes. Modify the inner modal container for mobile screens: */
+@media (max-width: 640px) {
+    .movie-card {
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+  #movieDetailsModal > div {
+    width: 95%;
+    max-height: 95vh;
+    overflow-y: auto;
+    margin: 0 10px;
+  }
+}
+
