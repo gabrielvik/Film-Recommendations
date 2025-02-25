@@ -195,4 +195,66 @@ public class TMDBService : ITMDBService
 
         return providers;
     }
+
+    public async Task<List<MovieTrailer>> GetMovieTrailersAsync(int movieId)
+    {
+        try
+        {
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+            _logger.LogInformation($"Fetching trailers for movie ID: {movieId}");
+
+            // Create a request message as per the TMDB docs
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"{_httpClient.BaseAddress}movie/{movieId}/videos?api_key={apiKey}&language=en-US"),
+                Headers =
+                {
+                    { "accept", "application/json" },
+                },
+            };
+
+            using var response = await _httpClient.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                using var document = JsonDocument.Parse(content);
+
+                var results = document.RootElement.GetProperty("results");
+                var trailers = new List<MovieTrailer>();
+
+                foreach (var result in results.EnumerateArray())
+                {
+                    // Only include YouTube trailers or teasers
+                    if ((result.TryGetProperty("type", out var typeElement) &&
+                        (typeElement.GetString() == "Trailer" || typeElement.GetString() == "Teaser")) &&
+                        result.TryGetProperty("site", out var siteElement) &&
+                        siteElement.GetString() == "YouTube")
+                    {
+                        trailers.Add(new MovieTrailer
+                        {
+                            Id = result.TryGetProperty("id", out var idElement) ? idElement.GetString() : string.Empty,
+                            Name = result.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : string.Empty,
+                            Key = result.TryGetProperty("key", out var keyElement) ? keyElement.GetString() : string.Empty,
+                            Site = siteElement.GetString(),
+                            Type = typeElement.GetString()
+                        });
+                    }
+                }
+
+                return trailers;
+            }
+            else
+            {
+                _logger.LogWarning($"Failed to fetch trailers for movie ID {movieId}. Status code: {response.StatusCode}");
+                return new List<MovieTrailer>();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching trailers for movie ID {movieId}");
+            return new List<MovieTrailer>();
+        }
+    }
 }
