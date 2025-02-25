@@ -18,4 +18,6 @@ public interface ITMDBService
     /// <param name="movieId">ID of the movie in TMDB</param>
     /// <returns>Movie details</returns>
     Task<Movie?> GetMovieDetailsAsync(int movieId);
+
+    Task<List<MovieTrailer>> GetMovieTrailersAsync(int movieId);
 }

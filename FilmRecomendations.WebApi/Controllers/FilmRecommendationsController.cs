@@ -92,4 +92,30 @@ public class FilmRecomendationsController : ControllerBase
             return StatusCode(500, "An error occurred while fetching movie details.");
         }
     }
+
+    [HttpGet("GetMovieTrailers/{movieId}")]
+    public async Task<IActionResult> GetMovieTrailers(int movieId)
+    {
+        try
+        {
+            if (movieId <= 0)
+            {
+                return BadRequest("Valid movie ID is required");
+            }
+
+            var trailers = await _tmdbService.GetMovieTrailersAsync(movieId);
+            
+            if (trailers.Count == 0)
+            {
+                return NotFound($"No trailers found for movie ID: {movieId}");
+            }
+            
+            return Ok(trailers);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching movie trailers.");
+            return StatusCode(500, "An error occurred while fetching movie trailers.");
+        }
+    }
 }
