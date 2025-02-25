@@ -120,4 +120,97 @@ public class TMDBService : ITMDBService
             throw;
         }
     }
+
+    public async Task<StreamingProviderResponse> GetStreamingProvidersAsync(int movieId)
+    {
+        try
+        {
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+            var watchProvidersUrl = $"movie/{movieId}/watch/providers?api_key={apiKey}";
+            _logger.LogInformation($"Fetching streaming providers for movie ID: {movieId}");
+            
+            var response = await _httpClient.GetAsync(watchProvidersUrl);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                
+                // Log the first part of the response for debugging
+                _logger.LogDebug($"API Response: {content.Substring(0, Math.Min(500, content.Length))}");
+                
+                // Parse the JSON response to create a StreamingProviderResponse
+                var providerResponse = new StreamingProviderResponse { Id = movieId };
+                var results = new Dictionary<string, CountryProviders>();
+                
+                using var document = JsonDocument.Parse(content);
+                
+                if (document.RootElement.TryGetProperty("results", out var resultsElement))
+                {
+                    foreach (var countryProperty in resultsElement.EnumerateObject())
+                    {
+                        var countryCode = countryProperty.Name;
+                        var providersData = countryProperty.Value;
+                        
+                        var countryProviders = new CountryProviders
+                        {
+                            Flatrate = ParseProviders(providersData, "flatrate"),
+                            Rent = ParseProviders(providersData, "rent"),
+                            Buy = ParseProviders(providersData, "buy")
+                        };
+                        
+                        results[countryCode] = countryProviders;
+                    }
+                }
+                
+                providerResponse.Results = results;
+                return providerResponse;
+            }
+            else
+            {
+                _logger.LogWarning($"Failed to fetch streaming providers for movie ID {movieId}. Status code: {response.StatusCode}");
+                return new StreamingProviderResponse 
+                { 
+                    Id = movieId, 
+                    Results = new Dictionary<string, CountryProviders>() 
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching streaming providers for movie ID {movieId}");
+            throw;
+        }
+    }
+    
+    private static List<Provider> ParseProviders(JsonElement element, string providerType)
+    {
+        var providers = new List<Provider>();
+        
+        if (element.TryGetProperty(providerType, out var providersArray))
+        {
+            foreach (var provider in providersArray.EnumerateArray())
+            {
+                var newProvider = new Provider();
+                
+                if (provider.TryGetProperty("provider_id", out var idElement))
+                {
+                    newProvider.ProviderId = idElement.GetInt32();
+                }
+                
+                if (provider.TryGetProperty("provider_name", out var nameElement))
+                {
+                    newProvider.ProviderName = nameElement.GetString();
+                }
+                
+                if (provider.TryGetProperty("logo_path", out var logoElement))
+                {
+                    newProvider.LogoPath = logoElement.GetString();
+                }
+                
+                providers.Add(newProvider);
+            }
+        }
+        
+        return providers;
+    }
 }

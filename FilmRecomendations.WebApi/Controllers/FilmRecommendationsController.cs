@@ -35,7 +35,7 @@ public class FilmRecomendationsController : ControllerBase
         }
     }
 
-        [HttpGet("GetMovieId")]
+    [HttpGet("GetMovieId")]
     public async Task<IActionResult> GetMovieId(string movieName, int releaseYear)
     {
         try
@@ -90,6 +90,28 @@ public class FilmRecomendationsController : ControllerBase
         {
             _logger.LogError(ex, "Error fetching movie details.");
             return StatusCode(500, "An error occurred while fetching movie details.");
+        }
+    }
+    
+    // Add new endpoint for getting streaming providers
+    [HttpGet("GetStreamingProviders/{movieId}")]
+    public async Task<IActionResult> GetStreamingProviders(int movieId)
+    {
+        try
+        {
+            if (movieId <= 0)
+            {
+                return BadRequest("Valid movie ID is required");
+            }
+
+            var streamingProviders = await _tmdbService.GetStreamingProvidersAsync(movieId);
+            
+            return Ok(streamingProviders);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching streaming providers.");
+            return StatusCode(500, "An error occurred while fetching streaming providers.");
         }
     }
 }
