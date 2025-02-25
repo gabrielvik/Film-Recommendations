@@ -27,7 +27,7 @@ namespace FilmRecomendations.Services
             // var credential = new ApiKeyCredential(apiKey);
             // var baseURL = new OpenAI.OpenAIClientOptions
             // {
-            //     Endpoint = new Uri("https://api.openai.com/v1")
+            //     Endpoint = new Uri("https://api.x.ai/v1")
             // };
 
             if (string.IsNullOrEmpty(apiKey))
