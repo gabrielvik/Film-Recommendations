@@ -1,4 +1,5 @@
 ﻿using OpenAI.Chat;
+using System.ClientModel;
 using System.Net.Http;
 using System.Text.Json;
 using System.Web;
@@ -20,11 +21,24 @@ namespace FilmRecomendations.Services
         private ChatClient InitializeChatClient()
         {
             string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+            // Set up the API key and endpoint for GROK.
+            // var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            // var credential = new ApiKeyCredential(apiKey);
+            // var baseURL = new OpenAI.OpenAIClientOptions
+            // {
+            //     Endpoint = new Uri("https://api.openai.com/v1")
+            // };
+
             if (string.IsNullOrEmpty(apiKey))
             {
-                throw new InvalidOperationException("API key for GPT is not set in the environment variables.");
+                throw new InvalidOperationException("API key for GROK is not set in the environment variables.");
             }
 
+            // Initialize the chat client with GROK.
+            // return new ChatClient("grok-2-latest", credential, baseURL);
+
+            // Initialize the chat client with GPT.
             return new ChatClient("gpt-4o-mini", apiKey);
         }
 

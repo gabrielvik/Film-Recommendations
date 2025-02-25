@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 Environment.SetEnvironmentVariable("OPENAI_API_KEY", builder.Configuration["OpenAI:ApiKey"]);
 Environment.SetEnvironmentVariable("TMDb:ApiKey", builder.Configuration["TMDb:ApiKey"]);
+Environment.SetEnvironmentVariable("GROK_API_KEY", builder.Configuration["GROK:ApiKey"]);
 
 //dbservice
 builder.Services.AddDbContext<FilmDbContext>(options =>

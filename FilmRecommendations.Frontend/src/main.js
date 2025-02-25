@@ -53,6 +53,15 @@ promptForm.addEventListener('submit', async (e) => {
       return;
     }
     const movies = await response.json();
+    if (movies.length === 0) {
+      // Remove grid layout classes
+      movieRecommendations.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
+      // Add flex layout classes to center the content
+      movieRecommendations.classList.add('flex', 'items-center', 'justify-center');
+      movieRecommendations.innerHTML = '<div class="text-center p-4">Hoppsan, ingen rekommendation kunde göras...vänligen prova en annan sökning.</div>';
+      return;
+    }
+    
     console.log('Movies:', movies);
     displayMovies(movies);
   } catch (error) {
