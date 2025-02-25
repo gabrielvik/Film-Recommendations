@@ -43,7 +43,7 @@ promptForm.addEventListener('submit', async (e) => {
 
 
    // Build the request URL with encoded prompt
-   const apiUrl = `http://localhost:5291/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
+   const apiUrl = `https://localhost:7103/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
 
   // Fetch movie recommendations from the backend API
   try {
@@ -139,7 +139,7 @@ function showMovieDetails(movie) {
   modal.classList.remove('hidden');
 
   // Fetch detailed movie data using the movie_id property from the selected movie.
-  fetch(`http://localhost:5291/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+  fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
     .then(response => {
       if (!response.ok) {
         throw new Error('Error fetching movie details.');

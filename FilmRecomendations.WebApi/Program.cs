@@ -52,17 +52,17 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IAiService, AiService>();
 
-//CORS policy for frontend localhost:5173
+// Update CORS policy so that only the frontend on http://localhost:5173 is allowed.
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:5173", "http://localhost:5291")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
+
 builder.Services.AddHttpClient<ITMDBService, TMDBService>();
 
 var app = builder.Build();
