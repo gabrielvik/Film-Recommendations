@@ -29,16 +29,16 @@ public class TMDBService : ITMDBService
             var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             var searchUrl = $"search/movie?api_key={apiKey}&query={Uri.EscapeDataString(movieName)}&year={releaseYear}";
             _logger.LogInformation($"Searching for movie: {movieName} ({releaseYear})");
-            
+
             var response = await _httpClient.GetAsync(searchUrl);
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 using var document = JsonDocument.Parse(content);
-                
+
                 var results = document.RootElement.GetProperty("results");
-                
+
                 // return id and poster_path of first result if found.
 
                 // Check if any results were found
@@ -62,7 +62,7 @@ public class TMDBService : ITMDBService
             {
                 _logger.LogWarning($"Failed to search for movie. Status code: {response.StatusCode}");
             }
-            
+
             return new MovieIdResponse();
         }
         catch (Exception ex)
@@ -79,23 +79,23 @@ public class TMDBService : ITMDBService
             var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             var detailsUrl = $"movie/{movieId}?api_key={apiKey}";
             _logger.LogInformation($"Fetching details for movie ID: {movieId}");
-            
+
             var response = await _httpClient.GetAsync(detailsUrl);
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                
+
                 // Log the first part of the response for debugging
                 _logger.LogDebug($"API Response: {content.Substring(0, Math.Min(500, content.Length))}");
-                
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 };
-                
+
                 var movie = JsonSerializer.Deserialize<Movie>(content, options);
-                
+
                 // If poster path is still null, try to extract it directly
                 if (movie != null && string.IsNullOrEmpty(movie.poster_path))
                 {
@@ -105,7 +105,7 @@ public class TMDBService : ITMDBService
                         movie.poster_path = posterPathElement.GetString();
                     }
                 }
-                
+
                 return movie;
             }
             else
@@ -126,54 +126,47 @@ public class TMDBService : ITMDBService
         try
         {
             var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var watchProvidersUrl = $"movie/{movieId}/watch/providers?api_key={apiKey}";
-            _logger.LogInformation($"Fetching streaming providers for movie ID: {movieId}");
-            
-            var response = await _httpClient.GetAsync(watchProvidersUrl);
-            
-            if (response.IsSuccessStatusCode)
+            if (string.IsNullOrEmpty(apiKey))
             {
-                var content = await response.Content.ReadAsStringAsync();
-                
-                // Log the first part of the response for debugging
-                _logger.LogDebug($"API Response: {content.Substring(0, Math.Min(500, content.Length))}");
-                
-                // Parse the JSON response to create a StreamingProviderResponse
-                var providerResponse = new StreamingProviderResponse { Id = movieId };
-                var results = new Dictionary<string, CountryProviders>();
-                
-                using var document = JsonDocument.Parse(content);
-                
-                if (document.RootElement.TryGetProperty("results", out var resultsElement))
-                {
-                    foreach (var countryProperty in resultsElement.EnumerateObject())
-                    {
-                        var countryCode = countryProperty.Name;
-                        var providersData = countryProperty.Value;
-                        
-                        var countryProviders = new CountryProviders
-                        {
-                            Flatrate = ParseProviders(providersData, "flatrate"),
-                            Rent = ParseProviders(providersData, "rent"),
-                            Buy = ParseProviders(providersData, "buy")
-                        };
-                        
-                        results[countryCode] = countryProviders;
-                    }
-                }
-                
-                providerResponse.Results = results;
-                return providerResponse;
+                _logger.LogError("TMDB API key is missing.");
+                throw new InvalidOperationException("TMDB API key is missing.");
             }
-            else
+
+            var requestUrl = $"movie/{movieId}/watch/providers?api_key={apiKey}";
+            _logger.LogInformation($"Fetching streaming providers for movie ID: {movieId}");
+
+            var response = await _httpClient.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning($"Failed to fetch streaming providers for movie ID {movieId}. Status code: {response.StatusCode}");
-                return new StreamingProviderResponse 
-                { 
-                    Id = movieId, 
-                    Results = new Dictionary<string, CountryProviders>() 
+                return new StreamingProviderResponse
+                {
+                    Id = movieId,
+                    Results = new Dictionary<string, CountryProviders>()
                 };
             }
+
+            var content = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug($"API Response: {content.Substring(0, Math.Min(500, content.Length))}");
+
+            var providerResponse = new StreamingProviderResponse { Id = movieId };
+            var results = new Dictionary<string, CountryProviders>();
+
+            using var document = JsonDocument.Parse(content);
+            if (document.RootElement.TryGetProperty("results", out var resultsElement) &&
+                resultsElement.TryGetProperty("SE", out var seElement))
+            {
+                var countryProviders = new CountryProviders
+                {
+                    Flatrate = ParseProviders(seElement, "flatrate"),
+                    Rent = ParseProviders(seElement, "rent"),
+                    Buy = ParseProviders(seElement, "buy")
+                };
+                results["SE"] = countryProviders;
+            }
+
+            providerResponse.Results = results;
+            return providerResponse;
         }
         catch (Exception ex)
         {
@@ -181,36 +174,25 @@ public class TMDBService : ITMDBService
             throw;
         }
     }
-    
+
     private static List<Provider> ParseProviders(JsonElement element, string providerType)
     {
         var providers = new List<Provider>();
-        
+
         if (element.TryGetProperty(providerType, out var providersArray))
         {
             foreach (var provider in providersArray.EnumerateArray())
             {
-                var newProvider = new Provider();
-                
-                if (provider.TryGetProperty("provider_id", out var idElement))
+                var newProvider = new Provider
                 {
-                    newProvider.ProviderId = idElement.GetInt32();
-                }
-                
-                if (provider.TryGetProperty("provider_name", out var nameElement))
-                {
-                    newProvider.ProviderName = nameElement.GetString();
-                }
-                
-                if (provider.TryGetProperty("logo_path", out var logoElement))
-                {
-                    newProvider.LogoPath = logoElement.GetString();
-                }
-                
+                    ProviderId = provider.TryGetProperty("provider_id", out var idElement) ? idElement.GetInt32() : 0,
+                    ProviderName = provider.TryGetProperty("provider_name", out var nameElement) ? nameElement.GetString() : null,
+                    LogoPath = provider.TryGetProperty("logo_path", out var logoElement) ? logoElement.GetString() : null
+                };
                 providers.Add(newProvider);
             }
         }
-        
+
         return providers;
     }
 }
