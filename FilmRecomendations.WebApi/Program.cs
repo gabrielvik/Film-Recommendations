@@ -51,6 +51,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IAiService, AiService>();
+builder.Services.AddSingleton<IConversationService, ConversationService>();
 
 // Update CORS policy so that only the frontend on http://localhost:5173 is allowed.
 builder.Services.AddCors(options =>
