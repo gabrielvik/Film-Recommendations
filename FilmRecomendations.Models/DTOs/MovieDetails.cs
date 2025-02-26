@@ -10,7 +10,6 @@ public class Movie
     public string homepage { get; set; }
     public int id { get; set; }
     public string imdb_id { get; set; }
-    public List<string> OriginCountry { get; set; }
     public string original_language { get; set; }
     public string original_title { get; set; }
     public string overview { get; set; }
@@ -55,7 +54,7 @@ public class ProductionCompany
 public class ProductionCountry
 {
     public string iso_3166_1 { get; set; }
-    public string Name { get; set; }
+    public string name { get; set; }
 }
 
 public class SpokenLanguage
