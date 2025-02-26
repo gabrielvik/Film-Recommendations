@@ -72,6 +72,103 @@ public class TMDBService : ITMDBService
         }
     }
 
+    public async Task<List<Director>> GetMovieDirectorsAsync(int movieId)
+{
+    try
+    {
+        var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+        var requestUrl = $"movie/{movieId}/credits?api_key={apiKey}";
+        _logger.LogInformation($"Fetching credits for movie ID: {movieId} for directors");
+
+        var response = await _httpClient.GetAsync(requestUrl);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning($"Failed to fetch credits for movie ID {movieId}. Status code: {response.StatusCode}");
+            return new List<Director>();
+        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(content);
+
+        var directors = new List<Director>();
+
+        if (document.RootElement.TryGetProperty("crew", out var crewElement))
+        {
+            foreach (var item in crewElement.EnumerateArray())
+            {
+                if (item.TryGetProperty("job", out var jobElement) &&
+                    jobElement.GetString() == "Director")
+                {
+                    var director = new Director
+                    {
+                        Id = item.GetProperty("id").GetInt32(),
+                        Name = item.GetProperty("name").GetString(),
+                        ProfilePath = item.TryGetProperty("profile_path", out var profilePathElement) 
+                                        ? profilePathElement.GetString() 
+                                        : null
+                    };
+                    directors.Add(director);
+                }
+            }
+        }
+
+        return directors;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error fetching directors for movie ID {movieId}");
+        throw;
+    }
+}
+
+    public async Task<List<Actor>> GetMovieActorsAsync(int movieId)
+    {
+        try
+        {
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+            var requestUrl = $"movie/{movieId}/credits?api_key={apiKey}";
+            _logger.LogInformation($"Fetching credits for movie ID: {movieId} for actors");
+
+            var response = await _httpClient.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning($"Failed to fetch credits for movie ID {movieId}. Status code: {response.StatusCode}");
+                return new List<Actor>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            using var document = JsonDocument.Parse(content);
+
+            var actors = new List<Actor>();
+
+            if (document.RootElement.TryGetProperty("cast", out var castElement))
+            {
+                foreach (var item in castElement.EnumerateArray())
+                {
+                    var actor = new Actor
+                    {
+                        Id = item.GetProperty("id").GetInt32(),
+                        Name = item.GetProperty("name").GetString(),
+                        Character = item.TryGetProperty("character", out var characterElement) 
+                                    ? characterElement.GetString() 
+                                    : null,
+                        ProfilePath = item.TryGetProperty("profile_path", out var profilePathElement) 
+                                    ? profilePathElement.GetString() 
+                                    : null
+                    };
+                    actors.Add(actor);
+                }
+            }
+
+            return actors;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching actors for movie ID {movieId}");
+            throw;
+        }
+    }
+
     public async Task<Movie?> GetMovieDetailsAsync(int movieId)
     {
         try

@@ -26,4 +26,6 @@ public interface ITMDBService
     /// <returns>Streaming provider information</returns>
     Task<StreamingProviderResponse> GetStreamingProvidersAsync(int movieId);
     Task<List<MovieTrailer>> GetMovieTrailersAsync(int movieId);
+    Task<List<Director>> GetMovieDirectorsAsync(int movieId);
+    Task<List<Actor>> GetMovieActorsAsync(int movieId);
 }

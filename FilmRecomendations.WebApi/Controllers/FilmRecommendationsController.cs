@@ -140,4 +140,55 @@ public class FilmRecomendationsController : ControllerBase
             return StatusCode(500, "An error occurred while fetching streaming providers.");
         }
     }
+
+    [HttpGet("GetDirectors/{movieId}")]
+    public async Task<IActionResult> GetDirectors(int movieId)
+    {
+        try
+        {
+            if (movieId <= 0)
+            {
+                return BadRequest("Valid movie ID is required");
+            }
+
+            var directors = await _tmdbService.GetMovieDirectorsAsync(movieId);
+            if (directors == null || directors.Count == 0)
+            {
+                return NotFound($"No directors found for movie ID: {movieId}");
+            }
+            
+            return Ok(directors);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching directors.");
+            return StatusCode(500, "An error occurred while fetching directors.");
+        }
+    }
+
+    [HttpGet("GetActors/{movieId}")]
+    public async Task<IActionResult> GetActors(int movieId)
+    {
+        try
+        {
+            if (movieId <= 0)
+            {
+                return BadRequest("Valid movie ID is required");
+            }
+
+            var actors = await _tmdbService.GetMovieActorsAsync(movieId);
+            if (actors == null || actors.Count == 0)
+            {
+                return NotFound($"No actors found for movie ID: {movieId}");
+            }
+            
+            return Ok(actors);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching actors.");
+            return StatusCode(500, "An error occurred while fetching actors.");
+        }
+    }
+
 }
