@@ -6,6 +6,29 @@ const movieRecommendations = document.getElementById('movieRecommendations');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const themeSwitcher = document.getElementById('themeSwitcher');
 
+// Update the DOMContentLoaded event handler to properly restore the grid layout
+window.addEventListener('DOMContentLoaded', () => {
+  const savedMovies = sessionStorage.getItem('movieRecommendations');
+  if (savedMovies) {
+    const movies = JSON.parse(savedMovies);
+    
+    // Ensure movieRecommendations has the correct grid classes if we have results
+    if (movies.length > 0) {
+      movieRecommendations.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
+      movieRecommendations.classList.remove('flex', 'items-center', 'justify-center');
+      
+      // Restore the last search query to the input field
+      const lastQuery = sessionStorage.getItem('lastSearchQuery');
+      if (lastQuery) {
+        promptInput.value = lastQuery;
+      }
+    }
+    
+    // Display the saved movies
+    displayMovies(movies);
+  }
+});
+
 // On page load, check localStorage for the preferred theme
 const currentTheme = localStorage.getItem('theme');
 if (currentTheme === 'dark') {
@@ -53,6 +76,11 @@ promptForm.addEventListener('submit', async (e) => {
       return;
     }
     const movies = await response.json();
+
+    // Save both the query and results regardless of whether we found movies or not
+    sessionStorage.setItem('lastSearchQuery', userPrompt);
+    sessionStorage.setItem('movieRecommendations', JSON.stringify(movies));
+
     if (movies.length === 0) {
       // Remove grid layout classes
       movieRecommendations.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
@@ -71,7 +99,6 @@ promptForm.addEventListener('submit', async (e) => {
     loadingIndicator.classList.add('hidden');
   }
 });
-
 
 function displayMovies(movies) {
   movies.forEach((movie) => {
@@ -131,47 +158,25 @@ function displayMovies(movies) {
 }
 
 function showMovieDetails(movie) {
-  const modal = document.getElementById('movieDetailsModal');
-  const modalContent = document.getElementById('movieDetailsContent');
+  // Save the selected movie for later use
+  sessionStorage.setItem('selectedMovie', JSON.stringify(movie));
   
-  // Display a temporary loading message in the modal
-  modalContent.innerHTML = `<div class="text-center p-4">Loading movie details...</div>`;
-  modal.classList.remove('hidden');
-
-  // Fetch detailed movie data using the movie_id property from the selected movie.
-  fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Error fetching movie details.');
-      }
-      return response.json();
-    })
-    .then(data => {
-      // Display the fetched details. Adjust properties based on your DTO
-      modalContent.innerHTML = `
-        <div class="flex flex-col md:flex-row">
-          <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.Title}" class="w-full md:w-1/3 rounded-lg object-cover">
-          <div class="mt-4 md:mt-0 md:ml-6">
-            <h2 class="text-2xl font-bold mb-2">${data.original_title} (${data.release_date.substring(0, 4)})</h2>
-            <p class="mb-2"><span class="font-semibold">Plot:</span> ${data.overview}</p>
-            <p class="mb-2"><span class="font-semibold">Betyg:</span> ${data.vote_average}</p>
-            <p class="mb-2"><span class="font-semibold">Genres:</span> ${data.genres.map(genre => genre.name).join(', ')}</p>
-            <p class="mb-2"><span class="font-semibold">Längd:</span> ${data.runtime} min</p>
-            <div class="mt-4 flex gap-4">
-              <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Titta senare</button>
-              <button class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Gilla</button>
-            </div>
-          </div>
-        </div>
-      `;
-    })
-    .catch(error => {
-      console.error(error);
-      modalContent.innerHTML = `<div class="text-center p-4">Error loading movie details.</div>`;
-    });
+  const movieSlug = movie.movie_name.toLowerCase().replace(/\s+/g, '-');
+  
+  window.location.href = `movie-details.html?movie=${movieSlug}`;
 }
 
-// Event listener to close the modal and return to the movie grid
-document.getElementById('closeModal').addEventListener('click', () => {
-  document.getElementById('movieDetailsModal').classList.add('hidden');
+// Store the last query to compare with the current one
+let lastSearchQuery = sessionStorage.getItem('lastSearchQuery') || '';
+
+// Listen for changes on the input field
+promptInput.addEventListener('input', () => {
+  const currentQuery = promptInput.value.trim();
+  // Only clear the displayed results, but keep the stored data
+  if (currentQuery !== lastSearchQuery) {
+    movieRecommendations.innerHTML = '';
+    // Don't remove from sessionStorage here, only update when a new search is executed
+    // sessionStorage.removeItem('movieRecommendations');
+    lastSearchQuery = currentQuery;
+  }
 });

@@ -29,11 +29,19 @@
         margin-left: auto;
         margin-right: auto;
       }
-  #movieDetailsModal > div {
+  /* #movieDetailsModal > div {
     width: 95%;
     max-height: 95vh;
     overflow-y: auto;
     margin: 0 10px;
-  }
+  } */
 }
+
+.backButton{
+    background-color: #222936;
+}
+.backButton:hover{
+    background-color: #56708f;
+}
+
 
