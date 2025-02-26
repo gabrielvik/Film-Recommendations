@@ -3,7 +3,7 @@
 public class Movie
 {
     public bool adult { get; set; }
-    public string BackdropPath { get; set; }
+    public string backdrop_path { get; set; }
     public BelongsToCollection belongs_to_collection { get; set; }
     public int budget { get; set; }
     public List<Genre> genres { get; set; }

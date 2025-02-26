@@ -42,7 +42,19 @@ function showMovieDetails(movie) {
             }
             return response.json();
         })
+                // In your showMovieDetails function, modify the .then(data => { ... }) block:
+        
         .then(data => {
+            // Set the backdrop image as background if available
+            if (data.backdrop_path) {
+                const backdropUrl = `https://image.tmdb.org/t/p/original${data.backdrop_path}`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('${backdropUrl}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundAttachment = 'fixed';
+            }
+            
             // Display the fetched details
             movieDetailsContent.innerHTML = `
                     <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.original_title}" class="w-3/5 sm:w-1/2 md:w-1/4 lg:w-1/5 rounded-lg">
