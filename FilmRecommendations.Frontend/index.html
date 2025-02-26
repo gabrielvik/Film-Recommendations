@@ -28,8 +28,26 @@
     <!-- Main content area -->
     <main class="flex-grow flex flex-col items-center justify-center px-4">
       <h1 class="mt-10 text-2xl font-semibold mb-2 text-center dark:text-gray-100">
-        Vilken typ av film vill du se?
+        Vad vill du se?
       </h1>
+      <!-- Content type selector -->
+      <div class="w-full max-w-xl mb-3">
+        <div id="contentTypeSelector" class="flex justify-center gap-4 text-sm">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="radio" name="contentType" value="all" checked class="form-radio h-4 w-4 text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-600">
+            <span class="ml-2">Allt</span>
+          </label>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="radio" name="contentType" value="movies" class="form-radio h-4 w-4 text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-600">
+            <span class="ml-2">Filmer</span>
+          </label>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="radio" name="contentType" value="series" class="form-radio h-4 w-4 text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-600">
+            <span class="ml-2">Serier</span>
+          </label>
+        </div>
+      </div>
+      
       <!-- Input form -->
       <div class="w-full max-w-xl">
         <form id="promptForm" class="flex space-x-2">
@@ -44,14 +62,29 @@
 
       <!-- Suggested phrases -->
       <div class="flex flex-wrap gap-2 justify-center mt-4">
-        <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
+        <!-- Movies -->
+        <span class="suggestion movie-suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
           Filmer regisserade av Christopher Nolan
         </span>
-        <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
+        <span class="suggestion movie-suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
           Romantisk komedi från 00-talet
         </span>
-        <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
-          Filmer för hela familjen
+        
+        <!-- TV Series -->
+        <span class="suggestion series-suggestion bg-green-500 dark:bg-green-900 text-green-50 dark:text-green-100 px-3 py-1 rounded-full cursor-pointer">
+          Serier som liknar Breaking Bad
+        </span>
+        <span class="suggestion series-suggestion bg-green-500 dark:bg-green-900 text-green-50 dark:text-green-100 px-3 py-1 rounded-full cursor-pointer">
+          Dramatiska nordiska serier
+        </span>
+        
+        <!-- Mixed -->
+        <span class="suggestion all-suggestion bg-purple-500 dark:bg-purple-900 text-purple-50 dark:text-purple-100 px-3 py-1 rounded-full cursor-pointer">
+          Dystopiska framtidsvisioner
+        </span>
+        <span class="suggestion all-suggestion bg-purple-500 dark:bg-purple-900 text-purple-50 dark:text-purple-100 px-3 py-1 rounded-full cursor-pointer">
+          Spännande thriller med plot twist
+        </span>
       </div>
 
       <!-- Loading Indicator -->
@@ -61,13 +94,24 @@
       <div id="movieRecommendations" class="w-full max-w-xl mt-6 mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       </div>
 
-      <!-- Movie Details Modal -->
-      <div id="movieDetailsModal"
+      <!-- Content Details Modal -->
+      <div id="contentDetailsModal"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden z-50">
         <div class="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg p-6 max-w-3xl w-full relative">
           <button id="closeModal"
             class="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-2xl">&times;</button>
-          <div id="movieDetailsContent">
+          <div id="contentDetailsContent">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Season Details Modal -->
+      <div id="seasonDetailsModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden z-50">
+        <div class="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg p-6 max-w-3xl w-full relative">
+          <button id="closeSeasonModal"
+            class="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-2xl">&times;</button>
+          <div id="seasonDetailsContent">
           </div>
         </div>
       </div>

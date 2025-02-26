@@ -6,7 +6,7 @@ using System.Web;
 
 namespace FilmRecomendations.Services
 {
-    public class AiService : IAiService
+    public partial class AiService : IAiService
     {
         private readonly ChatClient _chatClient;
         private ITMDBService _tmdbService;
