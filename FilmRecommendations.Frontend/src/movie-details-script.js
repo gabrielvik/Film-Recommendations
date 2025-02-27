@@ -263,42 +263,93 @@ function renderStreamingProviders(providersData) {
 
     // First try Swedish providers (SE)
     let flatrateProviders = [];
+    let rentProviders = [];
     
-    // Check for Swedish providers first
-    if (providersData.results.SE && providersData.results.SE.flatrate) {
-        flatrateProviders = providersData.results.SE.flatrate;
-    } 
-    // If no Swedish providers, check other regions like US or global providers
-    else if (providersData.results.US && providersData.results.US.flatrate) {
-        flatrateProviders = providersData.results.US.flatrate;
-    } else {
-        // Try to find any region with flatrate providers
-        for (const region in providersData.results) {
-            if (providersData.results[region].flatrate && providersData.results[region].flatrate.length > 0) {
-                flatrateProviders = providersData.results[region].flatrate;
-                break;
-            }
+    // Try to find providers from different regions
+    const regions = Object.keys(providersData.results);
+    
+    // Check Swedish providers first, then try other regions
+    const priorityRegions = ['SE', 'US', 'GB'];
+    const orderedRegions = [...priorityRegions, ...regions.filter(r => !priorityRegions.includes(r))];
+    
+    // Find flatrate (streaming) providers
+    for (const region of orderedRegions) {
+        if (providersData.results[region]?.flatrate?.length > 0) {
+            flatrateProviders = providersData.results[region].flatrate;
+            break;
+        }
+    }
+    
+    // Find rent providers
+    for (const region of orderedRegions) {
+        if (providersData.results[region]?.rent?.length > 0) {
+            rentProviders = providersData.results[region].rent;
+            break;
         }
     }
 
-    if (flatrateProviders.length === 0) {
+    // If no providers found at all
+    if (flatrateProviders.length === 0 && rentProviders.length === 0) {
         return `<p class="mt-2">Inga streamingalternativ tillgängliga just nu.</p>`;
     }
 
-    // Display available streaming services
-    return `
-        <div class="mb-4">
-            <div class="flex flex-wrap gap-3">
-                ${flatrateProviders.map(provider => 
-                    `<div class="flex flex-col items-center">
-                        <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
-                            alt="${provider.providerName}" 
-                            class="w-12 h-12 rounded-lg shadow" 
-                            title="${provider.providerName}">
-                        <span class="text-xs mt-1">${provider.providerName}</span>
-                    </div>`
-                ).join('')}
+    // Function to shorten provider names
+    function shortenProviderName(name) {
+        const nameMap = {
+            'Amazon Prime Video': 'Amazon Prime',
+            'Google Play Movies': 'Google Play',
+            'Apple TV Plus': 'Apple TV+',
+            'Apple TV': 'Apple TV',
+            'YouTube Premium': 'YouTube',
+            'Disney Plus': 'Disney+',
+            'HBO Max': 'HBO Max'
+        };
+        
+        return nameMap[name] || name;
+    }
+
+    // Build the output HTML
+    let html = '';
+    
+    // Add streaming section if available
+    if (flatrateProviders.length > 0) {
+        html += `
+            <div class="mb-4">
+                <h3 class="text-white text-lg font-semibold mb-2">Stream</h3>
+                <div class="flex flex-wrap gap-3">
+                    ${flatrateProviders.map(provider => 
+                        `<div class="flex flex-col items-center">
+                            <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
+                                alt="${provider.providerName}" 
+                                class="w-12 h-12 rounded-lg shadow" 
+                                title="${provider.providerName}">
+                            <span class="text-xs mt-1">${shortenProviderName(provider.providerName)}</span>
+                        </div>`
+                    ).join('')}
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }
+    
+    // Add rental section if available
+    if (rentProviders.length > 0) {
+        html += `
+            <div class="mb-4">
+                <h3 class="text-white text-lg font-semibold mb-2">Hyra</h3>
+                <div class="flex flex-wrap gap-3">
+                    ${rentProviders.map(provider => 
+                        `<div class="flex flex-col items-center">
+                            <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
+                                alt="${provider.providerName}" 
+                                class="w-12 h-12 rounded-lg shadow" 
+                                title="${provider.providerName}">
+                            <span class="text-xs mt-1">${shortenProviderName(provider.providerName)}</span>
+                        </div>`
+                    ).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    return html;
 }
