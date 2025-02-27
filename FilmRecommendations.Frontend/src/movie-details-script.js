@@ -47,7 +47,7 @@ function showMovieDetails(movie) {
             }
             return response.json();
         })
-        .then(data => {
+        .then(async data => {
             // Set the backdrop image as background if available
             if (data.backdrop_path) {
                 console.log("Backdrop path found:", data.backdrop_path);
@@ -75,6 +75,17 @@ function showMovieDetails(movie) {
 
             let runtime = convertRuntime(data.runtime);
             data.runtime = runtime;
+            
+            // Fetch streaming providers
+            let streamingProviders = null;
+            try {
+                const providersResponse = await fetch(`https://localhost:7103/FilmRecomendations/GetStreamingProviders/${movie.movie_id}`);
+                if (providersResponse.ok) {
+                    streamingProviders = await providersResponse.json();
+                }
+            } catch (error) {
+                console.error('Error fetching streaming providers:', error);
+            }
             
             // Display the fetched details with improved layout
             movieDetailsContent.innerHTML = `
@@ -119,10 +130,8 @@ function showMovieDetails(movie) {
                                     Var kan jag streama ${data.original_title}?
                                 </summary>
                                 <div class="overflow-hidden max-h-0 transition-all duration-300 group-open:max-h-96">
-                                    <hr class="border-t border-gray-300 dark:border-gray-700 mt-2">
-                                    <p class="mt-2">
-                                        Här kan du hitta detaljer om var du kan streama filmen.
-                                    </p>
+                                    <hr class="border-t border-gray-300 dark:border-gray-700 mt-2 mb-4">
+                                    ${renderStreamingProviders(streamingProviders)}
                                 </div>
                             </details>
                         </div>
@@ -225,4 +234,52 @@ function convertRuntime(runtime) {
     const hours = Math.floor(runtime / 60);
     const minutes = runtime % 60;
     return `${hours}h ${minutes}m`;
+}
+
+// Add this function to display streaming providers with icons
+function renderStreamingProviders(providersData) {
+    if (!providersData || !providersData.results || Object.keys(providersData.results).length === 0) {
+        return `<p class="mt-2">Inga streamingalternativ tillgängliga just nu.</p>`;
+    }
+
+    // First try Swedish providers (SE)
+    let flatrateProviders = [];
+    
+    // Check for Swedish providers first
+    if (providersData.results.SE && providersData.results.SE.flatrate) {
+        flatrateProviders = providersData.results.SE.flatrate;
+    } 
+    // If no Swedish providers, check other regions like US or global providers
+    else if (providersData.results.US && providersData.results.US.flatrate) {
+        flatrateProviders = providersData.results.US.flatrate;
+    } else {
+        // Try to find any region with flatrate providers
+        for (const region in providersData.results) {
+            if (providersData.results[region].flatrate && providersData.results[region].flatrate.length > 0) {
+                flatrateProviders = providersData.results[region].flatrate;
+                break;
+            }
+        }
+    }
+
+    if (flatrateProviders.length === 0) {
+        return `<p class="mt-2">Inga streamingalternativ tillgängliga just nu.</p>`;
+    }
+
+    // Display available streaming services
+    return `
+        <div class="mb-4">
+            <div class="flex flex-wrap gap-3">
+                ${flatrateProviders.map(provider => 
+                    `<div class="flex flex-col items-center">
+                        <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
+                            alt="${provider.providerName}" 
+                            class="w-12 h-12 rounded-lg shadow" 
+                            title="${provider.providerName}">
+                        <span class="text-xs mt-1">${provider.providerName}</span>
+                    </div>`
+                ).join('')}
+            </div>
+        </div>
+    `;
 }
