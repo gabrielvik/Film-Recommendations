@@ -169,7 +169,7 @@ public class TMDBService : ITMDBService
         }
     }
 
-    public async Task<object> GetMovieDetailsAsync(int movieId)
+    public async Task<Movie> GetMovieDetailsAsync(int movieId)
     {
         try
         {
@@ -193,33 +193,35 @@ public class TMDBService : ITMDBService
 
                 var movie = JsonSerializer.Deserialize<Movie>(content, options);
 
-                // If poster path is still null, try to extract it directly
-                if (movie != null && string.IsNullOrEmpty(movie.poster_path))
+                if (movie != null)
                 {
-                    using var document = JsonDocument.Parse(content);
-                    if (document.RootElement.TryGetProperty("poster_path", out var posterPathElement))
+                    // If poster path is still null, try to extract it directly
+                    if (string.IsNullOrEmpty(movie.poster_path))
                     {
-                        movie.poster_path = posterPathElement.GetString();
+                        using var document = JsonDocument.Parse(content);
+                        if (document.RootElement.TryGetProperty("poster_path", out var posterPathElement))
+                        {
+                            movie.poster_path = posterPathElement.GetString();
+                        }
                     }
+
+                    // Fetch additional data in parallel to improve performance
+                    var trailerTask = GetMovieTrailersAsync(movieId);
+                    var streamingTask = GetStreamingProvidersAsync(movieId);
+                    var directorsTask = GetMovieDirectorsAsync(movieId);
+                    var actorsTask = GetMovieActorsAsync(movieId);
+
+                    // Wait for all tasks to complete
+                    await Task.WhenAll(trailerTask, streamingTask, directorsTask, actorsTask);
+
+                    // Add extension property fields to the Movie class (we'll define these later)
+                    movie.Trailers = trailerTask.Result;
+                    movie.StreamingProviders = streamingTask.Result;
+                    movie.Directors = directorsTask.Result;
+                    movie.Actors = actorsTask.Result;
                 }
 
-                // Fetch additional data
-                var trailers = await GetMovieTrailersAsync(movieId);
-                var streamingProviders = await GetStreamingProvidersAsync(movieId);
-                var directors = await GetMovieDirectorsAsync(movieId);
-                var actors = await GetMovieActorsAsync(movieId);
-
-                // Create an anonymous object to return all the data
-                var result = new
-                {
-                    movie,
-                    trailers,
-                    streaming_providers = streamingProviders,
-                    directors,
-                    actors
-                };
-
-                return result;
+                return movie;
             }
             else
             {

@@ -27,6 +27,10 @@ public class Movie
     public bool Video { get; set; }
     public double vote_average { get; set; }
     public int vote_count { get; set; }
+    public List<MovieTrailer> Trailers { get; set; }
+    public StreamingProviderResponse StreamingProviders { get; set; }
+    public List<Director> Directors { get; set; }
+    public List<Actor> Actors { get; set; }
 }
 
 public class BelongsToCollection
