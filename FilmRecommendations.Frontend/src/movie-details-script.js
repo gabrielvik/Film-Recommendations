@@ -128,7 +128,7 @@ function showMovieDetails(movie) {
                                 <hr class="border-t border-gray-300 dark:border-gray-700 mt-4">
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <button class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
+                                <button id="trailerButton" class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/play.png" class="w-4 h-4 me-2"> Trailer
                                     </div>
@@ -156,7 +156,45 @@ function showMovieDetails(movie) {
                         </div>
                     </div>
                 </div>
+                
+                <!-- Trailer Modal -->
+                <div id="trailerModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden">
+                    <div class="relative bg-black rounded-lg overflow-hidden w-full max-w-4xl mx-4">
+                        <div class="flex justify-between items-center p-2 absolute top-0 right-0 z-10">
+                            <button id="closeTrailerModal" class="text-white hover:text-gray-300 p-1 text-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="trailerContainer" class="aspect-w-16 aspect-h-9">
+                            <!-- YouTube iframe will be inserted here -->
+                        </div>
+                    </div>
+                </div>
             `;
+            
+            // Add event listener for trailer button
+            const trailerButton = document.getElementById('trailerButton');
+            if (trailerButton) {
+                trailerButton.addEventListener('click', () => playTrailer(data.trailers));
+            }
+            
+            // Add event listener for closing the trailer modal
+            const closeTrailerModal = document.getElementById('closeTrailerModal');
+            if (closeTrailerModal) {
+                closeTrailerModal.addEventListener('click', closeTrailer);
+            }
+            
+            // Close modal when clicking outside the video
+            const trailerModal = document.getElementById('trailerModal');
+            if (trailerModal) {
+                trailerModal.addEventListener('click', (event) => {
+                    if (event.target === trailerModal) {
+                        closeTrailer();
+                    }
+                });
+            }
         })
         .catch(error => {
             console.error(error);
@@ -211,7 +249,7 @@ function displayStaticMovieData(movie) {
                         <hr class="border-t border-gray-300 dark:border-gray-700 mt-4">
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
+                        <button id="trailerButton" class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
                             <div class="flex items-center">
                                 <img src="/src/assets/play1.png" class="w-4 h-4 me-2"> Trailer
                             </div>
@@ -241,7 +279,52 @@ function displayStaticMovieData(movie) {
                 </div>
             </div>
         </div>
+        
+        <!-- Trailer Modal -->
+        <div id="trailerModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden">
+            <div class="relative bg-black rounded-lg overflow-hidden w-full max-w-4xl mx-4">
+                <div class="flex justify-between items-center p-2 absolute top-0 right-0 z-10">
+                    <button id="closeTrailerModal" class="text-white hover:text-gray-300 p-1 text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="trailerContainer" class="aspect-w-16 aspect-h-9">
+                    <!-- YouTube iframe will be inserted here -->
+                </div>
+            </div>
+        </div>
     `;
+    
+    // Add event listener for the trailer button in static data display
+    const trailerButton = document.getElementById('trailerButton');
+    if (trailerButton) {
+        trailerButton.addEventListener('click', () => {
+            // For static data, try to fetch trailers using the movie ID
+            if (movie.movie_id) {
+                fetchTrailersForStaticMovie(movie.movie_id);
+            } else {
+                showNoTrailerMessage();
+            }
+        });
+    }
+    
+    // Add event listener for closing the trailer modal
+    const closeTrailerModal = document.getElementById('closeTrailerModal');
+    if (closeTrailerModal) {
+        closeTrailerModal.addEventListener('click', closeTrailer);
+    }
+    
+    // Close modal when clicking outside the video
+    const trailerModal = document.getElementById('trailerModal');
+    if (trailerModal) {
+        trailerModal.addEventListener('click', (event) => {
+            if (event.target === trailerModal) {
+                closeTrailer();
+            }
+        });
+    }
 }
 
 // Back button event listener to return to the movie results page
@@ -353,3 +436,119 @@ function renderStreamingProviders(providersData) {
     
     return html;
 }
+
+// Function to play trailer video
+function playTrailer(trailers) {
+    if (!trailers || trailers.length === 0) {
+        showNoTrailerMessage();
+        return;
+    }
+
+    // Find a YouTube trailer, preferring official trailers
+    const youtubeTrailers = trailers.filter(trailer => 
+        trailer.site.toLowerCase() === 'youtube' && 
+        trailer.type.toLowerCase().includes('trailer')
+    );
+    
+    // If no YouTube trailers found, try any YouTube video
+    let selectedTrailer = youtubeTrailers.length > 0 ? 
+        youtubeTrailers[0] : 
+        trailers.find(trailer => trailer.site.toLowerCase() === 'youtube');
+    
+    if (!selectedTrailer) {
+        showNoTrailerMessage();
+        return;
+    }
+    
+    // Get the trailer container and create the YouTube iframe
+    const trailerContainer = document.getElementById('trailerContainer');
+    trailerContainer.innerHTML = `
+        <iframe 
+            id="youtubeTrailer"
+            width="100%" 
+            height="100%" 
+            src="https://www.youtube.com/embed/${selectedTrailer.key}?autoplay=1" 
+            title="${selectedTrailer.name}" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    `;
+    
+    // Show the modal
+    document.getElementById('trailerModal').classList.remove('hidden');
+    
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+}
+
+// Function to close the trailer modal
+function closeTrailer() {
+    const trailerModal = document.getElementById('trailerModal');
+    const trailerContainer = document.getElementById('trailerContainer');
+    
+    if (trailerModal) {
+        trailerModal.classList.add('hidden');
+    }
+    
+    // Clear the container to stop the video
+    if (trailerContainer) {
+        trailerContainer.innerHTML = '';
+    }
+    
+    // Re-enable body scrolling
+    document.body.style.overflow = 'auto';
+}
+
+// Function to show a message when no trailer is available
+function showNoTrailerMessage() {
+    const trailerModal = document.getElementById('trailerModal');
+    const trailerContainer = document.getElementById('trailerContainer');
+    
+    if (trailerContainer) {
+        trailerContainer.innerHTML = `
+            <div class="flex items-center justify-center h-64 bg-black">
+                <div class="text-center text-white p-4">
+                    <p class="text-xl font-bold mb-2">Ingen trailer tillgänglig</p>
+                    <p>Det finns tyvärr ingen trailer för denna film just nu.</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (trailerModal) {
+        trailerModal.classList.remove('hidden');
+    }
+    
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+}
+
+// Function to fetch trailers for a movie in the static data case
+function fetchTrailersForStaticMovie(movieId) {
+    fetch(`https://localhost:7103/FilmRecomendations/GetMovieTrailers/${movieId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error fetching movie trailers.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.length > 0) {
+                playTrailer(data);
+            } else {
+                showNoTrailerMessage();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching trailers:', error);
+            showNoTrailerMessage();
+        });
+}
+
+// Add keyboard event listener for closing the modal with Escape key
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        closeTrailer();
+    }
+});
