@@ -133,14 +133,14 @@ function displayMovies(movies) {
     
     const releaseYearText = document.createElement('h5');
     releaseYearText.classList.add('text-l', 'font-semibold');
-    releaseYearText.textContent = movie.release_year;
+    releaseYearText.textContent = `(${movie.release_year})`;
     
     const titleText = document.createElement('h2');
     titleText.classList.add('text-lg', 'font-semibold');
     titleText.textContent = movie.movie_name;
 
-    titleDiv.appendChild(releaseYearText);
     titleDiv.appendChild(titleText);
+    titleDiv.appendChild(releaseYearText);
     movieCard.appendChild(posterImg);
     movieCard.appendChild(titleDiv);
 

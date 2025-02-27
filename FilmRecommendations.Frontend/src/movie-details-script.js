@@ -75,6 +75,7 @@ function showMovieDetails(movie) {
 
             let runtime = convertRuntime(data.runtime);
             data.runtime = runtime;
+
             
             // Display the fetched details with improved layout
             movieDetailsContent.innerHTML = `
@@ -95,6 +96,20 @@ function showMovieDetails(movie) {
                                 <p class="mb-4">${data.overview}</p>
                                 <p class="mb-2"><span class="font-semibold">Längd:</span> ${data.runtime}</p>
                                 <p class="mb-2"><span class="font-semibold">Land:</span> ${data.production_countries.map(country => country.name).join(', ')}</p>
+                                <p class="mb-2"><span class="font-semibold">Regissör:</span> ${data.directors.map(director => director.name).join(', ')}</p>
+                                <div class="mb-2">
+                                    <span class="font-semibold">Skådespelare:</span> 
+                                    <span id="actorsContainer">
+                                        ${data.actors.slice(0, 3).map(actor => actor.name).join(', ')}
+                                        ${data.actors.length > 3 ? `
+                                            <span id="actorsExpander" class="text-blue-300 font-bold hover:text-blue-600 ml-1 cursor-pointer"><br />Visa mer...</span>
+                                            <span id="actorsExpandedList" class="hidden">
+                                                , ${data.actors.slice(3).map(actor => actor.name).join(', ')}
+                                                <span id="actorsCollapser" class="text-blue-300 font-bold hover:text-blue-600 ml-1 cursor-pointer">Visa mindre...</span>
+                                            </span>
+                                        ` : ''}
+                                    </span>
+                                </div>
                                 <hr class="border-t border-gray-300 dark:border-gray-700 mt-4">
                             </div>
                             <div class="flex flex-wrap gap-2">
@@ -129,6 +144,22 @@ function showMovieDetails(movie) {
                     </div>
                 </div>
             `;
+            const actorsExpander = document.getElementById('actorsExpander');
+            if (actorsExpander) {
+                actorsExpander.addEventListener('click', function() {
+                    const expandedList = document.getElementById('actorsExpandedList');
+                    expandedList.classList.remove('hidden');
+                    this.classList.add('hidden'); // Hide the "Visa mer..." text
+                });
+                
+                // Add click handler for the "Visa mindre..." text
+                document.getElementById('actorsCollapser').addEventListener('click', function() {
+                    const expandedList = document.getElementById('actorsExpandedList');
+                    const expander = document.getElementById('actorsExpander');
+                    expandedList.classList.add('hidden');
+                    expander.classList.remove('hidden'); // Show the "Visa mer..." text again
+                });
+            }
         })
         .catch(error => {
             console.error(error);
