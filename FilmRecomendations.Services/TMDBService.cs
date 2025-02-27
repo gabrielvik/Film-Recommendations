@@ -169,7 +169,7 @@ public class TMDBService : ITMDBService
         }
     }
 
-    public async Task<Movie?> GetMovieDetailsAsync(int movieId)
+    public async Task<object> GetMovieDetailsAsync(int movieId)
     {
         try
         {
@@ -203,7 +203,23 @@ public class TMDBService : ITMDBService
                     }
                 }
 
-                return movie;
+                // Fetch additional data
+                var trailers = await GetMovieTrailersAsync(movieId);
+                var streamingProviders = await GetStreamingProvidersAsync(movieId);
+                var directors = await GetMovieDirectorsAsync(movieId);
+                var actors = await GetMovieActorsAsync(movieId);
+
+                // Create an anonymous object to return all the data
+                var result = new
+                {
+                    movie,
+                    trailers,
+                    streaming_providers = streamingProviders,
+                    directors,
+                    actors
+                };
+
+                return result;
             }
             else
             {
