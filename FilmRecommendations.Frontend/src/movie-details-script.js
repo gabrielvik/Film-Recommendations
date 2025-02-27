@@ -97,18 +97,22 @@ function showMovieDetails(movie) {
                                 <p class="mb-2"><span class="font-semibold">Längd:</span> ${data.runtime}</p>
                                 <p class="mb-2"><span class="font-semibold">Land:</span> ${data.production_countries.map(country => country.name).join(', ')}</p>
                                 <p class="mb-2"><span class="font-semibold">Regissör:</span> ${data.directors.map(director => director.name).join(', ')}</p>
-                                <div class="mb-2">
-                                    <span class="font-semibold">Skådespelare:</span> 
-                                    <span id="actorsContainer">
-                                        ${data.actors.slice(0, 3).map(actor => actor.name).join(', ')}
-                                        ${data.actors.length > 3 ? `
-                                            <span id="actorsExpander" class="text-blue-300 font-bold hover:text-blue-600 ml-1 cursor-pointer"><br />Visa mer...</span>
-                                            <span id="actorsExpandedList" class="hidden">
-                                                , ${data.actors.slice(3).map(actor => actor.name).join(', ')}
-                                                <span id="actorsCollapser" class="text-blue-300 font-bold hover:text-blue-600 ml-1 cursor-pointer">Visa mindre...</span>
-                                            </span>
-                                        ` : ''}
-                                    </span>
+                                <div class="mb-6">
+                                    <h3 class="text-xl font-semibold mb-6">Större roller:</h3>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                                        ${data.actors.slice(0, 6).map(actor => `
+                                            <div class="flex flex-col items-center">
+                                                <img 
+                                                    src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
+                                                    alt="${actor.name}" 
+                                                    class="w-16 h-16 object-cover rounded-full border-1 border-white"
+                                                    onerror="this.src='/src/assets/default-avatar.png'"
+                                                >
+                                                <p class="text-center text-sm mt-2">${actor.name}</p>
+                                                <p class="text-center text-xs text-gray-500">${actor.character}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
                                 </div>
                                 <hr class="border-t border-gray-300 dark:border-gray-700 mt-4">
                             </div>
@@ -144,22 +148,6 @@ function showMovieDetails(movie) {
                     </div>
                 </div>
             `;
-            const actorsExpander = document.getElementById('actorsExpander');
-            if (actorsExpander) {
-                actorsExpander.addEventListener('click', function() {
-                    const expandedList = document.getElementById('actorsExpandedList');
-                    expandedList.classList.remove('hidden');
-                    this.classList.add('hidden'); // Hide the "Visa mer..." text
-                });
-                
-                // Add click handler for the "Visa mindre..." text
-                document.getElementById('actorsCollapser').addEventListener('click', function() {
-                    const expandedList = document.getElementById('actorsExpandedList');
-                    const expander = document.getElementById('actorsExpander');
-                    expandedList.classList.add('hidden');
-                    expander.classList.remove('hidden'); // Show the "Visa mer..." text again
-                });
-            }
         })
         .catch(error => {
             console.error(error);
