@@ -9,7 +9,7 @@ namespace FilmRecomendations.WebApi.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class MoviesController(MovieRepo _movieRepo, ILogger _logger, UserManager<ApplicationUser> _userManager) : ControllerBase
+public class MoviesController(IMovieRepo _movieRepo, UserManager<ApplicationUser> _userManager) : ControllerBase
 {
     [HttpGet()]
     [ProducesResponseType(200, Type = typeof(IEnumerable<MovieDbM>))]
@@ -23,7 +23,7 @@ public class MoviesController(MovieRepo _movieRepo, ILogger _logger, UserManager
         }
 
         var watchList = await _movieRepo.GetWatchlistAsync(user.Id, filter, pageNumber, pageSize);
-        
+
         return Ok(watchList);
     }
 }
