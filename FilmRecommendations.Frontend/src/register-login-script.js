@@ -14,7 +14,18 @@ logoutButton.innerHTML = '<div class="flex items-center">Logga ut</div>';
 
 const userDisplay = document.createElement('span');
 userDisplay.id = 'userDisplay';
-userDisplay.className = 'mr-4 text-gray-900 dark:text-gray-100';
+userDisplay.className = 'mr-4 font-bold pt-2 text-gray-900 dark:text-gray-100';
+
+const profilePicture = document.createElement('div');
+profilePicture.id = 'profilePicture';
+profilePicture.className = 'w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-white dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-colors';
+profilePicture.innerHTML = '<img src="/src/assets/default-avatar.png" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=\\\'text-xl font-bold text-gray-700 dark:text-gray-300\\\'>U</span>\';" class="w-full h-full object-cover">';
+profilePicture.title = "Min profil";
+
+// Add click event to redirect to profile page
+profilePicture.addEventListener('click', () => {
+    window.location.href = '/profile.html';
+  });
 
 registerButton.addEventListener('click', () => {
   registerModal.classList.remove('hidden');
@@ -262,7 +273,7 @@ loginForm.addEventListener('submit', async (e) => {
     }, 300);
   }
   function updateAuthUI() {
-    const authContainer = document.querySelector('.flex.gap-2.absolute.top-4.right-4 .flex.flex-wrap.gap-2');
+    const authContainer = document.querySelector('.flex.gap-3.absolute.top-4.right-6.z-10 .flex.flex-wrap.gap-3');
   
     if (isAuthenticated()) {
       // User is logged in
@@ -273,12 +284,23 @@ loginForm.addEventListener('submit', async (e) => {
       const username = getUsername();
       if (username) {
         userDisplay.textContent = `Inloggad som: ${username}`;
+        
+        // Set first letter of username as fallback in case image fails to load
+        if (username.length > 0) {
+          const firstLetter = username.charAt(0).toUpperCase();
+          profilePicture.querySelector('span') && (profilePicture.querySelector('span').textContent = firstLetter);
+        }
       }
       
-      // Add user display and logout button if not already there
+      // Add user display and profile elements if not already there
       if (!document.getElementById('userDisplay')) {
         authContainer.prepend(userDisplay);
       }
+      
+      if (!document.getElementById('profilePicture')) {
+        authContainer.appendChild(profilePicture);
+      }
+      
       if (!document.getElementById('logoutButton')) {
         authContainer.appendChild(logoutButton);
       }
@@ -287,10 +309,15 @@ loginForm.addEventListener('submit', async (e) => {
       loginButton.classList.remove('hidden');
       registerButton.classList.remove('hidden');
       
-      // Remove user display and logout button if they exist
+      // Remove user display, profile picture and logout button if they exist
       if (document.getElementById('userDisplay')) {
         userDisplay.remove();
       }
+      
+      if (document.getElementById('profilePicture')) {
+        profilePicture.remove();
+      }
+      
       if (document.getElementById('logoutButton')) {
         logoutButton.remove();
       }
