@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FilmRecomendations.Db.Migrations
+namespace Filmrecomendations.Db.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    [Migration("20250221125705_initial")]
+    [Migration("20250228150642_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -24,21 +24,6 @@ namespace FilmRecomendations.Db.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ApplicationUserMovie", b =>
-                {
-                    b.Property<Guid>("MoviesMovieId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UsersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("MoviesMovieId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("ApplicationUserMovie");
-                });
 
             modelBuilder.Entity("FilmRecomendations.Db.DbModels.ApplicationUser", b =>
                 {
@@ -108,7 +93,7 @@ namespace FilmRecomendations.Db.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("FilmRecomendations.Db.DbModels.Movie", b =>
+            modelBuilder.Entity("FilmRecomendations.Db.DbModels.MovieDbM", b =>
                 {
                     b.Property<Guid>("MovieId")
                         .ValueGeneratedOnAdd()
@@ -120,7 +105,17 @@ namespace FilmRecomendations.Db.Migrations
                     b.Property<int?>("TMDbId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("MovieId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Movies");
                 });
@@ -258,19 +253,15 @@ namespace FilmRecomendations.Db.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ApplicationUserMovie", b =>
+            modelBuilder.Entity("FilmRecomendations.Db.DbModels.MovieDbM", b =>
                 {
-                    b.HasOne("FilmRecomendations.Db.DbModels.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("MoviesMovieId")
+                    b.HasOne("FilmRecomendations.Db.DbModels.ApplicationUser", "User")
+                        .WithMany("Movies")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FilmRecomendations.Db.DbModels.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -322,6 +313,11 @@ namespace FilmRecomendations.Db.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FilmRecomendations.Db.DbModels.ApplicationUser", b =>
+                {
+                    b.Navigation("Movies");
                 });
 #pragma warning restore 612, 618
         }
