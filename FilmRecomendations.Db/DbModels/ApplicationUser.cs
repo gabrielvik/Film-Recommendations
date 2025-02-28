@@ -7,6 +7,6 @@ public class ApplicationUser: IdentityUser
 {
     public string? ProfilePicture { get; set; } = ProfilePictureSeeder.RandomizeProfilePicture();
 
-    //if a movie is here, the user has watched it. He may or may not have rated it
-    public List<Movie> Movies { get; set; } = new List<Movie>();
+    //Any movies we know the user likes/dislikes/want to see we add here:
+    public List<MovieDbM> Movies { get; set; } = new List<MovieDbM>();
 }

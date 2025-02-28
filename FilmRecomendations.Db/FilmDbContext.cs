@@ -9,5 +9,5 @@ public class FilmDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public DbSet<Movie> Movies { get; set; }
+    public DbSet<MovieDbM> Movies { get; set; }
 }

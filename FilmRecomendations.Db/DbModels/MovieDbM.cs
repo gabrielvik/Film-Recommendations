@@ -8,14 +8,17 @@ using System.Threading.Tasks;
 namespace FilmRecomendations.Db.DbModels;
 
 //we should only store the neccesary data related to the user, everything movie related can be fetched from TMDb
-public class Movie
+public class MovieDbM
 {
     public Guid MovieId { get; set; }
+    public string Title { get; set; } = "";
 
     //should match TMDb Movieid
     public int? TMDbId { get; set; } = null;
 
-    //null => not rated, true => liked, false => disliked
+    //null => not rated(on watchlist), true => liked, false => disliked
     public bool? Liked { get; set; } = null;
-    public List<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+    //A MovieDbM instance has only one associated user.
+    public Guid? UserId { get; set; }
+    public ApplicationUser? User { get; set; } 
 }
