@@ -48,7 +48,7 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
     }
 
 
-    public async Task<ResponsePageDto<MovieDbM>> GetMoviesAsync(string filter, int pageNumber, int pageSize)
+    public async Task<ResponsePageDto<MovieDbM>> GetMoviesAsync(string userId, string? filter, int pageNumber, int pageSize)
     {
         filter ??= "";
         filter = filter.ToLower();
@@ -56,11 +56,13 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         return new ResponsePageDto<MovieDbM>()
         {
             DbItemsCount = await query
-                .Where(m => m.Title.ToLower().Contains(filter))
+                .Where(m => m.UserId == userId &&
+                    m.Title.ToLower().Contains(filter))
                 .CountAsync(),
             
             PageItems = await query
-                .Where(m => m.Title.ToLower().Contains(filter))
+                .Where(m => m.UserId == userId &&
+                    m.Title.ToLower().Contains(filter))
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync(),
@@ -71,7 +73,7 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         
     }
 
-    public async Task<ResponsePageDto<MovieDbM>> GetWatchlistAsync(string filter, int pageNumber, int pageSize)
+    public async Task<ResponsePageDto<MovieDbM>> GetWatchlistAsync(string userId, string? filter, int pageNumber, int pageSize)
     {
         filter ??= "";
         filter = filter.ToLower();
@@ -79,13 +81,15 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         return new ResponsePageDto<MovieDbM>()
         {
             DbItemsCount = await query
-                .Where(m => m.Title.ToLower().Contains(filter)
-                    && m.Liked == null)
+                .Where(m => m.UserId == userId &&
+                    m.Title.ToLower().Contains(filter) && 
+                    m.Liked == null)
                 .CountAsync(),
             
             PageItems = await query
-                .Where(m => m.Title.ToLower().Contains(filter)
-                    && m.Liked == null)
+                .Where(m => m.UserId == userId && 
+                    m.Title.ToLower().Contains(filter) && 
+                    m.Liked == null)
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync(),
