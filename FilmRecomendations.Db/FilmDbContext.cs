@@ -15,5 +15,9 @@ public class FilmDbContext(DbContextOptions<FilmDbContext> options) : IdentityDb
             .HasOne(m => m.User)
             .WithMany(u => u.Movies)
             .HasForeignKey(m => m.UserId);
+
+        modelBuilder.Entity<MovieDbM>()
+            .HasIndex(m => m.UserId)
+            .HasDatabaseName("IX_Movies_UserId");
     }
 }

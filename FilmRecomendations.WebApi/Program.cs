@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using FilmRecomendations.Db.Repos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IAiService, AiService>();
+builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
 // Update CORS policy so that only the frontend on http://localhost:5173 is allowed.
 builder.Services.AddCors(options =>

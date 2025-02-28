@@ -112,7 +112,8 @@ namespace Filmrecomendations.Db.Migrations
 
                     b.HasKey("MovieId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Movies_UserId");
 
                     b.ToTable("Movies");
                 });

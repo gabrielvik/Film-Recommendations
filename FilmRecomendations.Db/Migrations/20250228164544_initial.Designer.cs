@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Filmrecomendations.Db.Migrations
 {
     [DbContext(typeof(FilmDbContext))]
-    [Migration("20250228150642_initial")]
+    [Migration("20250228164544_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -115,7 +115,8 @@ namespace Filmrecomendations.Db.Migrations
 
                     b.HasKey("MovieId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Movies_UserId");
 
                     b.ToTable("Movies");
                 });
