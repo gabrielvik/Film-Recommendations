@@ -5,5 +5,5 @@ public class MovieCUDtO
     public string Title { get; set; } = "";
     public int? TMDbId { get; set; } = null;
     public bool? Liked { get; set; } = null;
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
 }

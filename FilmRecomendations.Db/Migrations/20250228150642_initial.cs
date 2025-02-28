@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FilmRecomendations.Db.Migrations
+namespace Filmrecomendations.Db.Migrations
 {
     /// <inheritdoc />
     public partial class initial : Migration
@@ -49,19 +49,6 @@ namespace FilmRecomendations.Db.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Movies",
-                columns: table => new
-                {
-                    MovieId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TMDbId = table.Column<int>(type: "int", nullable: true),
-                    Liked = table.Column<bool>(type: "bit", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Movies", x => x.MovieId);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,33 +158,25 @@ namespace FilmRecomendations.Db.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ApplicationUserMovie",
+                name: "Movies",
                 columns: table => new
                 {
-                    MoviesMovieId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    MovieId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TMDbId = table.Column<int>(type: "int", nullable: true),
+                    Liked = table.Column<bool>(type: "bit", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ApplicationUserMovie", x => new { x.MoviesMovieId, x.UsersId });
+                    table.PrimaryKey("PK_Movies", x => x.MovieId);
                     table.ForeignKey(
-                        name: "FK_ApplicationUserMovie_AspNetUsers_UsersId",
-                        column: x => x.UsersId,
+                        name: "FK_Movies_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ApplicationUserMovie_Movies_MoviesMovieId",
-                        column: x => x.MoviesMovieId,
-                        principalTable: "Movies",
-                        principalColumn: "MovieId",
-                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationUserMovie_UsersId",
-                table: "ApplicationUserMovie",
-                column: "UsersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -237,14 +216,16 @@ namespace FilmRecomendations.Db.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_UserId",
+                table: "Movies",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "ApplicationUserMovie");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
