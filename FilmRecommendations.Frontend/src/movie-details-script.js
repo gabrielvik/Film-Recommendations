@@ -226,6 +226,7 @@ function convertRuntime(runtime) {
 }
 
 // Add this function to display streaming providers with icons
+// Update the renderStreamingProviders function to include links
 function renderStreamingProviders(providersData) {
     if (!providersData || !providersData.results || Object.keys(providersData.results).length === 0) {
         return `<p class="mt-2">Inga streamingalternativ tillgängliga just nu.</p>`;
@@ -287,15 +288,19 @@ function renderStreamingProviders(providersData) {
             <div class="mb-4">
                 <h3 class="text-white text-lg font-semibold mb-2">Stream</h3>
                 <div class="flex flex-wrap gap-3">
-                    ${flatrateProviders.map(provider => 
-                        `<div class="flex flex-col items-center">
+                    ${flatrateProviders.map(provider => {
+                        const providerName = provider.providerName;
+                        const shortName = shortenProviderName(providerName);
+                        const providerUrl = getProviderUrl(providerName);
+                        
+                        return `<a href="${providerUrl}" target="_blank" class="flex flex-col items-center hover:scale-110 transition duration-300">
                             <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
-                                alt="${provider.providerName}" 
+                                alt="${providerName}" 
                                 class="w-12 h-12 rounded-lg shadow" 
-                                title="${provider.providerName}">
-                            <span class="text-xs mt-1">${shortenProviderName(provider.providerName)}</span>
-                        </div>`
-                    ).join('')}
+                                title="Watch on ${providerName}">
+                            <span class="text-xs mt-1">${shortName}</span>
+                        </a>`;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -307,15 +312,19 @@ function renderStreamingProviders(providersData) {
             <div class="mb-4">
                 <h3 class="text-white text-lg font-semibold mb-2">Hyra</h3>
                 <div class="flex flex-wrap gap-3">
-                    ${rentProviders.map(provider => 
-                        `<div class="flex flex-col items-center">
+                    ${rentProviders.map(provider => {
+                        const providerName = provider.providerName;
+                        const shortName = shortenProviderName(providerName);
+                        const providerUrl = getProviderUrl(providerName);
+                        
+                        return `<a href="${providerUrl}" target="_blank" class="flex flex-col items-center hover:scale-110 transition duration-300">
                             <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
-                                alt="${provider.providerName}" 
+                                alt="${providerName}" 
                                 class="w-12 h-12 rounded-lg shadow" 
-                                title="${provider.providerName}">
-                            <span class="text-xs mt-1">${shortenProviderName(provider.providerName)}</span>
-                        </div>`
-                    ).join('')}
+                                title="Rent on ${providerName}">
+                            <span class="text-xs mt-1">${shortName}</span>
+                        </a>`;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -417,3 +426,35 @@ document.addEventListener('keydown', (event) => {
         closeTrailer();
     }
 });
+
+// Add a mapping of provider names to their website URLs
+function getProviderUrl(providerName) {
+    const providerUrlMap = {
+        'Netflix': 'https://www.netflix.com',
+        'Disney+': 'https://www.disneyplus.com',
+        'Disney Plus': 'https://www.disneyplus.com',
+        'HBO Max': 'https://www.hbomax.com',
+        'HBO': 'https://www.hbo.com',
+        'Amazon Prime Video': 'https://www.primevideo.com',
+        'Amazon Prime': 'https://www.primevideo.com',
+        'Hulu': 'https://www.hulu.com',
+        'Apple TV': 'https://tv.apple.com',
+        'Apple TV+': 'https://tv.apple.com',
+        'Apple TV Plus': 'https://tv.apple.com',
+        'YouTube': 'https://www.youtube.com',
+        'YouTube Premium': 'https://www.youtube.com/premium',
+        'Peacock': 'https://www.peacocktv.com',
+        'Paramount+': 'https://www.paramountplus.com',
+        'Paramount Plus': 'https://www.paramountplus.com',
+        'Crunchyroll': 'https://www.crunchyroll.com',
+        'Viaplay': 'https://viaplay.se',
+        'SVT Play': 'https://www.svtplay.se',
+        'TV4 Play': 'https://www.tv4play.se',
+        'C More': 'https://www.cmore.se',
+        'Google Play Movies': 'https://play.google.com/store/movies',
+        'Google Play': 'https://play.google.com/store/movies',
+        // Add more providers as needed
+    };
+    
+    return providerUrlMap[providerName] || '#';
+}
