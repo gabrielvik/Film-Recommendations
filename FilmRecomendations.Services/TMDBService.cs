@@ -372,4 +372,82 @@ public class TMDBService : ITMDBService
             return new List<MovieTrailer>();
         }
     }
+
+    public async Task<ActorDetails> GetActorDetailsAsync(int personId)
+    {
+        try
+        {
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+            var requestUrl = $"person/{personId}?api_key={apiKey}&append_to_response=movie_credits";
+            _logger.LogInformation($"Fetching actor details for person ID: {personId}");
+
+            var response = await _httpClient.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning($"Failed to fetch actor details for person ID {personId}. Status code: {response.StatusCode}");
+                return new ActorDetails();
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            using var document = JsonDocument.Parse(content);
+
+            var actorDetails = new ActorDetails
+            {
+                Id = personId,
+                Name = GetJsonPropertyString(document.RootElement, "name"),
+                ProfilePath = GetJsonPropertyString(document.RootElement, "profile_path"),
+                Biography = GetJsonPropertyString(document.RootElement, "biography"),
+                Birthday = GetJsonPropertyString(document.RootElement, "birthday"),
+                Deathday = GetJsonPropertyString(document.RootElement, "deathday"),
+                PlaceOfBirth = GetJsonPropertyString(document.RootElement, "place_of_birth"),
+                KnownForDepartment = GetJsonPropertyString(document.RootElement, "known_for_department"),
+                Popularity = document.RootElement.TryGetProperty("popularity", out var popularityElement) ? 
+                            popularityElement.GetDouble() : 0
+            };
+
+            // Format profile path as full URL if it exists
+            if (!string.IsNullOrEmpty(actorDetails.ProfilePath))
+            {
+                actorDetails.ProfilePath = $"https://image.tmdb.org/t/p/w500{actorDetails.ProfilePath}";
+            }
+
+            // Extract known for movies from movie_credits.cast
+            actorDetails.KnownFor = new List<MovieCredit>();
+            if (document.RootElement.TryGetProperty("movie_credits", out var movieCreditsElement) &&
+                movieCreditsElement.TryGetProperty("cast", out var castElement))
+            {
+                var castArray = castElement.EnumerateArray()
+                    .OrderByDescending(m => m.TryGetProperty("popularity", out var pop) ? pop.GetDouble() : 0)
+                    .Take(5); // Take the 5 most popular movies
+
+                foreach (var movie in castArray)
+                {
+                    actorDetails.KnownFor.Add(new MovieCredit
+                    {
+                        Id = movie.TryGetProperty("id", out var idElement) ? idElement.GetInt32() : 0,
+                        Title = GetJsonPropertyString(movie, "title"),
+                        Character = GetJsonPropertyString(movie, "character"),
+                        PosterPath = movie.TryGetProperty("poster_path", out var posterElement) ? 
+                            $"https://image.tmdb.org/t/p/w200{posterElement.GetString()}" : null,
+                        ReleaseDate = GetJsonPropertyString(movie, "release_date")
+                    });
+                }
+            }
+
+            return actorDetails;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching actor details for person ID {personId}");
+            throw;
+        }
+    }
+
+    // Helper method to safely get string properties from JSON
+    private string GetJsonPropertyString(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out var property) ? 
+               property.ValueKind != JsonValueKind.Null ? 
+               property.GetString() : null : null;
+    }
 }

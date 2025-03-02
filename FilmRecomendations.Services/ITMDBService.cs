@@ -27,4 +27,11 @@ public interface ITMDBService
     Task<List<MovieTrailer>> GetMovieTrailersAsync(int movieId);
     Task<List<Director>> GetMovieDirectorsAsync(int movieId);
     Task<List<Actor>> GetMovieActorsAsync(int movieId);
+    
+    /// <summary>
+    /// Fetches detailed information about an actor by their ID
+    /// </summary>
+    /// <param name="personId">ID of the person in TMDB</param>
+    /// <returns>Detailed actor information</returns>
+    Task<ActorDetails> GetActorDetailsAsync(int personId);
 }

@@ -191,4 +191,29 @@ public class FilmRecomendationsController : ControllerBase
         }
     }
 
+    [HttpGet("GetActorDetails/{personId}")]
+    public async Task<IActionResult> GetActorDetails(int personId)
+    {
+        try
+        {
+            if (personId <= 0)
+            {
+                return BadRequest("Valid person ID is required");
+            }
+
+            var actorDetails = await _tmdbService.GetActorDetailsAsync(personId);
+            
+            if (actorDetails == null)
+            {
+                return NotFound($"Actor details not found for ID: {personId}");
+            }
+            
+            return Ok(actorDetails);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching actor details.");
+            return StatusCode(500, "An error occurred while fetching actor details.");
+        }
+    }
 }

@@ -112,11 +112,11 @@ function showMovieDetails(movie) {
                                     <h3 class="text-xl font-semibold mb-6">Större roller:</h3>
                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                                         ${data.actors.slice(0, 6).map(actor => `
-                                            <div class="flex flex-col items-center">
+                                            <div class="flex flex-col items-center cursor-pointer actor-image" data-actor-id="${actor.id}">
                                                 <img 
                                                     src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
                                                     alt="${actor.name}" 
-                                                    class="w-16 h-16 object-cover rounded-full border-1 border-white"
+                                                    class="w-16 h-16 object-cover rounded-full border-1 border-white hover:border-blue-500 transition-all"
                                                     onerror="this.src='/src/assets/default-avatar.png'"
                                                 >
                                                 <p class="text-center text-sm mt-2">${actor.name}</p>
@@ -205,6 +205,16 @@ function showMovieDetails(movie) {
                     }
                 });
             }
+            
+            // Add event listeners for actor images
+            document.querySelectorAll('.actor-image').forEach(element => {
+                element.addEventListener('click', function() {
+                    const actorId = this.getAttribute('data-actor-id');
+                    if (actorId) {
+                        showActorDetails(actorId);
+                    }
+                });
+            });
         })
         .catch(error => {
             console.error(error);
@@ -415,5 +425,146 @@ function showNoTrailerMessage() {
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
         closeTrailer();
+        closeActorModal();
+    }
+});
+
+// Function to show actor details
+async function showActorDetails(actorId) {
+    try {
+        // Show loading state in the modal
+        const actorDetailsContent = document.getElementById('actorDetailsContent');
+        actorDetailsContent.innerHTML = `
+            <div class="flex justify-center items-center h-64">
+                <div class="loading-spinner border-4 border-blue-500 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>
+            </div>
+        `;
+        
+        // Show the modal
+        document.getElementById('actorModal').classList.remove('hidden');
+        
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
+        
+        // Fetch actor details
+        const response = await fetch(`https://localhost:7103/FilmRecomendations/GetActorDetails/${actorId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch actor details');
+        }
+        
+        const actor = await response.json();
+        
+        // Format birthday
+        let formattedBirthday = 'Unknown';
+        if (actor.birthday) {
+            const date = new Date(actor.birthday);
+            formattedBirthday = date.toLocaleDateString('sv-SE');
+        }
+        
+        // Format deathday if applicable
+        let ageInfo = '';
+        if (actor.birthday) {
+            const birthYear = new Date(actor.birthday).getFullYear();
+            
+            if (actor.deathday) {
+                const deathYear = new Date(actor.deathday).getFullYear();
+                ageInfo = `(${birthYear}-${deathYear})`;
+            } else {
+                const currentYear = new Date().getFullYear();
+                const age = currentYear - birthYear;
+                ageInfo = `(${birthYear}, ${age} years old)`;
+            }
+        }
+        
+        // Build the modal content
+        actorDetailsContent.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/3">
+                    <img 
+                        src="${actor.profilePath || '/src/assets/default-avatar.png'}" 
+                        alt="${actor.name}" 
+                        class="w-full rounded-lg shadow-lg"
+                        onerror="this.src='/src/assets/default-avatar.png'"
+                    >
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h2 class="text-2xl font-bold mb-2">${actor.name} ${ageInfo}</h2>
+                    
+                    <div class="mb-4">
+                        <p class="text-gray-400 mb-1">
+                            <span class="font-semibold">Born:</span> 
+                            ${formattedBirthday}${actor.placeOfBirth ? ` in ${actor.placeOfBirth}` : ''}
+                        </p>
+                        <p class="text-gray-400 mb-1">
+                            <span class="font-semibold">Known for:</span> 
+                            ${actor.knownForDepartment || 'Acting'}
+                        </p>
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold mb-2">Biography</h3>
+                        <p class="text-sm leading-relaxed">${actor.biography || 'No biography available.'}</p>
+                    </div>
+                    
+                    ${actor.knownFor && actor.knownFor.length > 0 ? `
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">Known For</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                ${actor.knownFor.map(movie => `
+                                    <div class="flex flex-col items-center">
+                                        <img 
+                                            src="${movie.posterPath || '/src/assets/default-movie-poster.png'}" 
+                                            alt="${movie.title}" 
+                                            class="w-24 h-36 object-cover rounded shadow"
+                                            onerror="this.src='/src/assets/default-movie-poster.png'"
+                                        >
+                                        <p class="text-center text-xs mt-1 font-semibold">${movie.title}</p>
+                                        <p class="text-center text-xs text-gray-500">${movie.character || ''}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error fetching actor details:', error);
+        document.getElementById('actorDetailsContent').innerHTML = `
+            <div class="text-center p-4">
+                <p class="text-xl font-bold mb-2">Error Loading Actor Details</p>
+                <p>Unable to load actor information at this time.</p>
+            </div>
+        `;
+    }
+}
+
+// Function to close the actor modal
+function closeActorModal() {
+    const actorModal = document.getElementById('actorModal');
+    
+    if (actorModal) {
+        actorModal.classList.add('hidden');
+    }
+    
+    // Re-enable body scrolling
+    document.body.style.overflow = 'auto';
+}
+
+// Add event listener for closing the actor modal
+document.addEventListener('DOMContentLoaded', () => {
+    const closeActorModalButton = document.getElementById('closeActorModal');
+    if (closeActorModalButton) {
+        closeActorModalButton.addEventListener('click', closeActorModal);
+    }
+    
+    // Close modal when clicking outside the content
+    const actorModal = document.getElementById('actorModal');
+    if (actorModal) {
+        actorModal.addEventListener('click', (event) => {
+            if (event.target === actorModal) {
+                closeActorModal();
+            }
+        });
     }
 });
