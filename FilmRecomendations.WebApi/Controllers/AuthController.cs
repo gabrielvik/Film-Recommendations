@@ -16,12 +16,14 @@ namespace FilmRecomendations.WebApi.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IConfiguration _configuration;
 
-    public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration, SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _configuration = configuration;
+        _signInManager = signInManager;
     }
 
     [HttpPost("login")]
@@ -30,13 +32,13 @@ public class AuthController : ControllerBase
         var user = await _userManager.FindByEmailAsync(loginRequest.Email);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized("Invalid Username or Password");
         }
 
-        var result = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
-        if (!result)
+        var result = await _signInManager.CheckPasswordSignInAsync(user, loginRequest.Password, false);
+        if (!result.Succeeded)
         {
-            return Unauthorized();
+            return Unauthorized("Invalid Username or Password");
         }
 
         var token = GenerateJwtToken(user);
@@ -47,8 +49,9 @@ public class AuthController : ControllerBase
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
+            new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.NameIdentifier, user.Id)
         };
 
