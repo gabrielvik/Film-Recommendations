@@ -5,6 +5,7 @@ using FilmRecomendations.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using FilmRecomendations.WebApi.Extensions;
 
 namespace FilmRecomendations.WebApi.Controllers;
 
@@ -113,18 +114,7 @@ public class MoviesController : ControllerBase
     {
         try
         {
-            var username = _userManager.GetUserName(User);
-            if (username == null)
-            {
-                return BadRequest("User not found");
-            }
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-            {
-                return BadRequest("User not found");
-            }
-
-            movie.UserId = user.Id;
+            await movie.AddLoggedInUserToDtoAsync(_userManager, User);
 
             var addedMovie = await _movieRepo.AddMovieAsync(movie);
 
@@ -137,6 +127,27 @@ public class MoviesController : ControllerBase
         }
     }
 
+
+    [HttpPut()]
+    [ProducesResponseType(200, Type = typeof(MovieGetDto))]
+    [ProducesResponseType(400, Type = typeof(string))]
+    public async Task<IActionResult> UpdateMovie(MovieCUDtO movie)
+    {
+        try
+        {
+            await movie.AddLoggedInUserToDtoAsync(_userManager, User);
+
+            var updatedMovie = await _movieRepo.UpdateMovieAsync(movie);
+
+            return Ok(updatedMovie);
+        }
+        catch(Exception e)
+        {
+            _logger.LogError(e, "Error in UpdateMovie");
+            return BadRequest("Error in UpdateMovie");
+        }
+    }
+    
     [HttpDelete("{movieId}")]
     [ProducesResponseType(200, Type = typeof(MovieGetDto))]
     [ProducesResponseType(400, Type = typeof(string))]
@@ -153,25 +164,6 @@ public class MoviesController : ControllerBase
         {
             _logger.LogError(e, "Error in DeleteMovie");
             return BadRequest("Error in DeleteMovie");
-        }
-    }
-
-    [HttpPut()]
-    [ProducesResponseType(200, Type = typeof(MovieGetDto))]
-    [ProducesResponseType(400, Type = typeof(string))]
-    public async Task<IActionResult> UpdateMovie(MovieCUDtO movie)
-    {
-        try
-        {
-            
-            var updatedMovie = await _movieRepo.UpdateMovieAsync(movie);
-
-            return Ok(updatedMovie);
-        }
-        catch(Exception e)
-        {
-            _logger.LogError(e, "Error in UpdateMovie");
-            return BadRequest("Error in UpdateMovie");
         }
     }
 }
