@@ -22,6 +22,10 @@ function initProfile() {
   const username = getUsername();
   const profileUsername = document.getElementById('profileUsername');
   const profileImage = document.getElementById('profileImage');
+  if (profileImageContainer) {
+    profileImageContainer.classList.remove('w-36', 'h-36');
+    profileImageContainer.classList.add('w-24', 'h-24');
+  }
   
   // Set username
   if (username) {
