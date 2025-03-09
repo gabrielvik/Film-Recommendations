@@ -76,7 +76,6 @@ function showMovieDetails(movie) {
             let runtime = convertRuntime(data.runtime);
             data.runtime = runtime;
 
-            
             // Fetch streaming providers
             let streamingProviders = null;
             try {
@@ -103,15 +102,15 @@ function showMovieDetails(movie) {
                                     <img src="/src/assets/star.png" alt="Star" class="w-3 h-3 ml-1" />
                                 </p>
                                 <h2 class="text-3xl font-bold mb-4">${data.original_title} (${data.release_date.substring(0, 4)})</h2>
-                                <p class="mb-2"><span class="font-semibold">${data.genres.map(genre => genre.name).join(', ')}</span></p>
+                                <p class="mb-2"><span class="font-semibold">${data.genres.$values.map(genre => genre.name).join(', ')}</span></p>
                                 <p class="mb-4">${data.overview}</p>
                                 <p class="mb-2"><span class="font-semibold">Längd:</span> ${data.runtime}</p>
-                                <p class="mb-2"><span class="font-semibold">Land:</span> ${data.production_countries.map(country => country.name).join(', ')}</p>
-                                <p class="mb-2"><span class="font-semibold">Regissör:</span> ${data.directors.map(director => director.name).join(', ')}</p>
+                                <p class="mb-2"><span class="font-semibold">Land:</span> ${data.production_countries.$values.map(country => country.name).join(', ')}</p>
+                                <p class="mb-2"><span class="font-semibold">Regissör:</span> ${data.directors.$values.map(director => director.name).join(', ')}</p>
                                 <div class="mb-6">
                                     <h3 class="text-xl font-semibold mb-6">Större roller:</h3>
                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                                        ${data.actors.slice(0, 6).map(actor => `
+                                        ${data.actors.$values.slice(0, 6).map(actor => `
                                             <div class="flex flex-col items-center">
                                                 <img 
                                                     src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
@@ -187,7 +186,7 @@ function showMovieDetails(movie) {
             // Add event listener for trailer button
             const trailerButton = document.getElementById('trailerButton');
             if (trailerButton) {
-                trailerButton.addEventListener('click', () => playTrailer(data.trailers));
+                trailerButton.addEventListener('click', () => playTrailer(data.trailers.$values));
             }
             
             // Add event listener for closing the trailer modal
