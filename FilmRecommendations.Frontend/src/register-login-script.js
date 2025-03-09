@@ -75,7 +75,7 @@ function showSuccessAlert(message) {
   const errorAlertMessage = document.getElementById('errorAlertMessage');
   
   // Use innerHTML instead of textContent to allow HTML formatting
-  errorAlertMessage.innerHTML = message || 'Ett fel uppstod vid registrering.';
+  errorAlertMessage.innerHTML = message || 'Ett fel uppstod vid registrering';
   
   // Make the alert wider for multi-line messages
   if (message && message.includes('<br>')) {
@@ -99,7 +99,7 @@ function showModalError(modalId, message) {
     const modalErrorMessage = document.getElementById(`${modalId}ModalErrorMessage`);
     
     // Use innerHTML instead of textContent to allow HTML formatting
-    modalErrorMessage.innerHTML = message || 'Ett fel uppstod. Försök igen.';
+    modalErrorMessage.innerHTML = message || 'Ett fel uppstod. Försök igen';
     
     // Make the alert wider for multi-line messages
     if (message && message.includes('<br>')) {
@@ -143,7 +143,7 @@ function showModalError(modalId, message) {
       
       if (response.ok) {
         console.log('Success:', data);
-        showSuccessAlert('Ditt konto har skapats! Du kan nu logga in.');
+        showSuccessAlert('Ditt konto har skapats! Du kan nu logga in');
         closeRegisterModalFunction();
         registerForm.reset();
       } else {
@@ -185,7 +185,7 @@ function showModalError(modalId, message) {
       }
     } catch (error) {
       console.error('Error:', error);
-      showModalError('register', 'Kunde inte ansluta till servern. Försök igen senare.');
+      showModalError('register', 'Kunde inte ansluta till servern. Försök igen senare');
     }
   });
 
@@ -252,11 +252,11 @@ loginForm.addEventListener('submit', async (e) => {
       } else {
         console.error('Login Error:', data);
         // Show error in the modal instead of the global alert
-        showModalError('login', data.message || 'Felaktig e-post eller lösenord.');
+        showModalError('login', data.message || 'Felaktig e-post eller lösenord');
       }
     } catch (error) {
       console.error('Login Error:', error);
-      showModalError('login', 'Kunde inte ansluta till servern. Försök igen senare.');
+      showModalError('login', 'Kunde inte ansluta till servern. Försök igen senare');
     }
   });
   
@@ -328,7 +328,7 @@ loginForm.addEventListener('submit', async (e) => {
   logoutButton.addEventListener('click', () => {
     removeAuthToken();
     updateAuthUI();
-    showSuccessAlert('Du har loggats ut.');
+    showSuccessAlert('Du har loggats ut');
   });
   
   // Call this function on page load to set the initial state

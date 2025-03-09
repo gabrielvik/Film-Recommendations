@@ -243,16 +243,16 @@ function renderStreamingProviders(providersData) {
     
     // Find flatrate (streaming) providers
     for (const region of orderedRegions) {
-        if (providersData.results[region]?.flatrate?.length > 0) {
-            flatrateProviders = providersData.results[region].flatrate;
+        if (providersData.results[region]?.flatrate?.$values?.length > 0) {
+            flatrateProviders = providersData.results[region].flatrate.$values;
             break;
         }
     }
     
     // Find rent providers
     for (const region of orderedRegions) {
-        if (providersData.results[region]?.rent?.length > 0) {
-            rentProviders = providersData.results[region].rent;
+        if (providersData.results[region]?.rent?.$values?.length > 0) {
+            rentProviders = providersData.results[region].rent.$values;
             break;
         }
     }
