@@ -208,8 +208,6 @@ function showMovieDetails(movie) {
         .catch(error => {
             console.error(error);
             
-            // If API fetch fails, fall back to static data with improved layout
-            displayStaticMovieData(movie);
         });
 }
 
@@ -226,6 +224,7 @@ function convertRuntime(runtime) {
 
 // Add this function to display streaming providers with icons
 function renderStreamingProviders(providersData) {
+    console.log("Providers data:", providersData);
     if (!providersData || !providersData.results || Object.keys(providersData.results).length === 0) {
         return `<p class="mt-2">Inga streamingalternativ tillgängliga just nu.</p>`;
     }
@@ -243,16 +242,16 @@ function renderStreamingProviders(providersData) {
     
     // Find flatrate (streaming) providers
     for (const region of orderedRegions) {
-        if (providersData.results[region]?.flatrate?.length > 0) {
-            flatrateProviders = providersData.results[region].flatrate;
+        if (providersData.results[region]?.flatrate?.$values?.length > 0) {
+            flatrateProviders = providersData.results[region].flatrate.$values;
             break;
         }
     }
     
     // Find rent providers
     for (const region of orderedRegions) {
-        if (providersData.results[region]?.rent?.length > 0) {
-            rentProviders = providersData.results[region].rent;
+        if (providersData.results[region]?.rent?.$values?.length > 0) {
+            rentProviders = providersData.results[region].rent.$values;
             break;
         }
     }
