@@ -1,3 +1,5 @@
+import { addToWatchlist, showNotification } from './movie-buttons-actions.js';
+
 // Preserve dark mode setting
 const currentTheme = localStorage.getItem('theme');
 if (currentTheme === 'dark') {
@@ -132,7 +134,7 @@ function showMovieDetails(movie) {
                                         <img src="/src/assets/play.png" class="w-4 h-4 me-2"> Trailer
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
+                                <button id="watchlist" class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/layer-plus1.png" class="w-4 h-4 me-2"> Lägg till i lista
                                     </div>
@@ -415,3 +417,26 @@ document.addEventListener('keydown', (event) => {
         closeTrailer();
     }
 });
+
+// Movie CRUD operations
+// Add event listener for watchlist button
+document.addEventListener('click', (event) => {
+    if (event.target.closest('#watchlist')) {
+        // Get the currently displayed movie
+        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching movie details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                addToWatchlist(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+            });
+    }
+});
+
