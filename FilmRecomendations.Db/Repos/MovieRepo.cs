@@ -136,4 +136,11 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
             Liked = movie.Liked
         };
     }
+
+    public async Task<bool> MovieExistsWithTMDBIdAsync(string userId, int tmdbId)
+    {
+        return await _context.Movies
+        .AsNoTracking()
+        .AnyAsync(m => m.UserId == userId && m.TMDbId == tmdbId);
+    }
 }

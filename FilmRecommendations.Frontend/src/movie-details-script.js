@@ -144,12 +144,12 @@ function showMovieDetails(movie) {
                                         <img src="/src/assets/check1.png" class="w-4 h-4 me-2"> Markera som sett
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-green-700 text-white font-semibold hover:text-white py-2 px-4 border border-green-300 hover:border-transparent rounded">
+                                <button id="like" class="bg-transparent hover:bg-green-700 text-white font-semibold hover:text-white py-2 px-4 border border-green-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/thumbs-up.png" class="w-4 h-4 me-2"> Gillar
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-red-700 text-white font-semibold hover:text-white py-2 px-4 border border-red-300 hover:border-transparent rounded">
+                                <button id="dislike" class="bg-transparent hover:bg-red-700 text-white font-semibold hover:text-white py-2 px-4 border border-red-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/thumbs-down.png" class="w-4 h-4 me-2"> Ogillar
                                     </div>
@@ -437,6 +437,12 @@ document.addEventListener('click', (event) => {
                 console.error('Error:', error);
                 showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
             });
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if(event.target.closest('#like')) {
+        
     }
 });
 
