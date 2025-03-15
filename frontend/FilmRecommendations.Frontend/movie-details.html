@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <title>Movie Details</title>
+</head>
+
+<body class="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div class="min-h-screen flex items-center justify-center py-8">
+        <div id="movieDetailsContainer" class="bg-gray-100 dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-20 p-6 w-full shadow-lg backdrop-blur-sm">
+            <button id="backButton" aria-label="Back to results"
+                class="text-white border rounded-full px-2 py-2 mb-4 backButton">
+                <img src="/src/assets/angle-small-left.png" alt="Back" class="w-6 h-6" />
+            </button>
+            <div id="movieDetailsContent"
+                class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 mb-6"></div>
+        </div>
+    </div>
+    <script type="module" src="/src/movie-details-script.js"></script>
+</body>
+
+</html>
