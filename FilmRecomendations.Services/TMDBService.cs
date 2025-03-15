@@ -15,7 +15,7 @@ public class TMDBService : ITMDBService
     public TMDBService(HttpClient httpClient, ILogger<TMDBService> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(configuration["TMDb:BaseUrl"]);
+        _httpClient.BaseAddress = new Uri(configuration["TMDb:BaseUrl"] ?? "https://api.themoviedb.org/3/");
         _logger = logger;
         _configuration = configuration;
     }
