@@ -12,6 +12,22 @@ pipeline {
     }
     
     stages {
+        stage('Setup') {
+            steps {
+                sh '''
+                    # Install docker-compose locally if it doesn't exist or can't be executed
+                    if [ ! -f "./docker-compose" ] || [ ! -x "./docker-compose" ]; then
+                        echo "Installing docker-compose..."
+                        curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose
+                        chmod +x docker-compose
+                    fi
+                    
+                    # Verify installation
+                    ./docker-compose --version
+                '''
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
@@ -41,11 +57,11 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                // Stop existing containers if running
-                sh 'docker-compose down || true'
+                // Stop existing containers if running using local docker-compose
+                sh './docker-compose down || true'
                 
                 // Start with new images
-                sh 'docker-compose up -d'
+                sh './docker-compose up -d'
                 
                 // Verify deployment
                 sh 'docker ps'
