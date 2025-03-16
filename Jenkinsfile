@@ -9,6 +9,8 @@ pipeline {
         JWT_KEY = credentials('jwt-key')
         JWT_ISSUER = 'FilmRecommendationsAPI'
         JWT_AUDIENCE = 'FilmRecommendationsUsers'
+        // Use a different port for the API in CI environment
+        API_PORT = '5292' // Changed from 5291 to avoid conflict
     }
     
     stages {
@@ -24,6 +26,15 @@ pipeline {
                     
                     # Verify installation
                     ./docker-compose --version
+                    
+                    # Clean up any running containers that might conflict with our ports
+                    echo "Stopping any containers that might be using our ports..."
+                    docker ps -q -f publish=5291 | xargs -r docker stop || true
+                    docker ps -q -f publish=5173 | xargs -r docker stop || true
+                    
+                    # Remove any stopped containers that used these ports
+                    docker ps -a -q -f publish=5291 | xargs -r docker rm || true
+                    docker ps -a -q -f publish=5173 | xargs -r docker rm || true
                 '''
             }
         }
@@ -57,14 +68,69 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                // Stop existing containers if running using local docker-compose
-                sh './docker-compose down || true'
-                
-                // Start with new images
-                sh './docker-compose up -d'
-                
-                // Verify deployment
-                sh 'docker ps'
+                // Create or update docker-compose.yml with environment-specific settings
+                sh '''
+                    # This ensures we use the port from the environment variable
+                    cat <<EOF > docker-compose.yml
+version: '3.8'
+
+services:
+  filmrecs-api:
+    image: filmrecommendations-api:latest
+    ports:
+      - "${API_PORT}:5291"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - GROK_API_KEY=${GROK_API_KEY}
+      - JWT_KEY=${JWT_KEY}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - ConnectionStrings__FilmConnectionString=Server=filmrecs-db;Database=FilmRecommendations;User Id=sa;Password=YourStr0ngP@ssw0rd;TrustServerCertificate=True
+    networks:
+      - filmrecs-network
+    depends_on:
+      - filmrecs-db
+
+  filmrecs-frontend:
+    image: filmrecommendations-frontend:latest
+    ports:
+      - "5173:5173"
+    networks:
+      - filmrecs-network
+    depends_on:
+      - filmrecs-api
+
+  filmrecs-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStr0ngP@ssw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - filmrecs-db-data:/var/opt/mssql
+    networks:
+      - filmrecs-network
+
+networks:
+  filmrecs-network:
+    driver: bridge
+
+volumes:
+  filmrecs-db-data:
+EOF
+
+                    # Stop any existing deployment with the same project name
+                    ./docker-compose down --remove-orphans || true
+                    
+                    # Start with new configuration
+                    ./docker-compose up -d
+                    
+                    # Verify deployment
+                    docker ps
+                '''
             }
         }
     }
