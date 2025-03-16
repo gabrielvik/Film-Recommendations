@@ -2,9 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOTNET_CLI_HOME = '/tmp/dotnet_cli_home'
-        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
-        // Using Jenkins credentials for sensitive information
+        // Your environment variables
         OPENAI_API_KEY = credentials('openai-api-key')
         TMDB_API_KEY = credentials('tmdb-api-key')
         GROK_API_KEY = credentials('grok-api-key')
@@ -20,40 +18,19 @@ pipeline {
             }
         }
         
-        stage('Restore Dependencies') {
+        stage('Frontend Build') {
             steps {
-                sh 'dotnet restore "Film Recommendations.sln"'
-                
                 dir('FilmRecommendations.Frontend') {
                     sh 'npm install'
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                sh 'dotnet build "Film Recommendations.sln" --configuration Release --no-restore'
-                
-                dir('FilmRecommendations.Frontend') {
                     sh 'npm run build'
                 }
             }
         }
         
-        stage('Test') {
-            steps {
-                // Run any unit tests if they exist
-                echo 'Running tests...'
-                // sh 'dotnet test --no-restore --verbosity normal'
-            }
-        }
-        
         stage('Docker Build') {
             steps {
-                // Build backend Docker image
-                dir('FilmRecomendations.WebApi') {
-                    sh 'docker build -t filmrecommendations-api:latest .'
-                }
+                // Build backend Docker image - this will handle the .NET 9 build inside Docker
+                sh 'docker build -t filmrecommendations-api:latest -f FilmRecomendations.WebApi/Dockerfile .'
                 
                 // Build frontend Docker image
                 dir('FilmRecommendations.Frontend') {
@@ -79,7 +56,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline execution completed'
-            // Clean up workspace
             cleanWs()
         }
         success {

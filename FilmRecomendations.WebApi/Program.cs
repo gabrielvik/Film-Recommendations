@@ -85,26 +85,26 @@ builder.Services.AddAuthentication(options =>
             };
         });
 
-builder.Services.AddHealthChecks()
-    .AddSqlServer(
-        builder.Configuration.GetConnectionString("FilmConnectionString") ?? "",
-        name: "database",
-        tags: new[] { "db", "sql", "sqlserver" })
-    .AddCheck("self", () => HealthCheckResult.Healthy());
+// builder.Services.AddHealthChecks()
+//     .AddSqlServer(
+//         builder.Configuration.GetConnectionString("FilmConnectionString") ?? "",
+//         name: "database",
+//         tags: new[] { "db", "sql", "sqlserver" })
+//     .AddCheck("self", () => HealthCheckResult.Healthy());
 
-builder.Services.AddTransient<IAiService, AiService>();
-builder.Services.AddScoped<IMovieRepo, MovieRepo>();
+// builder.Services.AddTransient<IAiService, AiService>();
+// builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
-// Update CORS policy so that only the frontend on http://localhost:5173 is allowed.
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("http://localhost:5173", "http://frontend:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+// // Update CORS policy so that only the frontend on http://localhost:5173 is allowed.
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowFrontend", policy =>
+//     {
+//         policy.WithOrigins("http://localhost:5173", "http://frontend:5173")
+//               .AllowAnyHeader()
+//               .AllowAnyMethod();
+//     });
+// });
 
 builder.Services.AddHttpClient<ITMDBService, TMDBService>();
 
