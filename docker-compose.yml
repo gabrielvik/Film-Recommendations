@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: filmrecs-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrongPassword123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - filmrecs-db-data:/var/opt/mssql
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+
+  api:
+    image: filmrecommendations-api:latest
+    container_name: filmrecs-api
+    build:
+      context: ./FilmRecomendations.WebApi
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5291
+      - ConnectionStrings__FilmConnectionString=Server=db;Database=FilmRecommendations;User=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;
+      - TMDb__BaseUrl=https://api.themoviedb.org/3/
+      - TMDb__ApiKey=${TMDB_API_KEY}
+      - OpenAI__ApiKey=${OPENAI_API_KEY}
+      - GROK__ApiKey=${GROK_API_KEY}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    ports:
+      - "5291:5291"
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+
+  frontend:
+    image: filmrecommendations-frontend:latest
+    container_name: filmrecs-frontend
+    build:
+      context: ./FilmRecommendations.Frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+
+networks:
+  filmrecs-network:
+    driver: bridge
+
+volumes:
+  filmrecs-db-data:

@@ -1,34 +1,32 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 5291
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy solution and project files
+# Copy solution and project files first and restore to cache dependencies
 COPY ["FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj", "FilmRecomendations.WebApi/"]
-COPY ["FilmRecomendations.Db/FilmRecomendations.Db.csproj", "FilmRecomendations.Db/"]
 COPY ["FilmRecomendations.Models/FilmRecomendations.Models.csproj", "FilmRecomendations.Models/"]
 COPY ["FilmRecomendations.Services/FilmRecomendations.Services.csproj", "FilmRecomendations.Services/"]
+COPY ["FilmRecomendations.Db/FilmRecomendations.Db.csproj", "FilmRecomendations.Db/"]
 COPY ["Film Recommendations.sln", "./"]
 
-# Restore dependencies
-RUN dotnet restore "FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj"
+RUN dotnet restore "Film Recommendations.sln"
 
-# Copy all source files
+# Copy the rest of the source code
 COPY . .
 
-# Build the application
+# Build the API project
 WORKDIR "/src/FilmRecomendations.WebApi"
 RUN dotnet build "FilmRecomendations.WebApi.csproj" -c Release -o /app/build
 
-# Publish the application
 FROM build AS publish
-RUN dotnet publish "FilmRecomendations.WebApi.csproj" -c Release -o /app/publish
+RUN dotnet publish "FilmRecomendations.WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Final stage
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Set the entry point
 ENTRYPOINT ["dotnet", "FilmRecomendations.WebApi.dll"]

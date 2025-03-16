@@ -66,9 +66,8 @@ promptForm.addEventListener('submit', async (e) => {
 
 
    // Build the request URL with encoded prompt
-   const baseUrl = import.meta.env.VITE_API_URL || '';
-   const apiUrl = `${baseUrl}/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
-  
+   const apiUrl = `/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
+
    // Fetch movie recommendations from the backend API
   try {
     const response = await fetch(apiUrl);

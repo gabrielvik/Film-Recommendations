@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FilmRecomendations.Db.Repos;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,7 +85,12 @@ builder.Services.AddAuthentication(options =>
             };
         });
 
-
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        builder.Configuration.GetConnectionString("FilmConnectionString") ?? "",
+        name: "database",
+        tags: new[] { "db", "sql", "sqlserver" })
+    .AddCheck("self", () => HealthCheckResult.Healthy());
 
 builder.Services.AddTransient<IAiService, AiService>();
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
@@ -94,7 +100,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://192.168.1.10:5173")
+        policy.WithOrigins("http://localhost:5173", "http://frontend:5173")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
