@@ -108,21 +108,21 @@ function showMovieDetails(movie) {
                                 <p class="mb-2"><span class="font-semibold">Land:</span> ${data.production_countries.$values.map(country => country.name).join(', ')}</p>
                                 <p class="mb-2"><span class="font-semibold">Regissör:</span> ${data.directors.$values.map(director => director.name).join(', ')}</p>
                                 <div class="mb-6">
-                                    <h3 class="text-xl font-semibold mb-6">Större roller:</h3>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                                        ${data.actors.$values.slice(0, 6).map(actor => `
-                                            <div class="flex flex-col items-center">
-                                                <img 
-                                                    src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
-                                                    alt="${actor.name}" 
-                                                    class="w-16 h-16 object-cover rounded-full border-1 border-white"
-                                                    onerror="this.src='/src/assets/default-avatar.png'"
-                                                >
-                                                <p class="text-center text-sm mt-2">${actor.name}</p>
-                                                <p class="text-center text-xs text-gray-500">${actor.character}</p>
-                                            </div>
-                                        `).join('')}
+                                <h3 class="text-xl font-semibold mb-6">Större roller:</h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                                    ${data.actors.$values.slice(0, 6).map(actor => `
+                                    <div class="flex flex-col items-center cursor-pointer" data-actor-id="${actor.id}">
+                                        <img 
+                                        src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
+                                        alt="${actor.name}" 
+                                        class="w-16 h-16 object-cover rounded-full border-1 border-white"
+                                        onerror="this.src='/src/assets/default-avatar.png'"
+                                        >
+                                        <p class="text-center text-sm mt-2">${actor.name}</p>
+                                        <p class="text-center text-xs text-gray-500">${actor.character}</p>
                                     </div>
+                                    `).join('')}
+                                </div>
                                 </div>
                                 <hr class="border-t border-gray-300 dark:border-gray-700 mt-4">
                             </div>
@@ -188,13 +188,13 @@ function showMovieDetails(movie) {
             if (trailerButton) {
                 trailerButton.addEventListener('click', () => playTrailer(data.trailers.$values));
             }
-            
+
             // Add event listener for closing the trailer modal
             const closeTrailerModal = document.getElementById('closeTrailerModal');
             if (closeTrailerModal) {
                 closeTrailerModal.addEventListener('click', closeTrailer);
             }
-            
+
             // Close modal when clicking outside the video
             const trailerModal = document.getElementById('trailerModal');
             if (trailerModal) {
@@ -204,13 +204,16 @@ function showMovieDetails(movie) {
                     }
                 });
             }
-        })
-        .catch(error => {
-            console.error(error);
-            
-            // If API fetch fails, fall back to static data with improved layout
-            displayStaticMovieData(movie);
-        });
+
+            // Add event listeners for actor clicks
+            setupActorClickHandlers();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        
+                        // If API fetch fails, fall back to static data with improved layout
+                        displayStaticMovieData(movie);
+                    });
 }
 
 // Back button event listener to return to the movie results page
@@ -416,3 +419,188 @@ document.addEventListener('keydown', (event) => {
         closeTrailer();
     }
 });
+
+// Add click event handlers to actors
+function setupActorClickHandlers() {
+    document.querySelectorAll('.flex.flex-col.items-center').forEach(actorElement => {
+      // Check if this is an actor element (has a text-center child)
+      if (actorElement.querySelector('.text-center')) {
+        // Add "actor-element" class for easier selection later
+        actorElement.classList.add('actor-element', 'cursor-pointer', 'hover:opacity-80', 'transition-opacity', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'rounded-lg');
+        
+        // Make it focusable for accessibility
+        actorElement.setAttribute('tabindex', '0');
+        
+        // Add click and keyboard event listeners
+        actorElement.addEventListener('click', handleActorClick);
+        actorElement.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleActorClick.call(actorElement);
+          }
+        });
+      }
+    });
+    
+    function handleActorClick() {
+      // Get actor ID from data attribute
+      const actorId = this.getAttribute('data-actor-id');
+      if (actorId) {
+        // Mark this element as the one that opened the modal
+        this.setAttribute('data-active', 'true');
+        showActorDetails(actorId);
+      }
+    }
+  }
+  
+  // Function to show actor details popup
+// Function to show actor details popup
+async function showActorDetails(actorId) {
+    const actorModal = document.getElementById('actorModal');
+    const actorDetailsContent = document.getElementById('actorDetailsContent');
+    
+    // Show loading state
+    actorDetailsContent.innerHTML = `
+      <div class="flex justify-center items-center p-16">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    `;
+    
+    // Show modal
+    actorModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden'); // Prevent background scrolling
+    
+    // Focus on modal for accessibility
+    setTimeout(() => {
+      document.getElementById('closeActorModal').focus();
+    }, 100);
+    
+    try {
+      // Fetch actor details from API
+      const response = await fetch(`https://localhost:7103/FilmRecomendations/GetActorDetails/${actorId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch actor details');
+      }
+      
+      const actorDetails = await response.json();
+      
+      // Format birthday
+      let formattedBirthday = '';
+      if (actorDetails.birthday) {
+        const birthDate = new Date(actorDetails.birthday);
+        formattedBirthday = birthDate.toLocaleDateString('sv-SE');
+      }
+      
+      // Truncate biography to a reasonable length (about 150 words)
+      let truncatedBio = actorDetails.biography || 'Ingen biografi tillgänglig.';
+      if (truncatedBio.split(/\s+/).length > 150) {
+        const words = truncatedBio.split(/\s+/).slice(0, 150);
+        truncatedBio = words.join(' ') + '...';
+      }
+      
+      // Format known for movies
+      const knownForMoviesHtml = actorDetails.knownForMovies.$values.length > 0 
+        ? actorDetails.knownForMovies.$values.map(movie => `
+          <div class="movie-card flex flex-col items-center p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+            <div class="relative w-full pb-[150%] overflow-hidden rounded shadow">
+              <img 
+                src="${movie.posterPath || '/src/assets/default-poster.png'}" 
+                alt="${movie.title}" 
+                class="absolute inset-0 w-full h-full object-cover"
+                onerror="this.src='/src/assets/default-poster.png'"
+              >
+            </div>
+            <p class="text-center text-sm font-medium mt-2 line-clamp-1">${movie.title}</p>
+            <p class="text-center text-xs text-gray-500 line-clamp-1">${movie.character}</p>
+          </div>
+        `).join('')
+        : '<p class="text-gray-500 italic">Ingen filminformation tillgänglig.</p>';
+      
+      // Create the content HTML with improvements
+      actorDetailsContent.innerHTML = `
+        <div class="p-6 md:p-8">
+          <div class="flex flex-col md:flex-row gap-6">
+            <!-- Left column - image and basic info -->
+            <div class="md:w-1/3 flex flex-col">
+              <div class="rounded-lg overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700">
+                <img 
+                  src="${actorDetails.profilePath ? 'https://image.tmdb.org/t/p/w500' + actorDetails.profilePath : '/src/assets/default-avatar.png'}" 
+                  alt="${actorDetails.name}" 
+                  class="w-full aspect-[2/3] object-cover"
+                  onerror="this.src='/src/assets/default-avatar.png'"
+                >
+              </div>
+              
+              <div class="mt-4 space-y-1 text-sm">
+                ${formattedBirthday ? `<p><span class="font-semibold">Född:</span> ${formattedBirthday}</p>` : ''}
+                ${actorDetails.placeOfBirth ? `<p><span class="font-semibold">Födelseort:</span> ${actorDetails.placeOfBirth}</p>` : ''}
+              </div>
+            </div>
+            
+            <!-- Right column - name, bio, and films -->
+            <div class="md:w-2/3">
+              <h2 class="text-2xl font-bold">${actorDetails.name}</h2>
+              
+              <div class="my-4">
+                <h3 class="text-lg font-semibold mb-2">Biografi</h3>
+                <p class="text-sm md:text-base text-gray-700 dark:text-gray-300">
+                  ${truncatedBio}
+                </p>
+              </div>
+              
+              <div>
+                <h3 class="text-lg font-semibold mb-3">Känd för</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  ${knownForMoviesHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+    } catch (error) {
+      console.error('Error fetching actor details:', error);
+      actorDetailsContent.innerHTML = `
+        <div class="text-center p-8">
+          <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="mt-4 text-xl font-semibold">Ett fel uppstod</p>
+          <p class="mt-2 text-gray-500">Kunde inte hämta skådespelarinformation. Försök igen senare.</p>
+        </div>
+      `;
+    }
+  }
+  
+  // Close actor modal with proper cleanup
+  function closeActorModal() {
+    const actorModal = document.getElementById('actorModal');
+    actorModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden'); // Restore background scrolling
+    
+    // Return focus to the element that opened the modal (for accessibility)
+    const actorElement = document.querySelector('.actor-element[data-active="true"]');
+    if (actorElement) {
+      actorElement.removeAttribute('data-active');
+      actorElement.focus();
+    }
+  }
+  
+  // Add event listener to close actor modal
+  document.getElementById('closeActorModal').addEventListener('click', closeActorModal);
+  
+  // Close modal when clicking outside
+  document.getElementById('actorModal').addEventListener('click', (event) => {
+    if (event.target === document.getElementById('actorModal')) {
+      closeActorModal();
+    }
+  });
+  
+  // Add keyboard event listener for Escape key to close actor modal
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeActorModal();
+    }
+  });

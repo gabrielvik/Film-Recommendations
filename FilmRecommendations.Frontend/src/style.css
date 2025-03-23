@@ -58,5 +58,47 @@
     height: 100%;
 }
 
-
-
+/* Actor modal styles */
+.actor-element {
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  
+  .actor-element:hover {
+    transform: translateY(-2px);
+  }
+  
+  #actorModal {
+    transition: opacity 0.3s ease;
+  }
+  
+  #actorModal.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  #actorModal:not(.hidden) {
+    opacity: 1;
+  }
+  
+  .movie-card img {
+    transition: transform 0.3s ease;
+  }
+  
+  .movie-card:hover img {
+    transform: scale(1.05);
+  }
+  
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
