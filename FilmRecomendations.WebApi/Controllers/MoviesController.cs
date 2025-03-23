@@ -168,7 +168,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet("exists/{tmdbId}")]
-    [ProducesResponseType(200, Type = typeof(bool))]
+    [ProducesResponseType(200, Type = typeof(MovieGetDto))]
     public async Task<IActionResult> MovieExists(int tmdbId)
     {
         try
@@ -184,8 +184,13 @@ public class MoviesController : ControllerBase
                 return BadRequest("User not found");
             }
 
-            var exists = await _movieRepo.MovieExistsWithTMDBIdAsync(user.Id, tmdbId);
-            return Ok(exists);
+            var movie = await _movieRepo.GetMovieByTMDbIdAsync(user.Id, tmdbId);
+            if (movie == null)
+            {
+                return Ok(new { exists = false });
+            }
+        
+            return Ok(new { exists = true, movie });
         }
         catch (Exception e)
         {

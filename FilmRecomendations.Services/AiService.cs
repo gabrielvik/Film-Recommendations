@@ -20,15 +20,15 @@ namespace FilmRecomendations.Services
 
         private ChatClient InitializeChatClient()
         {
-            string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            // string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
             // Set up the API key and endpoint for GROK.
-            // var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
-            // var credential = new ApiKeyCredential(apiKey);
-            // var baseURL = new OpenAI.OpenAIClientOptions
-            // {
-            //     Endpoint = new Uri("https://api.x.ai/v1")
-            // };
+            var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            var credential = new ApiKeyCredential(apiKey);
+            var baseURL = new OpenAI.OpenAIClientOptions
+            {
+                Endpoint = new Uri("https://api.x.ai/v1")
+            };
 
             if (string.IsNullOrEmpty(apiKey))
             {
@@ -36,10 +36,10 @@ namespace FilmRecomendations.Services
             }
 
             // Initialize the chat client with GROK.
-            // return new ChatClient("grok-2-latest", credential, baseURL);
+            return new ChatClient("grok-2-latest", credential, baseURL);
 
             // Initialize the chat client with GPT.
-            return new ChatClient("gpt-4o-mini", apiKey);
+            // return new ChatClient("gpt-4o-mini", apiKey);
         }
 
         public async Task<string> GetMovieRecommendationsAsync(string prompt)

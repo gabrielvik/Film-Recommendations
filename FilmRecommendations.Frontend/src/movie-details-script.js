@@ -1,4 +1,4 @@
-import { addToWatchlist, showNotification } from './movie-buttons-actions.js';
+import { addToWatchlist, showNotification, addToLikeList } from './movie-buttons-actions.js';
 
 // Preserve dark mode setting
 const currentTheme = localStorage.getItem('theme');
@@ -442,7 +442,20 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
     if(event.target.closest('#like')) {
-        
+        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching movie details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                addToLikeList(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+            });
     }
 });
 

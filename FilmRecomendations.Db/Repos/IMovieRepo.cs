@@ -11,5 +11,5 @@ public interface IMovieRepo
     Task<MovieGetDto?> GetMovieAsync(Guid MovieDbId);
     Task<MovieGetDto> UpdateMovieAsync(MovieCUDtO item);
     Task<MovieGetDto> DeleteMovieAsync(Guid MovieDbId);
-    Task<bool> MovieExistsWithTMDBIdAsync(string userId, int tmdbId);
+    Task<MovieGetDto?> GetMovieByTMDbIdAsync(string userId, int tmdbId);
 }
