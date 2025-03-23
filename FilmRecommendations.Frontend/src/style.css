@@ -102,3 +102,25 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Fix for flickering images */
+.movie-card {
+    isolation: isolate;
+  }
+  
+  .movie-card .relative {
+    background-color: #eee; /* Light mode placeholder */
+  }
+  
+  .dark .movie-card .relative {
+    background-color: #374151; /* Dark mode placeholder */
+  }
+  
+  .movie-card img {
+    transition: opacity 0.3s ease;
+    opacity: 0;
+  }
+  
+  .movie-card img.loaded {
+    opacity: 1;
+  }
