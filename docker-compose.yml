@@ -42,8 +42,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: FilmRecommendations.Frontend/Dockerfile
+      context: ./FilmRecommendations.Frontend
+      dockerfile: Dockerfile
     container_name: filmrecs-frontend
     depends_on:
       - api
