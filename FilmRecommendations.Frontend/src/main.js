@@ -64,11 +64,10 @@ promptForm.addEventListener('submit', async (e) => {
   movieRecommendations.innerHTML = '';
   loadingIndicator.classList.remove('hidden');
 
+  // Build the request URL with encoded prompt - updated to use the Docker service name
+  const apiUrl = `http://api:5291/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
 
-   // Build the request URL with encoded prompt
-   const apiUrl = `/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
-
-   // Fetch movie recommendations from the backend API
+  // Fetch movie recommendations from the backend API
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
