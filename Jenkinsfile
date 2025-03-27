@@ -2,7 +2,7 @@ stage('Deploy') {
     steps {
         // Create docker-compose.yml file
         sh '''
-            # Create docker-compose.yml content
+            # Create docker-compose.yml with environment-specific settings
             cat <<EOF > docker-compose.yml
 version: '3.8'
 
@@ -55,37 +55,26 @@ volumes:
 EOF
         '''
         
-        // Deploy to homelab if on Develop branch
-        script {
-            if (env.BRANCH_NAME == 'Develop') {
-                echo 'Deploying to homelab...'
+        // Save images to files
+        sh '''
+            mkdir -p deploy
+            docker save filmrecommendations-api:latest > deploy/api.tar
+            docker save filmrecommendations-frontend:latest > deploy/frontend.tar
+            cp docker-compose.yml deploy/
+        '''
+        
+        // Transfer files to homelab
+        sshagent(credentials: ['homelab-ssh-key']) {
+            sh '''
+                # Ensure deploy directory exists on homelab
+                ssh manu@192.168.1.10 'mkdir -p ~/filmrecs-deploy'
                 
-                // Save images to files
-                sh '''
-                    mkdir -p deploy
-                    docker save filmrecommendations-api:latest > deploy/api.tar
-                    docker save filmrecommendations-frontend:latest > deploy/frontend.tar
-                    cp docker-compose.yml deploy/
-                '''
+                # Transfer Docker images and docker-compose.yml
+                scp deploy/* manu@192.168.1.10:~/filmrecs-deploy/
                 
-                // Transfer files to homelab
-                sshagent(credentials: ['homelab-ssh-key']) {
-                    sh '''
-                        # Ensure deploy directory exists on homelab
-                        ssh manu@192.168.1.10 'mkdir -p ~/filmrecs-deploy'
-                        
-                        # Transfer Docker images and docker-compose.yml
-                        scp deploy/* manu@192.168.1.10:~/filmrecs-deploy/
-                        
-                        # Run deployment script on homelab
-                        ssh manu@192.168.1.10 'cd ~/filmrecs-deploy && bash deploy.sh'
-                    '''
-                }
-                
-                echo 'Deployment to homelab completed'
-            } else {
-                echo 'Skipping homelab deployment for non-Develop branch'
-            }
+                # Run deployment script on homelab
+                ssh manu@192.168.1.10 'cd ~/filmrecs-deploy && bash deploy.sh'
+            '''
         }
     }
 }
