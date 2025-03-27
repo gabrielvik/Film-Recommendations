@@ -17,11 +17,10 @@ services:
     restart: unless-stopped
 
   api:
-    image: filmrecommendations-api:latest
-    container_name: filmrecs-api
     build:
-      context: ./FilmRecomendations.WebApi
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: FilmRecomendations.WebApi/Dockerfile
+    container_name: filmrecs-api
     depends_on:
       - db
     environment:
@@ -42,11 +41,10 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: filmrecommendations-frontend:latest
-    container_name: filmrecs-frontend
     build:
-      context: ./FilmRecommendations.Frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: FilmRecommendations.Frontend/Dockerfile
+    container_name: filmrecs-frontend
     depends_on:
       - api
     ports:

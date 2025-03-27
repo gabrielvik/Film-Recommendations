@@ -5,14 +5,17 @@ EXPOSE 5291
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy solution and project files first and restore to cache dependencies
+# Copy individual project files first
 COPY ["FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj", "FilmRecomendations.WebApi/"]
 COPY ["FilmRecomendations.Models/FilmRecomendations.Models.csproj", "FilmRecomendations.Models/"]
 COPY ["FilmRecomendations.Services/FilmRecomendations.Services.csproj", "FilmRecomendations.Services/"]
 COPY ["FilmRecomendations.Db/FilmRecomendations.Db.csproj", "FilmRecomendations.Db/"]
-COPY ["Film Recommendations.sln", "./"]
 
-RUN dotnet restore "Film Recommendations.sln"
+# Restore dependencies for individual projects instead of relying on the solution file
+RUN dotnet restore "FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj"
+RUN dotnet restore "FilmRecomendations.Models/FilmRecomendations.Models.csproj"
+RUN dotnet restore "FilmRecomendations.Services/FilmRecomendations.Services.csproj" 
+RUN dotnet restore "FilmRecomendations.Db/FilmRecomendations.Db.csproj"
 
 # Copy the rest of the source code
 COPY . .
