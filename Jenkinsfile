@@ -1,8 +1,8 @@
 stage('Deploy') {
     steps {
-        // Create docker-compose.yml with environment-specific settings
+        // Create docker-compose.yml file
         sh '''
-            # This ensures we use the port from the environment variable
+            # Create docker-compose.yml content
             cat <<EOF > docker-compose.yml
 version: '3.8'
 
