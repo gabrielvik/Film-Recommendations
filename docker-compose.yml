@@ -34,8 +34,7 @@ services:
       - Jwt__Key=${JWT_KEY:-your_jwt_secret_key_here}
       - Jwt__Issuer=${JWT_ISSUER:-FilmRecomendationWebsite}
       - Jwt__Audience=${JWT_AUDIENCE:-ClientApplication}
-    ports:
-      - "5291:5291"
+    # Removed direct port exposure, will be accessed through nginx
     networks:
       - filmrecs-network
     restart: unless-stopped
@@ -49,8 +48,37 @@ services:
       - api
     volumes:
       - ./FilmRecommendations.Frontend/nginx.conf:/etc/nginx/conf.d/default.conf
+    # Removed direct port exposure, will be accessed through nginx
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: filmrecs-nginx
+    depends_on:
+      - api
+      - frontend
     ports:
-      - "5173:80"
+      - "80:80"
+      - "443:443"
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: filmrecs-jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - filmrecs-network
     restart: unless-stopped
@@ -61,3 +89,4 @@ networks:
 
 volumes:
   filmrecs-db-data:
+  jenkins_home:
