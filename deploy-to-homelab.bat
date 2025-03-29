@@ -7,36 +7,7 @@ echo Script directory: %SCRIPT_DIR%
 
 rem Convert Windows path to WSL path with lowercase drive letter
 set DRIVE_LETTER=%SCRIPT_DIR:~0,1%
-for %%i in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
-    if /I "%DRIVE_LETTER%"=="%%i" set DRIVE_LETTER=%%i
-)
-set DRIVE_LETTER_LOWER=%DRIVE_LETTER%
-if "%DRIVE_LETTER%"=="A" set DRIVE_LETTER_LOWER=a
-if "%DRIVE_LETTER%"=="B" set DRIVE_LETTER_LOWER=b
-if "%DRIVE_LETTER%"=="C" set DRIVE_LETTER_LOWER=c
-if "%DRIVE_LETTER%"=="D" set DRIVE_LETTER_LOWER=d
-if "%DRIVE_LETTER%"=="E" set DRIVE_LETTER_LOWER=e
-if "%DRIVE_LETTER%"=="F" set DRIVE_LETTER_LOWER=f
-if "%DRIVE_LETTER%"=="G" set DRIVE_LETTER_LOWER=g
-if "%DRIVE_LETTER%"=="H" set DRIVE_LETTER_LOWER=h
-if "%DRIVE_LETTER%"=="I" set DRIVE_LETTER_LOWER=i
-if "%DRIVE_LETTER%"=="J" set DRIVE_LETTER_LOWER=j
-if "%DRIVE_LETTER%"=="K" set DRIVE_LETTER_LOWER=k
-if "%DRIVE_LETTER%"=="L" set DRIVE_LETTER_LOWER=l
-if "%DRIVE_LETTER%"=="M" set DRIVE_LETTER_LOWER=m
-if "%DRIVE_LETTER%"=="N" set DRIVE_LETTER_LOWER=n
-if "%DRIVE_LETTER%"=="O" set DRIVE_LETTER_LOWER=o
-if "%DRIVE_LETTER%"=="P" set DRIVE_LETTER_LOWER=p
-if "%DRIVE_LETTER%"=="Q" set DRIVE_LETTER_LOWER=q
-if "%DRIVE_LETTER%"=="R" set DRIVE_LETTER_LOWER=r
-if "%DRIVE_LETTER%"=="S" set DRIVE_LETTER_LOWER=s
-if "%DRIVE_LETTER%"=="T" set DRIVE_LETTER_LOWER=t
-if "%DRIVE_LETTER%"=="U" set DRIVE_LETTER_LOWER=u
-if "%DRIVE_LETTER%"=="V" set DRIVE_LETTER_LOWER=v
-if "%DRIVE_LETTER%"=="W" set DRIVE_LETTER_LOWER=w
-if "%DRIVE_LETTER%"=="X" set DRIVE_LETTER_LOWER=x
-if "%DRIVE_LETTER%"=="Y" set DRIVE_LETTER_LOWER=y
-if "%DRIVE_LETTER%"=="Z" set DRIVE_LETTER_LOWER=z
+call :tolower DRIVE_LETTER_LOWER %DRIVE_LETTER%
 
 set WSL_PATH=/mnt/%DRIVE_LETTER_LOWER%/%SCRIPT_DIR:~3,-1%
 set WSL_PATH=%WSL_PATH:\=/%
@@ -50,141 +21,55 @@ if %ERRORLEVEL% NEQ 0 (
   exit /b 1
 )
 
-rem Copy deployment files to WSL home directory for reliable access
-echo Copying deployment script to WSL home directory...
-wsl cp %WSL_PATH%/deploy-to-homelab.sh ~/ 2>nul
-if %ERRORLEVEL% NEQ 0 (
-  echo Error: Failed to copy script to WSL home directory.
-  echo Attempting alternative approach...
-  
-  rem Try direct file creation in WSL
-  echo Creating deployment script directly in WSL...
-  
-  wsl bash -c "cat > ~/deploy-to-homelab.sh << 'EOF'
-#!/bin/sh
-set -e  # Exit immediately if a command exits with non-zero status
+rem Create a simplified deployment script
+echo Creating simplified deployment script...
+echo @echo off > simplified-deploy.bat
+echo echo Deploying to homelab... >> simplified-deploy.bat
+echo wsl bash -c "ssh manu@192.168.1.10 'mkdir -p /home/manu/film-recommendations'" >> simplified-deploy.bat
+echo wsl bash -c "scp '%SCRIPT_DIR%docker-compose.homelab.yml' manu@192.168.1.10:/home/manu/film-recommendations/docker-compose.yml" >> simplified-deploy.bat 
+echo wsl bash -c "scp '%SCRIPT_DIR%.env' manu@192.168.1.10:/home/manu/film-recommendations/.env" >> simplified-deploy.bat
+echo wsl bash -c "scp '%SCRIPT_DIR%FilmRecommendations.Frontend\homelab.nginx.conf' manu@192.168.1.10:/home/manu/film-recommendations/nginx.conf" >> simplified-deploy.bat
+echo wsl bash -c "ssh manu@192.168.1.10 'cd /home/manu/film-recommendations && docker-compose down && docker-compose pull && docker-compose up -d'" >> simplified-deploy.bat
+echo echo Deployment completed! >> simplified-deploy.bat
+echo echo. >> simplified-deploy.bat
+echo echo Your application should be accessible at: >> simplified-deploy.bat
+echo echo - Frontend: http://192.168.1.10:5173 >> simplified-deploy.bat
+echo echo - API: http://192.168.1.10:5291 >> simplified-deploy.bat
+echo echo - Swagger: http://192.168.1.10:5291/swagger >> simplified-deploy.bat
+echo pause >> simplified-deploy.bat
 
-# Define variables
-WSL_PROJECT_PATH='%WSL_PATH%'
-HOMELAB_USER='manu'
-HOMELAB_IP='192.168.1.10'
-PROJECT_DIR='/home/manu/film-recommendations'
+echo Running simplified deployment...
+call simplified-deploy.bat
 
-echo \"Working with project at: \$WSL_PROJECT_PATH\"
-cd \"\$WSL_PROJECT_PATH\"
+del simplified-deploy.bat
+exit /b 0
 
-# Check for required deployment files
-echo \"Checking for required deployment files...\"
-if [ ! -f \"\$WSL_PROJECT_PATH/docker-compose.homelab.yml\" ]; then
-    echo \"Error: docker-compose.homelab.yml not found\"
-    exit 1
-fi
-
-# Check for env file
-if [ ! -f \"\$WSL_PROJECT_PATH/.env\" ]; then
-    echo \"Warning: .env file not found.\"
-    exit 1
-fi
-
-# Create project directory on homelab
-echo \"Creating project directory on homelab...\"
-ssh \"\${HOMELAB_USER}@\${HOMELAB_IP}\" \"mkdir -p \${PROJECT_DIR}\"
-
-# Copy essential files to homelab
-echo \"Copying docker-compose.homelab.yml to homelab...\"
-scp \"\$WSL_PROJECT_PATH/docker-compose.homelab.yml\" \"\${HOMELAB_USER}@\${HOMELAB_IP}:\${PROJECT_DIR}/docker-compose.yml\"
-
-echo \"Copying .env file to homelab...\"
-scp \"\$WSL_PROJECT_PATH/.env\" \"\${HOMELAB_USER}@\${HOMELAB_IP}:\${PROJECT_DIR}/.env\"
-
-# Find nginx config
-NGINX_CONF=\"\"
-if [ -f \"\$WSL_PROJECT_PATH/FilmRecommendations.Frontend/homelab.nginx.conf\" ]; then
-    NGINX_CONF=\"\$WSL_PROJECT_PATH/FilmRecommendations.Frontend/homelab.nginx.conf\"
-elif [ -f \"\$WSL_PROJECT_PATH/FilmRecomendations.Frontend/homelab.nginx.conf\" ]; then
-    NGINX_CONF=\"\$WSL_PROJECT_PATH/FilmRecomendations.Frontend/homelab.nginx.conf\"
-fi
-
-if [ -n \"\$NGINX_CONF\" ]; then
-    echo \"Copying nginx configuration from \$NGINX_CONF...\"
-    scp \"\$NGINX_CONF\" \"\${HOMELAB_USER}@\${HOMELAB_IP}:\${PROJECT_DIR}/nginx.conf\"
-else
-    echo \"Warning: Could not find nginx config file\"
-fi
-
-# Create remote deployment script
-echo \"Creating remote deployment script...\"
-cat > remote_deploy.sh << 'EOT'
-#!/bin/sh
-cd ~/film-recommendations
-
-# Make sure directories exist
-mkdir -p FilmRecommendations.Frontend
-mkdir -p FilmRecomendations.Frontend
-
-# Copy nginx config if it exists
-if [ -f nginx.conf ]; then
-  cp nginx.conf FilmRecommendations.Frontend/nginx.conf
-  cp nginx.conf FilmRecomendations.Frontend/nginx.conf
-  cp nginx.conf FilmRecommendations.Frontend/homelab.nginx.conf
-  cp nginx.conf FilmRecomendations.Frontend/homelab.nginx.conf
-fi
-
-# Deploy using docker-compose
-echo \"Starting containers...\"
-docker-compose down
-docker-compose pull
-docker-compose build
-docker-compose up -d
-
-echo \"Checking container status...\"
-docker ps | grep filmrecs
-
-echo \"Deployment complete!\"
-EOT
-
-# Copy and run the remote script
-scp remote_deploy.sh \"\${HOMELAB_USER}@\${HOMELAB_IP}:\${PROJECT_DIR}/remote_deploy.sh\"
-ssh \"\${HOMELAB_USER}@\${HOMELAB_IP}\" \"chmod +x \${PROJECT_DIR}/remote_deploy.sh && \${PROJECT_DIR}/remote_deploy.sh\"
-rm remote_deploy.sh
-
-echo \"Deployment to homelab completed successfully!\"
-echo \"Your application should be accessible at:\"
-echo \"- Frontend: http://192.168.1.10:5173\"
-echo \"- API: http://192.168.1.10:5291\"
-echo \"- Swagger: http://192.168.1.10:5291/swagger\"
-EOF"
-  
-  if %ERRORLEVEL% NEQ 0 (
-    echo Error: Failed to create script in WSL.
-    pause
-    exit /b %ERRORLEVEL%
-  )
-)
-
-rem Make script executable
-wsl chmod +x ~/deploy-to-homelab.sh
-if %ERRORLEVEL% NEQ 0 (
-  echo Error: Failed to set executable permission on the script.
-  pause
-  exit /b %ERRORLEVEL%
-)
-
-rem Run the deployment script
-echo Running deployment script from WSL home directory...
-wsl ~/deploy-to-homelab.sh
-
-if %ERRORLEVEL% NEQ 0 (
-  echo Deployment failed with error code %ERRORLEVEL%
-  pause
-  exit /b %ERRORLEVEL%
-)
-
-echo Deployment completed successfully!
-echo.
-echo Your application should be accessible at:
-echo - Frontend: http://192.168.1.10:5173
-echo - API: http://192.168.1.10:5291
-echo - Swagger: http://192.168.1.10:5291/swagger
-echo.
-pause
+:tolower
+set %1=%2
+if "%2"=="A" set %1=a
+if "%2"=="B" set %1=b
+if "%2"=="C" set %1=c
+if "%2"=="D" set %1=d
+if "%2"=="E" set %1=e
+if "%2"=="F" set %1=f
+if "%2"=="G" set %1=g
+if "%2"=="H" set %1=h
+if "%2"=="I" set %1=i
+if "%2"=="J" set %1=j
+if "%2"=="K" set %1=k
+if "%2"=="L" set %1=l
+if "%2"=="M" set %1=m
+if "%2"=="N" set %1=n
+if "%2"=="O" set %1=o
+if "%2"=="P" set %1=p
+if "%2"=="Q" set %1=q
+if "%2"=="R" set %1=r
+if "%2"=="S" set %1=s
+if "%2"=="T" set %1=t
+if "%2"=="U" set %1=u
+if "%2"=="V" set %1=v
+if "%2"=="W" set %1=w
+if "%2"=="X" set %1=x
+if "%2"=="Y" set %1=y
+if "%2"=="Z" set %1=z
+goto :eof
