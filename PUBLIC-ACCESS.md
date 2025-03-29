@@ -25,6 +25,14 @@ Your application will now be accessible from anywhere using:
 
 Replace YOUR_PUBLIC_IP with your actual public IP address from Step 2.
 
+## Step 4: Update CORS Settings for External Access
+
+If you experience CORS issues when accessing your API from the internet, you may need to update your API's CORS configuration:
+
+1. The docker-compose.homelab.yml file already configures the Nginx server with CORS headers
+2. However, you may need to verify that your .NET API also allows cross-origin requests from your public domain
+3. If necessary, you can modify the Program.cs file in your FilmRecomendations.WebApi project to include your public domain in the CORS policy
+
 ## Optional: Set Up Dynamic DNS (If Your Public IP Changes)
 
 If your ISP changes your public IP address periodically:

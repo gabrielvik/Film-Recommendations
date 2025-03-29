@@ -11,7 +11,7 @@ set WSL_PATH=%WSL_PATH:\=/%
 echo WSL path: %WSL_PATH%
 
 rem Make bash script executable and run it from the correct directory
-wsl bash -c "chmod +x %WSL_PATH%/deploy-to-homelab.sh && cd %WSL_PATH% && ./deploy-to-homelab.sh"
+wsl bash -c "chmod +x %WSL_PATH%/deploy-to-homelab.sh && cd %WSL_PATH% && bash ./deploy-to-homelab.sh"
 
 if %ERRORLEVEL% NEQ 0 (
   echo Deployment failed with error code %ERRORLEVEL%
