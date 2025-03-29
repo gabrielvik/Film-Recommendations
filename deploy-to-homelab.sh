@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 set -e  # Exit immediately if a command exits with non-zero status
 
 # Get directory where script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "Working directory: $SCRIPT_DIR"
 cd "$SCRIPT_DIR"
 
@@ -36,15 +36,13 @@ fi
 # Check if .env file exists
 if [ ! -f "$SCRIPT_DIR/.env" ]; then
     echo "Warning: .env file not found. Creating a template..."
-    cat > "$SCRIPT_DIR/.env" << 'EOT'
-# API Keys for Film Recommendations application
-TMDB_API_KEY=your_tmdb_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-GROK_API_KEY=your_grok_api_key_here
-JWT_KEY=your_jwt_secret_key_here
-JWT_ISSUER=FilmRecomendationWebsite
-JWT_AUDIENCE=ClientApplication
-EOT
+    echo '# API Keys for Film Recommendations application' > "$SCRIPT_DIR/.env"
+    echo 'TMDB_API_KEY=your_tmdb_api_key_here' >> "$SCRIPT_DIR/.env"
+    echo 'OPENAI_API_KEY=your_openai_api_key_here' >> "$SCRIPT_DIR/.env"
+    echo 'GROK_API_KEY=your_grok_api_key_here' >> "$SCRIPT_DIR/.env"
+    echo 'JWT_KEY=your_jwt_secret_key_here' >> "$SCRIPT_DIR/.env"
+    echo 'JWT_ISSUER=FilmRecomendationWebsite' >> "$SCRIPT_DIR/.env"
+    echo 'JWT_AUDIENCE=ClientApplication' >> "$SCRIPT_DIR/.env"
     echo "Please update the .env file with your actual API keys before continuing."
     exit 1
 fi
@@ -110,9 +108,10 @@ scp "frontend.tar" "${HOMELAB_USER}@${HOMELAB_IP}:${PROJECT_DIR}/frontend.tar"
 # Remove the local tar files
 rm webapi.tar frontend.tar
 
-# SSH into homelab and deploy
-echo "Deploying on homelab..."
-ssh "${HOMELAB_USER}@${HOMELAB_IP}" << 'EOF'
+# Create remote deployment script
+echo "Creating remote deployment script..."
+cat > remote_deploy.sh << 'EOT'
+#!/bin/sh
 cd ~/film-recommendations
 
 # Extract the deployment packages
@@ -142,7 +141,12 @@ echo "Checking container status..."
 docker ps | grep filmrecs
 
 echo "Deployment complete!"
-EOF
+EOT
+
+# Copy and run the remote script
+scp remote_deploy.sh "${HOMELAB_USER}@${HOMELAB_IP}:${PROJECT_DIR}/remote_deploy.sh"
+ssh "${HOMELAB_USER}@${HOMELAB_IP}" "chmod +x ${PROJECT_DIR}/remote_deploy.sh && ${PROJECT_DIR}/remote_deploy.sh"
+rm remote_deploy.sh
 
 echo "Deployment to homelab completed successfully!"
 echo "Your application should be accessible at:"
