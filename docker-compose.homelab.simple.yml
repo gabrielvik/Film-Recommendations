@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  api:
+    image: film-recommendations-api:latest
+    container_name: filmrecs-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5291
+      - ConnectionStrings__FilmConnectionString=Server=db;Database=FilmRecommendations;User=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;
+      - TMDb__BaseUrl=https://api.themoviedb.org/3/
+      - TMDb__ApiKey=${TMDB_API_KEY}
+      - OpenAI__ApiKey=${OPENAI_API_KEY}
+      - GROK__ApiKey=${GROK_API_KEY}
+      - Jwt__Key=${JWT_KEY:-your_jwt_secret_key_here}
+      - Jwt__Issuer=${JWT_ISSUER:-FilmRecomendationWebsite}
+      - Jwt__Audience=${JWT_AUDIENCE:-ClientApplication}
+    ports:
+      - "5291:5291"  # Explicitly map port 5291
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  frontend:
+    image: film-recommendations-frontend:latest
+    container_name: filmrecs-frontend
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Use homelab-specific config
+    ports:
+      - "5173:80"  # Map to port 5173
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: filmrecs-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrongPassword123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"  # Map to port 1433
+    volumes:
+      - filmrecs-db-data:/var/opt/mssql
+    networks:
+      - filmrecs-network
+    restart: unless-stopped
+
+networks:
+  filmrecs-network:
+    driver: bridge
+
+volumes:
+  filmrecs-db-data:
