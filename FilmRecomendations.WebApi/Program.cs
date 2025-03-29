@@ -86,6 +86,7 @@ builder.Services.AddAuthentication(options =>
         });
 
 // Register the required services
+builder.Services.AddHttpClient<ITMDBService, TMDBService>();
 builder.Services.AddTransient<IAiService, AiService>();
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
