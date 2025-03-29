@@ -1,4 +1,5 @@
-﻿using OpenAI.Chat;
+﻿using Microsoft.Extensions.Configuration;
+using OpenAI.Chat;
 using System.ClientModel;
 using System.Net.Http;
 using System.Text.Json;
@@ -10,20 +11,19 @@ namespace FilmRecomendations.Services
     {
         private readonly ChatClient _chatClient;
         private ITMDBService _tmdbService;
+        private readonly IConfiguration _configuration;
 
-        public AiService(ITMDBService tmdbService)
+        public AiService(ITMDBService tmdbService, IConfiguration configuration)
         {
+            _configuration = configuration;
             _chatClient = InitializeChatClient();
             _tmdbService = tmdbService;
-
         }
 
         private ChatClient InitializeChatClient()
         {
-            // string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-
-            // Set up the API key and endpoint for GROK.
-            var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            // Changed: Access via configuration instead of environment variables
+            var apiKey = _configuration["GROK:ApiKey"];
             var credential = new ApiKeyCredential(apiKey);
             var baseURL = new OpenAI.OpenAIClientOptions
             {
@@ -32,14 +32,16 @@ namespace FilmRecomendations.Services
 
             if (string.IsNullOrEmpty(apiKey))
             {
-                throw new InvalidOperationException("API key for GROK is not set in the environment variables.");
+                throw new InvalidOperationException("API key for GROK is not set in the configuration.");
             }
 
             // Initialize the chat client with GROK.
             return new ChatClient("grok-2-latest", credential, baseURL);
 
             // Initialize the chat client with GPT.
-            // return new ChatClient("gpt-4o-mini", apiKey);
+            // OpenAI option if needed:
+            // var openAiKey = _configuration["OpenAI:ApiKey"];
+            // return new ChatClient("gpt-4o-mini", openAiKey);
         }
 
         public async Task<string> GetMovieRecommendationsAsync(string prompt)
@@ -72,7 +74,6 @@ namespace FilmRecomendations.Services
 
             ChatCompletion chatCompletion = await _chatClient.CompleteChatAsync(messages, completionOptions);
             string responseContent = chatCompletion.Content[0].Text;
-
 
             return await GetMovieIdAndPoster(responseContent);
         }

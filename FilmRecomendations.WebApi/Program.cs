@@ -85,18 +85,11 @@ builder.Services.AddAuthentication(options =>
             };
         });
 
-builder.Services.AddHealthChecks()
-    .AddSqlServer(
-        builder.Configuration.GetConnectionString("FilmConnectionString") ?? "",
-        name: "database",
-        tags: new[] { "db", "sql", "sqlserver" })
-    .AddCheck("self", () => HealthCheckResult.Healthy());
-
-// Register the required services - these were commented out
+// Register the required services
 builder.Services.AddTransient<IAiService, AiService>();
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
-// Update CORS policy so that all origins are allowed
+// Update CORS policy to allow all origins
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
