@@ -484,6 +484,23 @@ function setupActorClickHandlers() {
     });
 }
 
+function navigateToMovie(movieId, movieTitle) {
+    // Create minimal movie data object
+    const movieData = {
+      movie_id: movieId,
+      movie_name: movieTitle
+    };
+    
+    // Store the movie data in sessionStorage
+    sessionStorage.setItem('selectedMovie', JSON.stringify(movieData));
+    
+    // Create a URL-friendly version of the title
+    const movieSlug = movieTitle.toLowerCase().replace(/\s+/g, '-');
+    
+    // Navigate to the movie details page
+    window.location.href = `movie-details.html?movie=${movieSlug}`;
+  }
+
 // FIXED: Add function to show actor details
 async function showActorDetails(actorId) {
     const actorModal = document.getElementById('actorModal');
@@ -618,6 +635,10 @@ async function showActorDetails(actorId) {
                 </div>
             </div>
         `;
+        
+        // Set up click handlers for movie items after rendering the content
+        setupMovieClickHandlers();
+        
     } catch (error) {
         console.error('Error fetching actor details:', error);
         actorDetailsContent.innerHTML = `
@@ -627,6 +648,20 @@ async function showActorDetails(actorId) {
             </div>
         `;
     }
+}
+
+// Function to handle movie click events
+function setupMovieClickHandlers() {
+  document.querySelectorAll('.movie-item').forEach(movieElement => {
+    movieElement.addEventListener('click', function() {
+      const movieId = this.getAttribute('data-movie-id');
+      const movieTitle = this.getAttribute('data-movie-title');
+      
+      if (movieId && movieTitle) {
+        navigateToMovie(movieId, movieTitle);
+      }
+    });
+  });
 }
 
 // FIXED: Enhanced closeActorModal function to restore original background

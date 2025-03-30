@@ -161,3 +161,16 @@ div[tabindex="0"]:focus {
 #closeActorModal:hover {
     color: #FFFFFF;
 }
+
+.movie-item {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.movie-item:hover {
+  transform: translateY(-3px);
+  opacity: 0.9;
+}
+
+.movie-item:active {
+  transform: translateY(0);
+}
