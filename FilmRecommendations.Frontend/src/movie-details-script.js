@@ -491,9 +491,9 @@ async function showActorDetails(actorId) {
                 
                 <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-semibold mb-4">Known For</h3>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
                         ${actorDetails.knownForMovies && actorDetails.knownForMovies.$values ? 
-                            actorDetails.knownForMovies.$values.map(movie => `
+                            actorDetails.knownForMovies.$values.slice(0, 4).map(movie => `
                                 <div class="flex flex-col">
                                     <img 
                                         src="${movie.posterPath ? 'https://image.tmdb.org/t/p/w200' + movie.posterPath : '/src/assets/default-poster.png'}" 

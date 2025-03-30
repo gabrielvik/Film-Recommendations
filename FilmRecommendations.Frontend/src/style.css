@@ -86,6 +86,11 @@ div[tabindex="0"]:focus {
     /* Subtle glow effect instead of harsh blue outline */
 }
 
+/* Ensure the actor modal background is transparent */
+#actorModal {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
 /* FIXED: Ensure actor modal has solid background */
 #actorModal .bg-white,
 #actorModal .dark\:bg-gray-800 {
@@ -123,18 +128,17 @@ div[tabindex="0"]:focus {
     border-radius: 3px;
 }
 
-/* FIXED: Ensure modal close buttons are properly visible and clickable */
+/* Updated: Simple X close buttons without circular background */
 #closeTrailerModal,
 #closeActorModal {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
-    padding: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: color 0.2s;
     z-index: 50;
+    background: none;
+    padding: 4px;
 }
 
 #closeTrailerModal:hover,
 #closeActorModal:hover {
-    background-color: rgba(0, 0, 0, 0.7);
+    color: #FFFFFF;
 }
