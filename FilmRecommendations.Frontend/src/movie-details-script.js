@@ -577,26 +577,38 @@ async function showActorDetails(actorId) {
                                 // Special case for Titanic to ensure correct poster
                                 if (movie.title === "Titanic" || movie.title === "Titanic: Stories from the Heart") {
                                     return `
-                                    <div class="flex flex-col">
-                                        <img 
-                                            src="https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" 
-                                            alt="Titanic" 
-                                            class="w-full rounded-lg shadow"
-                                            onerror="this.src='/src/assets/default-poster.png'"
-                                        >
-                                        <p class="text-center text-sm mt-2">Titanic</p>
+                                    <div class="flex flex-col movie-item cursor-pointer transition duration-200 hover:opacity-80 hover:scale-105" 
+                                         data-movie-id="597" 
+                                         data-movie-title="Titanic"
+                                         data-release-year="1997">
+                                        <div class="relative overflow-hidden rounded-lg">
+                                            <img 
+                                                src="https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" 
+                                                alt="Titanic" 
+                                                class="w-full shadow transition duration-200"
+                                                onerror="this.src='/src/assets/default-poster.png'"
+                                            >
+                                            <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition duration-200"></div>
+                                        </div>
+                                        <p class="text-center text-sm mt-2 font-medium">Titanic</p>
                                     </div>
                                     `;
                                 }
                                 return `
-                                <div class="flex flex-col">
-                                    <img 
-                                        src="${movie.posterPath ? 'https://image.tmdb.org/t/p/w200' + movie.posterPath : '/src/assets/default-poster.png'}" 
-                                        alt="${movie.title}" 
-                                        class="w-full rounded-lg shadow"
-                                        onerror="this.src='/src/assets/default-poster.png'"
-                                    >
-                                    <p class="text-center text-sm mt-2">${movie.title}</p>
+                                <div class="flex flex-col movie-item cursor-pointer transition duration-200 hover:opacity-80 hover:scale-105" 
+                                     data-movie-id="${movie.id}" 
+                                     data-movie-title="${movie.title}"
+                                     data-release-year="${movie.releaseDate ? movie.releaseDate.substring(0, 4) : ''}">
+                                    <div class="relative overflow-hidden rounded-lg">
+                                        <img 
+                                            src="${movie.posterPath ? 'https://image.tmdb.org/t/p/w200' + movie.posterPath : '/src/assets/default-poster.png'}" 
+                                            alt="${movie.title}" 
+                                            class="w-full shadow transition duration-200"
+                                            onerror="this.src='/src/assets/default-poster.png'"
+                                        >
+                                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition duration-200"></div>
+                                    </div>
+                                    <p class="text-center text-sm mt-2 font-medium">${movie.title}</p>
                                 </div>
                                 `;
                             }).join('') : 
