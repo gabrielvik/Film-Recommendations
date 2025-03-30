@@ -100,9 +100,10 @@ promptForm.addEventListener('submit', async (e) => {
   }
 });
 
+// FIXED: Changed movie card creation to remove transparency issues and hover effects
 function displayMovies(movies) {
   movies.forEach((movie) => {
-    // Create the card container with additional classes for hover shadow, transition, scaling on hover, and appear animation
+    // Create the card container with modified classes to remove transparency and scale effects
     const movieCard = document.createElement('div');
     movieCard.classList.add(
       'movie-card',
@@ -111,13 +112,9 @@ function displayMovies(movies) {
       'rounded-lg',
       'overflow-hidden',
       'shadow-lg',
-      'hover:shadow-2xl',
       'transition',
-      'transform',
       'duration-300',
       'opacity-0',
-      'scale-95',
-      'hover:scale-105',
       'cursor-pointer'
     );
 
@@ -151,8 +148,8 @@ function displayMovies(movies) {
 
     // Trigger the appear animation after the element is added to the DOM
     requestAnimationFrame(() => {
-      movieCard.classList.remove('opacity-0', 'scale-95');
-      movieCard.classList.add('opacity-100', 'scale-100');
+      movieCard.classList.remove('opacity-0');
+      movieCard.classList.add('opacity-100');
     });
   });
 }
@@ -175,8 +172,6 @@ promptInput.addEventListener('input', () => {
   // Only clear the displayed results, but keep the stored data
   if (currentQuery !== lastSearchQuery) {
     movieRecommendations.innerHTML = '';
-    // Don't remove from sessionStorage here, only update when a new search is executed
-    // sessionStorage.removeItem('movieRecommendations');
     lastSearchQuery = currentQuery;
   }
 });

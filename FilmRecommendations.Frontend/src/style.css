@@ -28,13 +28,7 @@
         max-width: 90%;
         margin-left: auto;
         margin-right: auto;
-      }
-  /* #movieDetailsModal > div {
-    width: 95%;
-    max-height: 95vh;
-    overflow-y: auto;
-    margin: 0 10px;
-  } */
+    }
 }
 
 .backButton{
@@ -58,69 +52,89 @@
     height: 100%;
 }
 
-/* Actor modal styles */
-.actor-element {
-    transition: transform 0.2s, opacity 0.2s;
-  }
-  
-  .actor-element:hover {
-    transform: translateY(-2px);
-  }
-  
-  #actorModal {
-    transition: opacity 0.3s ease;
-  }
-  
-  #actorModal.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  #actorModal:not(.hidden) {
-    opacity: 1;
-  }
-  
-  .movie-card img {
-    transition: transform 0.3s ease;
-  }
-  
-  .movie-card:hover img {
-    transform: scale(1.05);
-  }
-  
-  /* Line clamp utilities */
-  .line-clamp-1 {
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* Fix for flickering images */
+/* FIXED: Remove transparency on movie cards hover */
 .movie-card {
     isolation: isolate;
-  }
-  
-  .movie-card .relative {
-    background-color: #eee; /* Light mode placeholder */
-  }
-  
-  .dark .movie-card .relative {
-    background-color: #374151; /* Dark mode placeholder */
-  }
-  
-  .movie-card img {
-    transition: opacity 0.3s ease;
-    opacity: 0;
-  }
-  
-  .movie-card img.loaded {
-    opacity: 1;
-  }
+    /* Add solid background colors to ensure no transparency */
+    background-color: #ffffff;
+}
+
+.dark .movie-card {
+    background-color: #374151;
+}
+
+/* FIXED: Remove scale hover effect that might cause transparency impression */
+.movie-card.hover\:scale-105:hover {
+    transform: none !important;
+}
+
+/* FIXED: Remove any blue border/outline on elements when clicked */
+* {
+    outline: none !important;
+}
+
+*:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Improve button focus states with custom styling */
+button:focus, 
+a:focus, 
+div[tabindex="0"]:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+    /* Subtle glow effect instead of harsh blue outline */
+}
+
+/* FIXED: Ensure actor modal has solid background */
+#actorModal .bg-white,
+#actorModal .dark\:bg-gray-800 {
+    background-color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+.dark #actorModal .bg-white,
+.dark #actorModal .dark\:bg-gray-800 {
+    background-color: #1f2937 !important;
+    opacity: 1 !important;
+}
+
+/* FIXED: Ensure biography text doesn't get cut off */
+#actorDetailsContent .biography-text {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+    /* Smooth scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+/* Custom scrollbar for webkit browsers */
+#actorDetailsContent .biography-text::-webkit-scrollbar {
+    width: 6px;
+}
+
+#actorDetailsContent .biography-text::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#actorDetailsContent .biography-text::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+}
+
+/* FIXED: Ensure modal close buttons are properly visible and clickable */
+#closeTrailerModal,
+#closeActorModal {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    z-index: 50;
+}
+
+#closeTrailerModal:hover,
+#closeActorModal:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
