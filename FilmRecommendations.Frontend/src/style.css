@@ -86,22 +86,41 @@ div[tabindex="0"]:focus {
     /* Subtle glow effect instead of harsh blue outline */
 }
 
-/* Ensure the actor modal background is transparent */
+/* Make the actor modal background darker but not too dark */
 #actorModal {
-    background-color: rgba(0, 0, 0, 0.3) !important;
+    background-color: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.2s ease-in-out, backdrop-filter 0.25s ease;
 }
 
-/* FIXED: Ensure actor modal has solid background */
+/* Ensure actor modal content has solid background with no transparency */
 #actorModal .bg-white,
-#actorModal .dark\:bg-gray-800 {
+#actorModal .dark\:bg-gray-800,
+#actorModal div[class*="bg-white"],
+#actorModal div[class*="bg-gray"] {
     background-color: #ffffff !important;
     opacity: 1 !important;
 }
 
 .dark #actorModal .bg-white,
-.dark #actorModal .dark\:bg-gray-800 {
+.dark #actorModal .dark\:bg-gray-800,
+.dark #actorModal div[class*="bg-white"],
+.dark #actorModal div[class*="bg-gray"] {
     background-color: #1f2937 !important;
     opacity: 1 !important;
+}
+
+/* Add border to make modal content stand out more */
+#actorModal > div {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease-out, opacity 0.15s ease-in;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Add a distinct shadow around the modal for better visual separation */
+#actorModal > div {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* FIXED: Ensure biography text doesn't get cut off */

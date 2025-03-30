@@ -419,6 +419,59 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+// Add extra darkening effect to background when actor modal is shown
+function showActorModalWithBackground() {
+    const actorModal = document.getElementById('actorModal');
+    const movieDetailsContainer = document.getElementById('movieDetailsContainer');
+    const modalContent = actorModal.querySelector('div');
+    
+    if (actorModal) {
+        // First ensure visibility but with initial opacity 0
+        actorModal.style.opacity = '0';
+        actorModal.classList.remove('hidden');
+        
+        // Apply initial transform to content for subtle animation
+        if (modalContent) {
+            modalContent.style.transform = 'translateY(10px)';
+            modalContent.style.opacity = '0';
+        }
+        
+        // Force a reflow before starting animation
+        void actorModal.offsetWidth;
+        
+        // Start animation
+        actorModal.style.opacity = '1';
+        if (modalContent) {
+            setTimeout(() => {
+                modalContent.style.transform = 'translateY(0)';
+                modalContent.style.opacity = '1';
+            }, 50);
+        }
+        
+        // Add darkening class to the movie details background
+        if (movieDetailsContainer) {
+            // Store the original background for later restoration
+            if (!movieDetailsContainer.dataset.originalBg) {
+                movieDetailsContainer.dataset.originalBg = movieDetailsContainer.style.backgroundImage;
+            }
+            
+            // Apply a darker overlay
+            const currentBg = movieDetailsContainer.style.backgroundImage;
+            if (currentBg) {
+                // Extract and modify the linear gradient part to make it darker
+                const bgParts = currentBg.split('url(');
+                if (bgParts.length > 1) {
+                    // Replace the original gradient with a darker one
+                    movieDetailsContainer.style.backgroundImage = `linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.85) 100%), url(${bgParts[1]}`;
+                }
+            }
+        }
+        
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
+    }
+}
+
 // FIXED: Add back the setupActorClickHandlers function
 function setupActorClickHandlers() {
     document.querySelectorAll('.actor-element').forEach(actorElement => {
@@ -448,8 +501,8 @@ async function showActorDetails(actorId) {
         </div>
     `;
     
-    // Show modal
-    actorModal.classList.remove('hidden');
+    // Show modal with darkened background
+    showActorModalWithBackground();
     
     try {
         // Simulate fetching actor details (replace with actual API call)
@@ -521,12 +574,43 @@ async function showActorDetails(actorId) {
     }
 }
 
-// FIXED: Ensure closeActorModal function is properly defined
+// FIXED: Enhanced closeActorModal function to restore original background
 function closeActorModal() {
     const actorModal = document.getElementById('actorModal');
+    const movieDetailsContainer = document.getElementById('movieDetailsContainer');
+    const modalContent = actorModal.querySelector('div');
+    
     if (actorModal) {
-        actorModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        // Start fade out animation
+        actorModal.style.opacity = '0';
+        
+        // Animate the modal content
+        if (modalContent) {
+            modalContent.style.transform = 'translateY(8px)';
+            modalContent.style.opacity = '0';
+        }
+        
+        // Wait for animation to complete before hiding completely
+        setTimeout(() => {
+            actorModal.classList.add('hidden');
+            
+            // Reset transform for next time
+            if (modalContent) {
+                modalContent.style.transform = '';
+                modalContent.style.opacity = '';
+            }
+            
+            // Reset opacity
+            actorModal.style.opacity = '';
+            
+            // Restore original background if we stored it
+            if (movieDetailsContainer && movieDetailsContainer.dataset.originalBg) {
+                movieDetailsContainer.style.backgroundImage = movieDetailsContainer.dataset.originalBg;
+            }
+            
+            // Re-enable body scrolling
+            document.body.style.overflow = 'auto';
+        }, 180);
     }
 }
 
