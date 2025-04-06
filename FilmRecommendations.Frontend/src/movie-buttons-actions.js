@@ -61,9 +61,8 @@ export function addToWatchlist(movieData) {
     });
 }
 
-// Function to like a movie
-export function addToLikeList(movieData){
-  
+// Combined function to handle both like and dislike actions
+export function updateMovieLikeStatus(movieData, isLiked) {
   let user = checkLogin();
 
   if(!user.loggedIn){
@@ -71,68 +70,117 @@ export function addToLikeList(movieData){
   }
 
   // Prepare the data to send to the API
- const watchlistItem = {
-   title: movieData.original_title,
-   tmdbId: movieData.id,
-   liked: true,
- };
+  const watchlistItem = {
+    title: movieData.original_title,
+    tmdbId: movieData.id,
+    liked: isLiked,
+  };
 
- // Check if the movie is already in the user's watchlist
- fetch(`https://localhost:7103/api/Movies/exists/${movieData.id}`, {
-   headers: {
-     Authorization: `Bearer ${user.token}`,
-   },
- })
-   .then((response) => {
-     // Check for authentication errors first
-     if (response.status === 401) {
-       localStorage.removeItem("authToken"); // Clear invalid token
-       showNotification(
-         "Din session har gått ut. Logga in igen för att fortsätta.",
-         "error"
-       );
-       setTimeout(() => {
-         window.location.href = "/login.html";
-       }, 2000);
-       throw new Error("Unauthorized - token expired");
-     }
-     
-     if (!response.ok) {
-       throw new Error(`Server error: ${response.status}`);
-     }
-     
-     // Only try to parse JSON if we have a successful response
-     return response.json();
-   })
-   .then((result) => {
-    if (result.exists) {
-      // Movie exists, check if it's already liked
-      if (result.movie.liked === true) {
+  // Check if the movie is already in the user's watchlist
+  fetch(`https://localhost:7103/api/Movies/exists/${movieData.id}`, {
+    headers: {
+      Authorization: `Bearer ${user.token}`,
+    },
+  })
+    .then((response) => {
+      // Check for authentication errors first
+      if (response.status === 401) {
+        localStorage.removeItem("authToken"); // Clear invalid token
         showNotification(
-          `Du har redan gillat "${movieData.original_title}"`,
-          "info"
+          "Din session har gått ut. Logga in igen för att fortsätta.",
+          "error"
         );
-        return;
+        setTimeout(() => {
+          window.location.href = "/login.html";
+        }, 2000);
+        throw new Error("Unauthorized - token expired");
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+      
+      // Only try to parse JSON if we have a successful response
+      return response.json();
+    })
+    .then((result) => {
+      if (result.exists) {
+        // Movie exists, check if it's already liked/disliked
+        if (result.movie.liked === isLiked) {
+          const action = isLiked ? "gillat" : "ogillat";
+          showNotification(
+            `Du har redan ${action} "${movieData.original_title}"`,
+            "info"
+          );
+          return;
+        } else {
+          // Update existing movie to liked/disliked
+          const updateData = {
+            movieId: result.movie.movieId,
+            title: result.movie.title,
+            tmdbId: result.movie.tmDbId,
+            liked: isLiked
+          };
+          console.log(updateData);
+          
+          return fetch("https://localhost:7103/api/Movies", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify(updateData),
+          })
+          .then(response => {
+            // Check for auth errors first
+            if (response.status === 401) {
+              localStorage.removeItem("authToken");
+              showNotification(
+                "Din session har gått ut. Logga in igen för att fortsätta.",
+                "error"
+              );
+              setTimeout(() => {
+                window.location.href = "/login.html";
+              }, 2000);
+              throw new Error("Unauthorized - token expired");
+            }
+            
+            if (!response.ok) {
+              throw new Error(`Failed to update movie: ${response.status}`);
+            }
+            
+            return response.json();
+          })
+          .then(data => {
+            const action = isLiked ? "gillar" : "ogillar";
+            const notificationType = isLiked ? "success" : "danger";
+            showNotification(
+              `Du ${action} nu "${movieData.original_title}"`,
+              notificationType
+            );
+          })
+          .catch(updateError => {
+            console.error("Error updating movie:", updateError);
+            if (!updateError.message.includes("Unauthorized")) {
+              showNotification(
+                "Ett fel inträffade vid uppdateringen av filmen.",
+                "error"
+              );
+            }
+          });
+        }
       } else {
-        // Update existing movie to liked
-        const updateData = {
-          movieId: result.movie.movieId,
-          title: result.movie.title,
-          tmdbId: result.movie.tmDbId,
-          liked: true
-        };
-        console.log(updateData);
-        
+        // Movie doesn't exist, add it as a new liked/disliked movie
         return fetch("https://localhost:7103/api/Movies", {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify(updateData),
+          body: JSON.stringify(watchlistItem),
         })
         .then(response => {
-          // Check for auth errors first
+          // Check for auth errors here too
           if (response.status === 401) {
             localStorage.removeItem("authToken");
             showNotification(
@@ -146,74 +194,39 @@ export function addToLikeList(movieData){
           }
           
           if (!response.ok) {
-            throw new Error(`Failed to update movie: ${response.status}`);
+            throw new Error("Failed to add movie to liked list");
           }
-          
           return response.json();
         })
         .then(data => {
+          const action = isLiked ? "gillar" : "ogillar";
+          const notificationType = isLiked ? "success" : "danger";
           showNotification(
-            `Du gillar nu "${movieData.original_title}"`,
-            "success"
+            `Du ${action} nu "${movieData.original_title}"`,
+            notificationType
           );
-        })
-        .catch(updateError => {
-          console.error("Error updating movie:", updateError);
-          if (!updateError.message.includes("Unauthorized")) {
-            showNotification(
-              "Ett fel inträffade vid uppdateringen av filmen.",
-              "error"
-            );
-          }
         });
       }
-     } else {
-       // Movie doesn't exist, add it as a new liked movie
-       return fetch("https://localhost:7103/api/Movies", {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-           Authorization: `Bearer ${user.token}`,
-         },
-         body: JSON.stringify(watchlistItem),
-       })
-       .then(response => {
-         // Check for auth errors here too
-         if (response.status === 401) {
-           localStorage.removeItem("authToken");
-           showNotification(
-             "Din session har gått ut. Logga in igen för att fortsätta.",
-             "error"
-           );
-           setTimeout(() => {
-             window.location.href = "/login.html";
-           }, 2000);
-           throw new Error("Unauthorized - token expired");
-         }
-         
-         if (!response.ok) {
-           throw new Error("Failed to add movie to liked list");
-         }
-         return response.json();
-       })
-       .then(data => {
-         showNotification(
-           `Du gillar nu "${movieData.original_title}"`,
-           "success"
-         );
-       });
-     }
-   })
-   .catch(error => {
-     console.error("Error in addToLikeList:", error);
-     // Don't show additional error messages for auth errors (already handled)
-     if (!error.message.includes("Unauthorized")) {
-       showNotification(
-         "Ett fel inträffade. Kunde inte genomföra åtgärden.",
-         "error"
-       );
-     }
-   });
+    })
+    .catch(error => {
+      console.error(`Error in updateMovieLikeStatus:`, error);
+      // Don't show additional error messages for auth errors (already handled)
+      if (!error.message.includes("Unauthorized")) {
+        showNotification(
+          "Ett fel inträffade. Kunde inte genomföra åtgärden.",
+          "error"
+        );
+      }
+    });
+}
+
+// Keep these functions but make them use the new combined function
+export function addToLikeList(movieData) {
+  updateMovieLikeStatus(movieData, true);
+}
+
+export function addToDislikeList(movieData) {
+  updateMovieLikeStatus(movieData, false);
 }
 
 // Check if user is logged in
