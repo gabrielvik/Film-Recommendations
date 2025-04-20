@@ -525,9 +525,8 @@ async function showActorDetails(actorId) {
     actorDetailsContent.scrollTop = 0;
     
     try {
-        // Simulate fetching actor details (replace with actual API call)
-        // This is a placeholder - in your real app, you would call your actual API
-        const response = await fetch(`https://localhost:7103/FilmRecomendations/GetActorDetails/${actorId}`);
+        // Use the new endpoint that provides summarized actor details
+        const response = await fetch(`https://localhost:7103/FilmRecomendations/GetSummarizedActorDetails/${actorId}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch actor details');
