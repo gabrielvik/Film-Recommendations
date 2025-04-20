@@ -18,4 +18,8 @@ public class ActorMovieCredit
     public string Character { get; set; }
     public string PosterPath { get; set; }
     public string ReleaseDate { get; set; }
+    // Add these new properties for sorting by popularity and rating
+    public double Popularity { get; set; }
+    public double VoteAverage { get; set; }
+    public int VoteCount { get; set; }
 }

@@ -428,15 +428,15 @@ public class TMDBService : ITMDBService
                 KnownForMovies = new List<ActorMovieCredit>()
             };
 
-            // Get top movies by popularity (for "known for" section)
-            var topMovies = new List<ActorMovieCredit>();
+            // Get movies by popularity (for "known for" section)
+            var actorMovies = new List<ActorMovieCredit>();
             foreach (var movie in cast.EnumerateArray())
             {
                 if (movie.TryGetProperty("id", out var id) && 
                     movie.TryGetProperty("title", out var title) &&
                     movie.TryGetProperty("poster_path", out var poster))
                 {
-                    topMovies.Add(new ActorMovieCredit
+                    var movieCredit = new ActorMovieCredit
                     {
                         Id = id.GetInt32(),
                         Title = title.GetString(),
@@ -448,14 +448,28 @@ public class TMDBService : ITMDBService
                             : null,
                         ReleaseDate = movie.TryGetProperty("release_date", out var releaseDate) && !releaseDate.ValueKind.Equals(JsonValueKind.Null)
                             ? releaseDate.GetString()
-                            : null
-                    });
+                            : null,
+                        // Extract popularity and vote metrics
+                        Popularity = movie.TryGetProperty("popularity", out var popularity) && !popularity.ValueKind.Equals(JsonValueKind.Null)
+                            ? popularity.GetDouble()
+                            : 0,
+                        VoteAverage = movie.TryGetProperty("vote_average", out var voteAverage) && !voteAverage.ValueKind.Equals(JsonValueKind.Null)
+                            ? voteAverage.GetDouble()
+                            : 0,
+                        VoteCount = movie.TryGetProperty("vote_count", out var voteCount) && !voteCount.ValueKind.Equals(JsonValueKind.Null)
+                            ? voteCount.GetInt32()
+                            : 0
+                    };
+                    
+                    actorMovies.Add(movieCredit);
                 }
             }
 
-            // Sort by popularity and take top 5
-            actorDetails.KnownForMovies = topMovies
-                .OrderByDescending(m => m.ReleaseDate)
+            // Sort by a combined score of popularity and vote_average, with a minimum vote_count threshold
+            // to ensure we get meaningful ratings, and filter out documentaries (by checking if actor is in their own movie)
+            actorDetails.KnownForMovies = actorMovies
+                .Where(m => m.VoteCount >= 20 && !m.Title.Contains(actorDetails.Name)) // Remove movies with low vote count and potential documentaries
+                .OrderByDescending(m => (m.Popularity * 0.6) + (m.VoteAverage * 0.4)) // Weight popularity higher than ratings
                 .Take(5)
                 .ToList();
 
