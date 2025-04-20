@@ -501,7 +501,7 @@ function navigateToMovie(movieId, movieTitle) {
     window.location.href = `movie-details.html?movie=${movieSlug}`;
   }
 
-// FIXED: Add function to show actor details
+// FIXED: Add function to show actor details with improved scrolling for mobile
 async function showActorDetails(actorId) {
     const actorModal = document.getElementById('actorModal');
     const actorDetailsContent = document.getElementById('actorDetailsContent');
@@ -520,6 +520,9 @@ async function showActorDetails(actorId) {
     
     // Show modal with darkened background
     showActorModalWithBackground();
+    
+    // Reset scroll position for the content div
+    actorDetailsContent.scrollTop = 0;
     
     try {
         // Simulate fetching actor details (replace with actual API call)

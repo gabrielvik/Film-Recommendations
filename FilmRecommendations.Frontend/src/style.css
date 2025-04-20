@@ -174,3 +174,76 @@ div[tabindex="0"]:focus {
 .movie-item:active {
   transform: translateY(0);
 }
+
+/* Mobile optimization for actor modal */
+@media (max-width: 640px) {
+    /* Fix modal positioning and scrolling */
+    #actorModal {
+        align-items: flex-start !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    /* Adjust the modal content container */
+    #actorModal > div {
+        max-height: 100vh !important;
+        height: 100vh;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Keep header fixed at top */
+    #actorModal .p-4.border-b {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    /* Make content area take remaining space and scroll */
+    #actorDetailsContent {
+        flex: 1;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 40px !important; /* Extra padding at bottom for better scrolling experience */
+    }
+    
+    /* Remove max-height limitation on biography */
+    #actorDetailsContent .biography-text {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    /* Improve layout for smaller screens */
+    #actorDetailsContent .flex.flex-col.md\:flex-row {
+        flex-direction: column !important;
+    }
+    
+    #actorDetailsContent .md\:w-1\/3,
+    #actorDetailsContent .md\:w-2\/3 {
+        width: 100% !important;
+    }
+
+    /* Improve the spacing between sections */
+    #actorDetailsContent .mt-6 {
+        margin-top: 2rem !important;
+    }
+
+    /* Add a better gap between image and biography */
+    #actorDetailsContent .gap-6 {
+        gap: 1.5rem !important;
+    }
+
+    /* Make sure grid items are sized properly */
+    #actorDetailsContent .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    /* Ensure born/birthplace info is visible */
+    #actorDetailsContent .space-y-1 {
+        margin-bottom: 1rem !important;
+    }
+}

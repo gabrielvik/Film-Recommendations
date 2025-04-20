@@ -37,10 +37,10 @@
     </div>
                 
     <!-- Actor Details Modal -->
-    <!-- FIXED: Removed transparency, added solid background colors -->
+    <!-- Updated for better mobile scrolling -->
     <div id="actorModal" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center hidden transition-opacity duration-200" role="dialog" aria-modal="true">
         <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-3xl mx-4 my-8 max-h-[90vh] overflow-hidden flex flex-col">
-            <!-- Modal Header with title -->
+            <!-- Modal Header with title - fixed position on mobile -->
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex justify-between items-center">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Actor Profile</h2>
                 <!-- Just X with no text -->
@@ -52,7 +52,7 @@
             </div>
             
             <!-- Content with scrollable area and improved biography container -->
-            <div id="actorDetailsContent" class="overflow-y-auto p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+            <div id="actorDetailsContent" class="overflow-y-auto p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white scroll-pt-4">
                 <!-- Content will be dynamically inserted here -->
             </div>
         </div>
