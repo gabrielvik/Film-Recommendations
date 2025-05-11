@@ -1,3 +1,5 @@
+import { addToWatchlist, showNotification, addToLikeList, addToDislikeList } from './movie-buttons-actions.js';
+
 // Preserve dark mode setting
 const currentTheme = localStorage.getItem('theme');
 if (currentTheme === 'dark') {
@@ -142,7 +144,7 @@ function showMovieDetails(movie) {
                                         <img src="/src/assets/play.png" class="w-4 h-4 me-2"> Trailer
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
+                                <button id="watchlist" class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/layer-plus1.png" class="w-4 h-4 me-2"> Add to List
                                     </div>
@@ -152,12 +154,12 @@ function showMovieDetails(movie) {
                                         <img src="/src/assets/check1.png" class="w-4 h-4 me-2"> Mark as Watched
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-green-700 text-white font-semibold hover:text-white py-2 px-4 border border-green-300 hover:border-transparent rounded">
+                                <button id="like" class="bg-transparent hover:bg-green-700 text-white font-semibold hover:text-white py-2 px-4 border border-green-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/thumbs-up.png" class="w-4 h-4 me-2"> Like
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-red-700 text-white font-semibold hover:text-white py-2 px-4 border border-red-300 hover:border-transparent rounded">
+                                <button id="dislike" class="bg-transparent hover:bg-red-700 text-white font-semibold hover:text-white py-2 px-4 border border-red-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/thumbs-down.png" class="w-4 h-4 me-2"> Dislike
                                     </div>
@@ -209,8 +211,6 @@ function showMovieDetails(movie) {
         .catch(error => {
             console.error(error);
             
-            // If API fetch fails, fall back to static data with improved layout
-            displayStaticMovieData(movie);
         });
 }
 
@@ -227,6 +227,7 @@ function convertRuntime(runtime) {
 
 // Add this function to display streaming providers with icons
 function renderStreamingProviders(providersData) {
+    console.log("Providers data:", providersData);
     if (!providersData || !providersData.results || Object.keys(providersData.results).length === 0) {
         return `<p class="mt-2">No streaming options available at this time.</p>`;
     }
@@ -244,6 +245,8 @@ function renderStreamingProviders(providersData) {
     
     // Find flatrate (streaming) providers
     for (const region of orderedRegions) {
+        if (providersData.results[region]?.flatrate?.$values?.length > 0) {
+            flatrateProviders = providersData.results[region].flatrate.$values;
         if (providersData.results[region]?.flatrate?.$values?.length > 0) {
             flatrateProviders = providersData.results[region].flatrate.$values;
             break;
@@ -754,3 +757,64 @@ function displayStaticMovieData(movie) {
         </div>
     `;
 }
+
+// Movie CRUD operations
+// Add event listener for watchlist button
+document.addEventListener('click', (event) => {
+    if (event.target.closest('#watchlist')) {
+        // Get the currently displayed movie
+        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching movie details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                addToWatchlist(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+            });
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if(event.target.closest('#like')) {
+        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching movie details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                addToLikeList(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+            });
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if(event.target.closest('#dislike')) {
+        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching movie details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                addToDislikeList(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+            });
+    }
+});
+

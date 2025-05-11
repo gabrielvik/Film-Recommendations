@@ -149,7 +149,7 @@ function showModalError(modalId, message) {
       } else {
         console.error('Error:', data);
         // Handle specific error messages from the API
-        let errorMessage = 'Ett fel uppstod vid registrering.';
+        let errorMessage = 'Ett fel uppstod vid registrering';
         
         // Check if data.errors is an array (password validation errors)
         if (data.errors && Array.isArray(data.errors)) {

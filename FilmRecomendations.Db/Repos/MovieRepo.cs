@@ -136,4 +136,12 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
             Liked = movie.Liked
         };
     }
+    public async Task<MovieGetDto?> GetMovieByTMDbIdAsync(string userId, int tmdbId)
+    {
+        var movie = await _context.Movies
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.UserId == userId && m.TMDbId == tmdbId);
+        
+        return movie == null ? null : MapToDto(movie);
+    }
 }

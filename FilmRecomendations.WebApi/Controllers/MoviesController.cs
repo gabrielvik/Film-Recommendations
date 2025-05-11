@@ -46,7 +46,7 @@ public class MoviesController : ControllerBase
 
             return Ok(watchList);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "Error in GetWatchList");
             return BadRequest("Error in GetWatchList");
@@ -75,7 +75,7 @@ public class MoviesController : ControllerBase
 
             return Ok(movies);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "Error in GetMovies");
             return BadRequest("Error in GetMovies");
@@ -94,7 +94,7 @@ public class MoviesController : ControllerBase
 
             return Ok(movie);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "Error in GetMovie");
             return BadRequest("Error in GetMovie");
@@ -120,7 +120,7 @@ public class MoviesController : ControllerBase
 
             return Ok(addedMovie);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "Error in AddMovie");
             return BadRequest("Error in AddMovie");
@@ -141,13 +141,13 @@ public class MoviesController : ControllerBase
 
             return Ok(updatedMovie);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "Error in UpdateMovie");
             return BadRequest("Error in UpdateMovie");
         }
     }
-    
+
     [HttpDelete("{movieId}")]
     [ProducesResponseType(200, Type = typeof(MovieGetDto))]
     [ProducesResponseType(400, Type = typeof(string))]
@@ -160,10 +160,42 @@ public class MoviesController : ControllerBase
 
             return Ok(deletedMovie);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             _logger.LogError(e, "Error in DeleteMovie");
             return BadRequest("Error in DeleteMovie");
+        }
+    }
+
+    [HttpGet("exists/{tmdbId}")]
+    [ProducesResponseType(200, Type = typeof(MovieGetDto))]
+    public async Task<IActionResult> MovieExists(int tmdbId)
+    {
+        try
+        {
+            var username = _userManager.GetUserName(User);
+            if (username == null)
+            {
+                return BadRequest("User not found");
+            }
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var movie = await _movieRepo.GetMovieByTMDbIdAsync(user.Id, tmdbId);
+            if (movie == null)
+            {
+                return Ok(new { exists = false });
+            }
+        
+            return Ok(new { exists = true, movie });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error checking if movie exists");
+            return BadRequest("Error checking if movie exists");
         }
     }
 }

@@ -23,6 +23,7 @@ namespace FilmRecomendations.Services
         private ChatClient InitializeChatClient()
         {
             // string apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            // string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
             // Set up the API key and endpoint for GROK.
             var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
