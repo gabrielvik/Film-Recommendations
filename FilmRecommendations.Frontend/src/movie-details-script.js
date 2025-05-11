@@ -177,6 +177,22 @@ function showMovieDetails(movie) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Trailer Modal -->
+                <div id="trailerModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden">
+                    <div class="relative bg-black rounded-lg overflow-hidden w-full max-w-4xl mx-4">
+                        <div class="flex justify-between items-center p-2 absolute top-0 right-0 z-10">
+                            <button id="closeTrailerModal" class="text-white hover:text-gray-300 p-1 text-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="trailerContainer" class="aspect-w-16 aspect-h-9">
+                            <!-- YouTube iframe will be inserted here -->
+                        </div>
+                    </div>
+                </div>
             `;
             
             // Add event listener for trailer button
@@ -225,7 +241,6 @@ function convertRuntime(runtime) {
     return `${hours}h ${minutes}m`;
 }
 
-// Add this function to display streaming providers with icons
 function renderStreamingProviders(providersData) {
     console.log("Providers data:", providersData);
     if (!providersData || !providersData.results || Object.keys(providersData.results).length === 0) {
@@ -245,8 +260,6 @@ function renderStreamingProviders(providersData) {
     
     // Find flatrate (streaming) providers
     for (const region of orderedRegions) {
-        if (providersData.results[region]?.flatrate?.$values?.length > 0) {
-            flatrateProviders = providersData.results[region].flatrate.$values;
         if (providersData.results[region]?.flatrate?.$values?.length > 0) {
             flatrateProviders = providersData.results[region].flatrate.$values;
             break;
@@ -352,6 +365,7 @@ function playTrailer(trailers) {
     
     // Get the trailer container and create the YouTube iframe
     const trailerContainer = document.getElementById('trailerContainer');
+
     trailerContainer.innerHTML = `
         <iframe 
             id="youtubeTrailer"
