@@ -198,4 +198,62 @@ public class MoviesController : ControllerBase
             return BadRequest("Error checking if movie exists");
         }
     }
+
+    [HttpGet("LikedMovies")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<MovieGetDto>))]
+    [ProducesResponseType(400, Type = typeof(string))]
+    public async Task<IActionResult> GetLikedMovies(string? filter = null, int pageNumber = 0, int pageSize = 10)
+    {
+        try
+        {
+            var username = _userManager.GetUserName(User);
+            if (username == null)
+            {
+                return BadRequest("User not found");
+            }
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var watchList = await _movieRepo.GetLikedMoviesAsync(user.Id, filter, pageNumber, pageSize);
+
+            return Ok(watchList);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in GetWatchList");
+            return BadRequest("Error in GetWatchList");
+        }
+    }
+
+    [HttpGet("DislikedMovies")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<MovieGetDto>))]
+    [ProducesResponseType(400, Type = typeof(string))]
+    public async Task<IActionResult> GetDisLikedMovies(string? filter = null, int pageNumber = 0, int pageSize = 10)
+    {
+        try
+        {
+            var username = _userManager.GetUserName(User);
+            if (username == null)
+            {
+                return BadRequest("User not found");
+            }
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var watchList = await _movieRepo.GetDislikedMoviesAsync(user.Id, filter, pageNumber, pageSize);
+
+            return Ok(watchList);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in GetWatchList");
+            return BadRequest("Error in GetWatchList");
+        }
+    }
 }

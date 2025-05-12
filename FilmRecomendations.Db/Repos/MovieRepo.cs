@@ -144,4 +144,62 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         
         return movie == null ? null : MapToDto(movie);
     }
+
+    public async Task<ResponsePageDto<MovieGetDto>> GetLikedMoviesAsync(string userId, string? filter, int pageNumber, int pageSize)
+    {
+        filter ??= "";
+        filter = filter.ToLower();
+        IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
+        
+        var count = await query
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter) && 
+                m.Liked == true)
+            .CountAsync();
+            
+        var items = await query
+            .Where(m => m.UserId == userId && 
+                m.Title.ToLower().Contains(filter) && 
+                m.Liked == true)
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new ResponsePageDto<MovieGetDto>()
+        {
+            DbItemsCount = count,
+            PageItems = items.Select(MapToDto).ToList(),
+            PageNr = pageNumber,
+            PageSize = pageSize
+        };
+    }
+
+    public async Task<ResponsePageDto<MovieGetDto>> GetDislikedMoviesAsync(string userId, string? filter, int pageNumber, int pageSize)
+    {
+        filter ??= "";
+        filter = filter.ToLower();
+        IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
+        
+        var count = await query
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter) && 
+                m.Liked == false)
+            .CountAsync();
+            
+        var items = await query
+            .Where(m => m.UserId == userId && 
+                m.Title.ToLower().Contains(filter) && 
+                m.Liked == false)
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new ResponsePageDto<MovieGetDto>()
+        {
+            DbItemsCount = count,
+            PageItems = items.Select(MapToDto).ToList(),
+            PageNr = pageNumber,
+            PageSize = pageSize
+        };
+    }
 }
