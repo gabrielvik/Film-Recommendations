@@ -1,12 +1,13 @@
 ﻿using System.Text.Json;
 using FilmRecomendations.Models.DTOs;
+using FilmRecomendations.Models.DTOs.Series;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 
 namespace FilmRecomendations.Services;
 
-public class TMDBService : ITMDBService
+public partial class TMDBService : ITMDBService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<TMDBService> _logger;

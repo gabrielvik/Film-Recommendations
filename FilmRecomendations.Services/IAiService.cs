@@ -2,7 +2,11 @@
 
 public interface IAiService
 {
+    // Movie recommendations
     Task<string> GetMovieRecommendationsAsync(string prompt);
+    
+    // Series recommendations
+    Task<string> GetSeriesRecommendationsAsync(string prompt);
     
     /// <summary>
     /// Generates a concise summary of an actor's biography (around 200 words)

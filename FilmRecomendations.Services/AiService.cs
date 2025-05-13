@@ -76,8 +76,41 @@ namespace FilmRecomendations.Services
             ChatCompletion chatCompletion = await _chatClient.CompleteChatAsync(messages, completionOptions);
             string responseContent = chatCompletion.Content[0].Text;
 
-
             return await GetMovieIdAndPoster(responseContent);
+        }
+        
+        public async Task<string> GetSeriesRecommendationsAsync(string prompt)
+        {
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage(
+                    "You are a TV series recommendation assistant. When given a series description, " +
+                    "you must return raw JSON only any number of TV series that are similar to the input description and nothing else. The output must be a valid JSON array " +
+                    "of objects in the following exact format (do not include any markdown, explanation, or extra text):\n\n" +
+                    "[\n" +
+                    "  {\n" +
+                    "    \"series_name\": \"Name of the TV series\",\n" +
+                    "    \"first_air_year\": 2000\n" +
+                    "  },\n" +
+                    "  {\n" +
+                    "    \"series_name\": \"Name of the TV series 2\",\n" +
+                    "    \"first_air_year\": 2001\n" +
+                    "  }\n" +
+                    "]\n\n" +
+                    "Make sure that your entire output is only this JSON without any additional commentary."
+                ),
+                new UserChatMessage(prompt)
+            };
+
+            var completionOptions = new ChatCompletionOptions
+            {
+                Temperature = 0.7f,
+            };
+
+            ChatCompletion chatCompletion = await _chatClient.CompleteChatAsync(messages, completionOptions);
+            string responseContent = chatCompletion.Content[0].Text;
+
+            return await GetSeriesIdAndPoster(responseContent);
         }
 
         public async Task<string> GetMovieIdAndPoster(string gptResponse)
@@ -109,12 +142,44 @@ namespace FilmRecomendations.Services
                     release_year = rec.release_year,
                     poster_path = movieIdResponse.poster_path
                 });
-        
             }
 
             // Return aggregated results as a JSON array.
             return JsonSerializer.Serialize(resultList);
+        }
+        
+        public async Task<string> GetSeriesIdAndPoster(string gptResponse)
+        {
+            // Parse the GPT response to extract the list of series.
+            var seriesRecommendations = JsonSerializer.Deserialize<List<SeriesRecommendation>>(gptResponse);
+            if (seriesRecommendations == null || seriesRecommendations.Count == 0)
+            {
+                return "[]";
+            }
 
+            var resultList = new List<SeriesDetail>();
+
+            foreach (var rec in seriesRecommendations)
+            {
+                // Fetch the series ID from TMDB.
+                var seriesIdResponse = await _tmdbService.GetSeriesIdAsync(rec.series_name, rec.first_air_year);
+                if (seriesIdResponse.Id <= 0)
+                {
+                    continue;
+                }
+
+                // Add the series details to the result list.
+                resultList.Add(new SeriesDetail
+                {
+                    series_id = seriesIdResponse.Id,
+                    series_name = rec.series_name,
+                    first_air_year = rec.first_air_year,
+                    poster_path = seriesIdResponse.poster_path
+                });
+            }
+
+            // Return aggregated results as a JSON array.
+            return JsonSerializer.Serialize(resultList);
         }
 
         private class MovieRecommendation
@@ -128,6 +193,20 @@ namespace FilmRecomendations.Services
             public int movie_id { get; set; }
             public string movie_name { get; set; }
             public int release_year { get; set; }
+            public string poster_path { get; set; }
+        }
+        
+        private class SeriesRecommendation
+        {
+            public string series_name { get; set; }
+            public int first_air_year { get; set; }
+        }
+
+        private class SeriesDetail
+        {
+            public int series_id { get; set; }
+            public string series_name { get; set; }
+            public int first_air_year { get; set; }
             public string poster_path { get; set; }
         }
         

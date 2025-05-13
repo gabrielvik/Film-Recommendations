@@ -39,6 +39,14 @@
   <div class="min-h-screen flex flex-col">
     <!-- Main content area -->
     <main class="flex-grow flex flex-col items-center px-4 md:px-16 pt-20">
+      <!-- Content Type Toggle -->
+      <div id="contentTypeToggle" class="flex justify-center items-center mb-6 bg-blue-600 text-white px-4 py-2 rounded-full cursor-pointer shadow-md hover:shadow-lg transition">
+        <span id="contentTypeText" class="text-sm font-medium">Movies</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </div>
+      
       <h1 class="mt-10 text-2xl font-semibold mb-2 text-center dark:text-gray-100 max-w-3xl">
         Vilken typ av film vill du se?
       </h1>
@@ -67,10 +75,12 @@
       </div>
 
       <!-- Loading Indicator -->
-      <div id="loadingIndicator" class="hidden"></div>
+      <div id="loadingIndicator" class="hidden mt-6 flex justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
 
-      <!-- Movie Recommendations Container -->
-      <div id="movieRecommendations" class="w-full max-w-xl mt-6 mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <!-- Content Recommendations Container -->
+      <div id="contentRecommendations" class="w-full max-w-xl mt-6 mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       </div>
 
     </main>
@@ -212,6 +222,7 @@
 
   <script type="module" src="/src/main.js"></script>
   <script type="module" src="/src/register-login-script.js"></script>
+  <script type="module" src="/src/content-type-utils.js"></script>
 </body>
 
 </html>
