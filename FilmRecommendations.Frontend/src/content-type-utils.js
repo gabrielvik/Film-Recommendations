@@ -56,13 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentTypeToggle = document.getElementById('contentTypeToggle');
     if (contentTypeToggle) {
         contentTypeToggle.addEventListener('click', () => {
-            setTimeout(() => {
-                const newContentType = localStorage.getItem('contentType') || 'movies';
-                if (newContentType !== currentContentType) {
-                    currentContentType = newContentType;
-                    updateSuggestions();
-                }
-            }, 10);
+            // Use a direct approach instead of setTimeout for more reliable execution
+            const newContentType = currentContentType === 'movies' ? 'series' : 'movies';
+            currentContentType = newContentType;
+            updateSuggestions();
+            
+            // Force page reload if needed instead of relying on other script behaviors
+            // This ensures complete refresh of the view when switching content types
+            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                // We're on the main page, don't reload but let main.js handle it
+                // The updates in main.js will take care of properly rendering the content
+            }
         });
     }
 
@@ -84,9 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listen for content type changes for page title
     if (contentTypeToggle) {
         contentTypeToggle.addEventListener('click', () => {
-            setTimeout(() => {
-                updatePageTitle();
-            }, 10);
+            // Update immediately instead of using setTimeout for more reliable execution
+            const newContentType = localStorage.getItem('contentType') || 'movies';
+            if (newContentType !== currentContentType) {
+                currentContentType = newContentType;
+            }
+            updatePageTitle();
         });
     }
 });

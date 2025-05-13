@@ -29,6 +29,9 @@ contentTypeToggle.addEventListener('click', () => {
   } else {
     promptInput.placeholder = "What kind of TV series are you in the mood for?";
   }
+  
+  // Force reload content from storage if available or clear the view
+  loadSavedContent();
 });
 
 function updateContentTypeUI() {
@@ -44,15 +47,8 @@ function updateContentTypeUI() {
   }
 }
 
-// Update the DOMContentLoaded event handler to properly restore the grid layout
-window.addEventListener('DOMContentLoaded', () => {
-  // Set the correct placeholder text based on content type
-  if (currentContentType === 'movies') {
-    promptInput.placeholder = "What kind of movie are you in the mood for?";
-  } else {
-    promptInput.placeholder = "What kind of TV series are you in the mood for?";
-  }
-
+// Function to load saved content based on current content type
+function loadSavedContent() {
   // Restore saved content if available
   const savedContent = sessionStorage.getItem(`${currentContentType}Recommendations`);
   if (savedContent) {
@@ -76,7 +72,24 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
       displaySeries(content);
     }
+  } else {
+    // Clear the content area and input field if no saved content exists
+    contentRecommendations.innerHTML = '';
+    promptInput.value = '';
   }
+}
+
+// Update the DOMContentLoaded event handler to properly restore the grid layout
+window.addEventListener('DOMContentLoaded', () => {
+  // Set the correct placeholder text based on content type
+  if (currentContentType === 'movies') {
+    promptInput.placeholder = "What kind of movie are you in the mood for?";
+  } else {
+    promptInput.placeholder = "What kind of TV series are you in the mood for?";
+  }
+
+  // Load saved content on page load
+  loadSavedContent();
 });
 
 // On page load, check localStorage for the preferred theme
