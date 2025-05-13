@@ -175,3 +175,4 @@ promptInput.addEventListener('input', () => {
     lastSearchQuery = currentQuery;
   }
 });
+

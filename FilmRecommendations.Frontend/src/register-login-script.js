@@ -19,7 +19,8 @@ userDisplay.className = 'mr-4 font-bold pt-2 text-gray-900 dark:text-gray-100';
 const profilePicture = document.createElement('div');
 profilePicture.id = 'profilePicture';
 profilePicture.className = 'w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-white dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-colors';
-profilePicture.innerHTML = '<img src="/src/assets/default-avatar.png" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=\\\'text-xl font-bold text-gray-700 dark:text-gray-300\\\'>U</span>\';" class="w-full h-full object-cover">';
+// Create image element with an ID so we can reference it later
+profilePicture.innerHTML = '<img id="headerProfileImage" src="/src/assets/default-avatar.png" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=\\\'text-xl font-bold text-gray-700 dark:text-gray-300\\\'>U</span>\';" class="w-full h-full object-cover">';
 profilePicture.title = "Min profil";
 
 // Add click event to redirect to profile page
@@ -304,6 +305,9 @@ loginForm.addEventListener('submit', async (e) => {
       if (!document.getElementById('logoutButton')) {
         authContainer.appendChild(logoutButton);
       }
+      
+      // Fetch and display the profile picture
+      fetchProfilePicture();
     } else {
       // User is not logged in
       loginButton.classList.remove('hidden');
@@ -330,6 +334,68 @@ loginForm.addEventListener('submit', async (e) => {
     updateAuthUI();
     showSuccessAlert('Du har loggats ut');
   });
+
+  function fetchProfilePicture() {
+  const token = localStorage.getItem('authToken');
+  
+  if (!token) {
+    return;
+  }
+
+  fetch('https://localhost:7103/api/UserProfile/profile-picture', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 404) {
+          // No profile picture found, use default avatar
+          return null;
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const profileImg = document.getElementById('headerProfileImage');
+      
+      if (data && data.profilePicture && profileImg) {
+        profileImg.src = data.profilePicture;
+        profileImg.style.display = 'block';
+        
+        // Remove letter avatar if it exists
+        const parentDiv = profileImg.parentNode;
+        const letterSpan = parentDiv.querySelector('span');
+        if (letterSpan) {
+          letterSpan.remove();
+        }
+        
+        // Also update localStorage for caching
+        localStorage.setItem('userProfilePicture', data.profilePicture);
+      } else if (profileImg) {
+        // Use cached profile picture if available
+        const savedProfilePic = localStorage.getItem('userProfilePicture');
+        if (savedProfilePic) {
+          profileImg.src = savedProfilePic;
+          profileImg.style.display = 'block';
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching profile picture:', error);
+      
+      // Fallback to localStorage if available
+      const profileImg = document.getElementById('headerProfileImage');
+      if (profileImg) {
+        const savedProfilePic = localStorage.getItem('userProfilePicture');
+        if (savedProfilePic) {
+          profileImg.src = savedProfilePic;
+          profileImg.style.display = 'block';
+        }
+      }
+    });
+}
   
   // Call this function on page load to set the initial state
   document.addEventListener('DOMContentLoaded', updateAuthUI);

@@ -50,19 +50,74 @@ function initProfile() {
       document.getElementById('profileJoinDate').textContent = joinDate.toLocaleDateString();
     }
 
-    const savedProfilePic = localStorage.getItem('userProfilePicture');
-    if (savedProfilePic) {
-      profileImage.src = savedProfilePic;
-      profileImage.style.display = 'block';
-    }
+    fetchProfilePicture();
   }
+}
+
+// Fetch profile picture from server
+function fetchProfilePicture() {
+  const token = localStorage.getItem('authToken');
+  const profileImage = document.getElementById('profileImage');
+  
+  if (!token) {
+    return;
+  }
+
+  fetch('https://localhost:7103/api/UserProfile/profile-picture', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 404) {
+          // No profile picture found, use default avatar
+          return null;
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+.then(data => {
+      if (data && data.profilePicture) {
+        profileImage.src = data.profilePicture;
+        profileImage.style.display = 'block';
+        
+        // Remove letter avatar if it exists
+        const letterSpan = profileImage.parentNode.querySelector('div');
+        if (letterSpan) {
+          letterSpan.remove();
+        }
+        
+        // Also update localStorage for caching
+        localStorage.setItem('userProfilePicture', data.profilePicture);
+      }
+      })
+    .catch(error => {
+      console.error('Error fetching profile picture:', error);
+      
+      // Fallback to localStorage if available
+      const savedProfilePic = localStorage.getItem('userProfilePicture');
+      if (savedProfilePic) {
+        profileImage.src = savedProfilePic;
+        profileImage.style.display = 'block';
+      }
+    });
 }
 
 function setupProfilePictureChange() {
   const changeProfilePicButton = document.getElementById('changeProfilePicButton');
   const profilePicInput = document.getElementById('profilePicInput');
   const profileImage = document.getElementById('profileImage');
-
+  const deleteProfilePicButton = document.createElement('button');
+  
+  // Add delete button
+  deleteProfilePicButton.id = 'deleteProfilePicButton';
+  deleteProfilePicButton.className = 'mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium';
+  deleteProfilePicButton.textContent = 'Ta bort bild';
+  changeProfilePicButton.parentNode.insertBefore(deleteProfilePicButton, changeProfilePicButton.nextSibling);
+  
+  deleteProfilePicButton.addEventListener('click', deleteProfilePicture);
   changeProfilePicButton.addEventListener('click', () => {
     profilePicInput.click();
   });
@@ -72,22 +127,95 @@ function setupProfilePictureChange() {
       const reader = new FileReader();
 
       reader.onload = (e) => {
-        profileImage.src = e.target.result;
-        profileImage.style.display = 'block';
+        const imageData = e.target.result;
 
-        const letterSpan = profileImage.parentNode.querySelector('div');
-        if (letterSpan) {
-          letterSpan.remove();
-        }
-
-        localStorage.setItem('userProfilePicture', e.target.result);
-
-        showSuccessAlert('Profilbild uppdaterad!');
+        // Call API to update profile picture
+        updateProfilePicture(imageData);
       };
 
       reader.readAsDataURL(event.target.files[0]);
     }
   });
+}
+
+function updateProfilePicture(imageData) {
+  const token = localStorage.getItem('authToken');
+  const profileImage = document.getElementById('profileImage');
+  
+  if (!token) {
+    showErrorAlert('Du måste logga in för att uppdatera din profilbild.');
+    return;
+  }
+
+  fetch('https://localhost:7103/api/UserProfile/profile-picture', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ imageData: imageData })
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Update UI
+      profileImage.src = imageData;
+      profileImage.style.display = 'block';
+
+      const letterSpan = profileImage.parentNode.querySelector('div');
+      if (letterSpan) {
+        letterSpan.remove();
+      }
+
+      // Update local cache
+      localStorage.setItem('userProfilePicture', imageData);
+
+      showSuccessAlert('Profilbild uppdaterad!');
+    })
+    .catch(error => {
+      console.error('Error updating profile picture:', error);
+      showErrorAlert('Kunde inte uppdatera profilbild. Försök igen senare.');
+    });
+}
+
+function deleteProfilePicture() {
+  const token = localStorage.getItem('authToken');
+  const profileImage = document.getElementById('profileImage');
+  
+  if (!token) {
+    showErrorAlert('Du måste logga in för att ta bort din profilbild.');
+    return;
+  }
+
+  fetch('https://localhost:7103/api/UserProfile/profile-picture', {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Reset to default image
+      profileImage.src = '/src/assets/default-avatar.png';
+      
+      // Clear local storage
+      localStorage.removeItem('userProfilePicture');
+      
+      showSuccessAlert('Profilbild borttagen!');
+    })
+    .catch(error => {
+      console.error('Error deleting profile picture:', error);
+      showErrorAlert('Kunde inte ta bort profilbild. Försök igen senare.');
+    });
 }
 
 function setupThemeSwitcher() {
@@ -391,4 +519,6 @@ function showErrorAlert(message) {
     successAlert.classList.add('hidden');
   }, 3000);
 }
+
+
 
