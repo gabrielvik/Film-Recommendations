@@ -220,9 +220,25 @@
     </div>
   </div>
 
+  <!-- Load content-type-utils.js first to ensure it's ready before main.js runs -->
+  <script type="module" src="/src/content-type-utils.js"></script>
   <script type="module" src="/src/main.js"></script>
   <script type="module" src="/src/register-login-script.js"></script>
-  <script type="module" src="/src/content-type-utils.js"></script>
+  
+  <!-- Add a small inline script to ensure suggestions update on page load -->
+  <script>
+    // Force update suggestions when the page is fully loaded
+    window.addEventListener('load', function() {
+      console.log('Window loaded, forcing suggestion update');
+      setTimeout(function() {
+        if (window.updateSuggestions) {
+          window.updateSuggestions();
+        } else {
+          document.dispatchEvent(new Event('updateSuggestionsEvent'));
+        }
+      }, 100);
+    });
+  </script>
 </body>
 
 </html>

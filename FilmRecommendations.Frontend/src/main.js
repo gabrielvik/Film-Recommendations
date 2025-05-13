@@ -16,8 +16,13 @@ updateContentTypeUI();
 
 // Toggle content type and save the setting in localStorage
 contentTypeToggle.addEventListener('click', () => {
+  // Toggle the content type
   currentContentType = currentContentType === 'movies' ? 'series' : 'movies';
+  
+  // Save it to localStorage immediately
   localStorage.setItem('contentType', currentContentType);
+  
+  // Update the UI
   updateContentTypeUI();
   
   // Clear displayed results when switching content type
@@ -25,13 +30,28 @@ contentTypeToggle.addEventListener('click', () => {
   
   // Update the placeholder text based on content type
   if (currentContentType === 'movies') {
-    promptInput.placeholder = "What kind of movie are you in the mood for?";
+    promptInput.placeholder = "Vilken typ av film vill du se?";
   } else {
-    promptInput.placeholder = "What kind of TV series are you in the mood for?";
+    promptInput.placeholder = "Vilken typ av serie vill du se?";
   }
   
   // Force reload content from storage if available or clear the view
   loadSavedContent();
+  
+  // Dispatch a custom event to notify other scripts about the content type change
+  document.dispatchEvent(new CustomEvent('contentTypeChanged', { 
+    detail: { contentType: currentContentType }
+  }));
+  
+  console.log('Content type changed to:', currentContentType);
+  
+  // Force update suggestion bubbles (this is a direct call to ensure immediate update)
+  if (typeof updateSuggestions === 'function') {
+    updateSuggestions();
+  } else {
+    // If the function isn't directly available, try to trigger it through a global event
+    document.dispatchEvent(new Event('updateSuggestionsEvent'));
+  }
 });
 
 function updateContentTypeUI() {
@@ -110,12 +130,8 @@ themeSwitcher.addEventListener('click', () => {
   }
 });
 
-// Handle suggestion bubbles
-document.querySelectorAll('.suggestion').forEach((bubble) => {
-  bubble.addEventListener('click', () => {
-    promptInput.value = bubble.textContent.trim();
-  });
-});
+// Note: Suggestion bubbles are now handled in content-type-utils.js
+// This ensures they're properly updated when switching content types
 
 // Handle form submission with API call
 promptForm.addEventListener('submit', async (e) => {
