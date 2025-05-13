@@ -71,8 +71,11 @@ public class SeriesRecommendationsController : ControllerBase
     {
         try
         {
+            _logger.LogInformation($"GetSeriesDetails called with seriesId: {seriesId}");
+            
             if (seriesId <= 0)
             {
+                _logger.LogWarning($"Invalid series ID provided: {seriesId}");
                 return BadRequest("Valid series ID is required");
             }
 
@@ -80,15 +83,17 @@ public class SeriesRecommendationsController : ControllerBase
             
             if (seriesDetails == null)
             {
+                _logger.LogWarning($"Series details not found for ID: {seriesId}");
                 return NotFound($"Series details not found for ID: {seriesId}");
             }
             
+            _logger.LogInformation($"Successfully retrieved series details for ID: {seriesId}");
             return Ok(seriesDetails);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching series details.");
-            return StatusCode(500, "An error occurred while fetching series details.");
+            _logger.LogError(ex, $"Error fetching series details for ID: {seriesId}");
+            return StatusCode(500, $"An error occurred while fetching series details: {ex.Message}");
         }
     }
 

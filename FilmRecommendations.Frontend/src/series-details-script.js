@@ -1,4 +1,5 @@
 import { addToWatchlist, showNotification, addToLikeList, addToDislikeList } from './movie-buttons-actions.js';
+import { displayDebugInfo, displayStaticSeriesData } from './debug-helpers.js';
 
 // Preserve dark mode setting
 const currentTheme = localStorage.getItem('theme');
@@ -9,7 +10,27 @@ if (currentTheme === 'dark') {
 }
 
 // Retrieve the series data from sessionStorage
-const series = JSON.parse(sessionStorage.getItem('selectedSeries'));
+let series = null;
+try {
+    series = JSON.parse(sessionStorage.getItem('selectedSeries'));
+    
+    // Check for alternative storage formats
+    if (!series && sessionStorage.getItem('selectedSeries')) {
+        // Try to parse as a different format
+        const seriesString = sessionStorage.getItem('selectedSeries');
+        if (seriesString.includes('seriesId')) {
+            // Convert from alternative format
+            const altFormatSeries = JSON.parse(seriesString);
+            series = {
+                series_id: altFormatSeries.seriesId || altFormatSeries.id,
+                series_name: altFormatSeries.seriesName || altFormatSeries.name
+            };
+            console.log("Converted series data from alternative format:", series);
+        }
+    }
+} catch (e) {
+    console.error("Error parsing series data from session storage:", e);
+}
 
 // If no series data is found, show error message
 if (!series) {
@@ -33,6 +54,7 @@ if (!series) {
     `;
     
     // Call function to fetch and display series details
+    console.log("Selected series data:", series);
     showSeriesDetails(series);
 }
 
@@ -51,15 +73,30 @@ function showSeriesDetails(series) {
     const seriesDetailsContent = document.getElementById('seriesDetailsContent');
     const seriesDetailsContainer = document.getElementById('seriesDetailsContainer');
     
+    console.log("Attempting to fetch series details for:", series);
+    
+    // Set initial styling to match movie-details
+    seriesDetailsContainer.classList.add('backdrop-blur-sm', 'shadow-lg');
+    
     // Fetch detailed series data using the series_id property from the selected series
     fetch(`https://localhost:7103/SeriesRecommendations/GetSeriesDetails/${series.series_id}`)
         .then(response => {
+            console.log("API Response status:", response.status);
             if (!response.ok) {
-                throw new Error('Error fetching series details.');
+                throw new Error(`Error fetching series details: ${response.status}`);
             }
             return response.json();
         })
         .then(async data => {
+            console.log("Series API response data:", data);
+            
+            // Look for creator information in the response
+            console.log("Creator fields check:", {
+                "data.created_by": data.created_by,
+                "data.creators": data.creators,
+                "data.created_by_values": data.created_by && data.created_by.$values,
+                "data.creators_values": data.creators && data.creators.$values
+            });
             // Set the backdrop image as background if available
             if (data.backdrop_path) {
                 console.log("Backdrop path found:", data.backdrop_path);
@@ -89,6 +126,51 @@ function showSeriesDetails(series) {
             const seasonText = data.number_of_seasons > 1 
                 ? `${data.number_of_seasons} Seasons, ${data.number_of_episodes} Episodes` 
                 : `${data.number_of_seasons} Season, ${data.number_of_episodes} Episodes`;
+                
+            // Ensure data.genres exists and has a valid structure
+            const genres = data.genres ? (Array.isArray(data.genres) ? data.genres : []) : [];
+            const genreNames = genres.map(genre => genre?.name || '').filter(name => name).join(', ');
+            
+            // Ensure data.creators exists and has a valid structure
+            let creators = [];
+            
+            // Check for created_by (direct from TMDB API) with all possible property name variations
+            if (data.created_by && Array.isArray(data.created_by)) {
+                creators = data.created_by;
+            } else if (data.created_by && data.created_by.$values) {
+                creators = data.created_by.$values;
+            } else if (data.createdBy && Array.isArray(data.createdBy)) {
+                creators = data.createdBy;
+            } else if (data.createdBy && data.createdBy.$values) {
+                creators = data.createdBy.$values;
+            }
+            // Check for Creators (from our backend model) with all possible property name variations
+            else if (data.creators && Array.isArray(data.creators)) {
+                creators = data.creators;
+            } else if (data.creators && data.creators.$values) {
+                creators = data.creators.$values;
+            } else if (data.Creators && Array.isArray(data.Creators)) {
+                creators = data.Creators;
+            } else if (data.Creators && data.Creators.$values) {
+                creators = data.Creators.$values;
+            }
+            
+            // Print debug info
+            console.log("Creator information:", creators);
+            
+            // Generate creator names string, checking for all possible property name variations
+            const creatorNames = creators.length > 0 ? 
+                creators.map(creator => 
+                    creator?.name || creator?.Name || ''
+                ).filter(name => name).join(', ') : 
+                'Unknown';
+            
+            // Ensure data.actors exists and has a valid structure
+            const actors = data.actors && data.actors.$values ? data.actors.$values :
+                          (data.actors ? (Array.isArray(data.actors) ? data.actors : []) : []);
+            
+            // Ensure data.seasons exists and has a valid structure
+            const seasons = data.seasons ? (Array.isArray(data.seasons) ? data.seasons : []) : [];
 
             // Fetch streaming providers
             let streamingProviders = null;
@@ -115,27 +197,29 @@ function showSeriesDetails(series) {
                                     <span>${data.vote_average.toString().substring(0, 3)}</span>
                                     <img src="/src/assets/star.png" alt="Star" class="w-3 h-3 ml-1" />
                                 </p>
-                                <h2 class="text-3xl font-bold mb-4">${data.name} (${data.first_air_date.substring(0, 4)})</h2>
-                                <p class="mb-2"><span class="font-semibold">${data.genres.map(genre => genre.name).join(', ')}</span></p>
-                                <p class="mb-4">${data.overview}</p>
+                                <h2 class="text-3xl font-bold mb-4">${data.name || 'Untitled Series'} ${data.first_air_date ? `(${data.first_air_date.substring(0, 4)})` : ''}</h2>
+                                <p class="mb-2"><span class="font-semibold">${genreNames}</span></p>
+                                <p class="mb-4">${data.overview || 'No overview available.'}</p>
                                 <p class="mb-2"><span class="font-semibold">Seasons:</span> ${seasonText}</p>
-                                <p class="mb-2"><span class="font-semibold">Status:</span> ${data.status}</p>
-                                <p class="mb-2"><span class="font-semibold">Created By:</span> ${data.creators.map(creator => creator.name).join(', ')}</p>
+                                <p class="mb-2"><span class="font-semibold">Created By:</span> ${creatorNames || 'Unknown'}</p>
                                 <div class="mb-6">
                                     <h3 class="text-xl font-semibold mb-6">Main Cast:</h3>
                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                                        ${data.actors.slice(0, 6).map(actor => `
-                                            <div class="flex flex-col items-center cursor-pointer actor-element" data-actor-id="${actor.id}">
-                                                <img 
-                                                    src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
-                                                    alt="${actor.name}" 
-                                                    class="w-16 h-16 object-cover rounded-full border-1 border-white"
-                                                    onerror="this.src='/src/assets/default-avatar.png'"
-                                                >
-                                                <p class="text-center text-sm mt-2">${actor.name}</p>
-                                                <p class="text-center text-xs text-gray-500">${actor.character}</p>
-                                            </div>
-                                        `).join('')}
+                                        ${actors.length > 0 ? 
+                                            actors.slice(0, 6).map(actor => `
+                                                <div class="flex flex-col items-center cursor-pointer actor-element" data-actor-id="${actor.id}">
+                                                    <img 
+                                                        src="${actor.profilePath ? 'https://image.tmdb.org/t/p/w200' + actor.profilePath : '/src/assets/default-avatar.png'}" 
+                                                        alt="${actor.name}" 
+                                                        class="w-16 h-16 object-cover rounded-full border-1 border-white"
+                                                        onerror="this.src='/src/assets/default-avatar.png'"
+                                                    >
+                                                    <p class="text-center text-sm mt-2">${actor.name}</p>
+                                                    <p class="text-center text-xs text-gray-500">${actor.character || 'Unknown'}</p>
+                                                </div>
+                                            `).join('') : 
+                                            '<div class="col-span-6 text-center">Cast information not available</div>'
+                                        }
                                     </div>
                                 </div>
                                 <hr class="border-t border-gray-300 dark:border-gray-700 mt-4">
@@ -176,32 +260,11 @@ function showSeriesDetails(series) {
                                     ${renderStreamingProviders(streamingProviders)}
                                 </div>
                             </details>
-                            
-                            <details class="group mt-4">
-                                <summary class="text-l font-bold cursor-pointer">
-                                    Seasons
-                                </summary>
-                                <div class="overflow-hidden max-h-0 transition-all duration-300 group-open:max-h-96">
-                                    <hr class="border-t border-gray-300 dark:border-gray-700 mt-2 mb-4">
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                        ${data.seasons.map(season => `
-                                            <div class="flex flex-col items-center cursor-pointer">
-                                                <img 
-                                                    src="${season.poster_path ? 'https://image.tmdb.org/t/p/w200' + season.poster_path : '/src/assets/default-poster.png'}" 
-                                                    alt="${season.name}" 
-                                                    class="w-full rounded-lg shadow-lg"
-                                                    onerror="this.src='/src/assets/default-poster.png'"
-                                                >
-                                                <p class="text-center text-sm mt-2 font-semibold">${season.name}</p>
-                                                <p class="text-center text-xs text-gray-500">${season.episode_count} Episodes</p>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            </details>
                         </div>
                     </div>
                 </div>
+
+                ${displayDebugInfo(data, series.series_id)}
 
                 <!-- Trailer Modal -->
                 <div id="trailerModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden">
@@ -223,7 +286,14 @@ function showSeriesDetails(series) {
             // Add event listener for trailer button
             const trailerButton = document.getElementById('trailerButton');
             if (trailerButton) {
-                trailerButton.addEventListener('click', () => playTrailer(data.trailers));
+                trailerButton.addEventListener('click', () => {
+                    console.log("Trailer button clicked, data:", data);
+                    if (data.trailers && (data.trailers.length > 0 || (data.trailers.$values && data.trailers.$values.length > 0))) {
+                        playTrailer(data.trailers);
+                    } else {
+                        showNoTrailerMessage();
+                    }
+                });
             }
             
             // Add event listener for closing the trailer modal with improved handling
@@ -250,13 +320,23 @@ function showSeriesDetails(series) {
             setupActorClickHandlers();
         })
         .catch(error => {
-            console.error(error);
-            seriesDetailsContent.innerHTML = `
-                <div class="text-center p-4">
-                    <p class="text-red-500 mb-4">Error loading series details</p>
-                    <p>We couldn't load the details for this series. Please try again later.</p>
-                </div>
-            `;
+            console.error("Error loading series details:", error);
+            
+            // First try to display static data as a fallback
+            if (series) {
+                displayStaticSeriesData(series);
+            } else {
+                // Complete failure fallback
+                seriesDetailsContent.innerHTML = `
+                    <div class="text-center p-4">
+                        <p class="text-red-500 mb-4">Error loading series details</p>
+                        <p>We couldn't load the details for this series. Please try again later.</p>
+                        <div class="mt-4 p-2 bg-gray-800 rounded text-xs text-left">
+                            <p>Debug info: ${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
         });
 }
 
@@ -366,6 +446,13 @@ function renderStreamingProviders(providersData) {
 
 // Function to play trailer video
 function playTrailer(trailers) {
+    console.log("Attempting to play trailer with data:", trailers);
+    
+    // Check if trailers is an object with $values property (format from API)
+    if (trailers && typeof trailers === 'object' && trailers.$values) {
+        trailers = trailers.$values;
+    }
+    
     if (!trailers || trailers.length === 0) {
         showNoTrailerMessage();
         return;
@@ -373,14 +460,14 @@ function playTrailer(trailers) {
 
     // Find a YouTube trailer, preferring official trailers
     const youtubeTrailers = trailers.filter(trailer => 
-        trailer.site.toLowerCase() === 'youtube' && 
-        trailer.type.toLowerCase().includes('trailer')
+        trailer.site && trailer.site.toLowerCase() === 'youtube' && 
+        trailer.type && trailer.type.toLowerCase().includes('trailer')
     );
     
     // If no YouTube trailers found, try any YouTube video
     let selectedTrailer = youtubeTrailers.length > 0 ? 
         youtubeTrailers[0] : 
-        trailers.find(trailer => trailer.site.toLowerCase() === 'youtube');
+        trailers.find(trailer => trailer.site && trailer.site.toLowerCase() === 'youtube');
     
     if (!selectedTrailer) {
         showNoTrailerMessage();
@@ -732,5 +819,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeActorModal();
             }
         });
+    }
+    
+    // Series CRUD operations - add event listeners for buttons
+    if (series) {
+        // Add event listener for watchlist button
+        const watchlistButton = document.getElementById('watchlist');
+        if (watchlistButton) {
+            watchlistButton.addEventListener('click', () => {
+                // Get the currently displayed series
+                fetch(`https://localhost:7103/SeriesRecommendations/GetSeriesDetails/${series.series_id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error fetching series details.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        addToWatchlist(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Ett fel inträffade. Kunde inte hämta seriedetaljer.', 'error');
+                    });
+            });
+        }
+
+        // Add event listener for like button
+        const likeButton = document.getElementById('like');
+        if (likeButton) {
+            likeButton.addEventListener('click', () => {
+                fetch(`https://localhost:7103/SeriesRecommendations/GetSeriesDetails/${series.series_id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error fetching series details.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        addToLikeList(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Ett fel inträffade. Kunde inte hämta seriedetaljer.', 'error');
+                    });
+            });
+        }
+
+        // Add event listener for dislike button
+        const dislikeButton = document.getElementById('dislike');
+        if (dislikeButton) {
+            dislikeButton.addEventListener('click', () => {
+                fetch(`https://localhost:7103/SeriesRecommendations/GetSeriesDetails/${series.series_id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error fetching series details.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        addToDislikeList(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Ett fel inträffade. Kunde inte hämta seriedetaljer.', 'error');
+                    });
+            });
+        }
     }
 });

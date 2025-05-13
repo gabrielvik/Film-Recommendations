@@ -60,9 +60,27 @@ public partial class TMDBService
     {
         try
         {
-            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var detailsUrl = $"tv/{seriesId}?api_key={apiKey}";
-            _logger.LogInformation($"Fetching details for series ID: {seriesId}");
+            // Get API key from several possible locations
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey") ?? 
+                         Environment.GetEnvironmentVariable("TMDbApiKey") ?? 
+                         _configuration?.GetValue<string>("TMDb:ApiKey") ?? 
+                         _configuration?.GetValue<string>("TMDbApiKey");
+                         
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                _logger.LogError("TMDb API key is missing - cannot fetch series details");
+                throw new InvalidOperationException("TMDb API key is missing");
+            }
+            
+            var detailsUrl = $"tv/{seriesId}?api_key={apiKey}&append_to_response=credits,videos,watch/providers";
+            _logger.LogInformation($"Fetching details for series ID: {seriesId} with URL pattern: tv/{seriesId}?api_key=***&append_to_response=credits,videos,watch/providers");
+
+            // Ensure the HTTP client has the correct base address
+            if (_httpClient.BaseAddress == null)
+            {
+                _httpClient.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+                _logger.LogWarning("Base address was null, setting default: https://api.themoviedb.org/3/");
+            }
 
             var response = await _httpClient.GetAsync(detailsUrl);
 
@@ -79,9 +97,18 @@ public partial class TMDBService
                 };
 
                 var series = JsonSerializer.Deserialize<Series>(content, options);
+                _logger.LogInformation($"Successfully deserialized series data for ID: {seriesId}");
 
                 if (series != null)
                 {
+                    // Log successful deserialization
+                    _logger.LogInformation($"Series data: Name={series.name}, First Air Date={series.first_air_date}, Seasons={series.number_of_seasons}");
+                
+                    // Initialize collections if they're null to prevent null reference exceptions
+                    series.Trailers = series.Trailers ?? new List<SeriesTrailer>();
+                    series.Creators = series.Creators ?? new List<Creator>();
+                    series.Actors = series.Actors ?? new List<Actor>();
+                    
                     // If poster path is still null, try to extract it directly
                     if (string.IsNullOrEmpty(series.poster_path))
                     {
