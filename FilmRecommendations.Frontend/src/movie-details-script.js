@@ -1,5 +1,17 @@
 import { addToWatchlist, showNotification, addToLikeList, addToDislikeList } from './movie-buttons-actions.js';
 
+// Navigation History Management
+let navigationHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
+
+// Initialize navigation history if empty (first time on movie details page)
+if (navigationHistory.length === 0) {
+    // Check if we came from main page
+    const referrer = document.referrer;
+    if (referrer.includes('index.html') || referrer.includes('localhost:5173') && !referrer.includes('movie-details.html')) {
+        navigationHistory.push({ type: 'main', url: referrer || 'index.html' });
+    }
+}
+
 // Preserve dark mode setting
 const currentTheme = localStorage.getItem('theme');
 if (currentTheme === 'dark') {
@@ -11,12 +23,41 @@ if (currentTheme === 'dark') {
 // Retrieve the movie data from sessionStorage
 const movie = JSON.parse(sessionStorage.getItem('selectedMovie'));
 
+// Initialize navigation history for current movie if needed
+function initializeCurrentMovieInHistory() {
+    if (movie) {
+        const currentHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
+        const movieSlug = movie.movie_name ? 
+            movie.movie_name.toLowerCase().replace(/\s+/g, '-') : 
+            movie.title.toLowerCase().replace(/\s+/g, '-');
+        
+        // Check if current movie is already in history
+        const currentMovieInHistory = currentHistory.some(item => 
+            item.type === 'movie' && item.movieData && item.movieData.movie_id === movie.movie_id
+        );
+        
+        // If not in history, add it (this handles direct URL navigation)
+        if (!currentMovieInHistory) {
+            currentHistory.push({
+                type: 'movie',
+                movieData: movie,
+                movieSlug: movieSlug,
+                url: `movie-details.html?movie=${movieSlug}`
+            });
+            sessionStorage.setItem('navigationHistory', JSON.stringify(currentHistory));
+        }
+    }
+}
+
 // If no movie data is found, show error message
 if (!movie) {
     document.getElementById('movieDetailsContent').innerHTML = `
         <div class="text-center p-4">No movie details available.</div>
     `;
 } else {
+    // Initialize navigation history for current movie
+    initializeCurrentMovieInHistory();
+    
     // Update URL in the address bar without reloading the page
     const movieSlug = movie.movie_name ? 
         movie.movie_name.toLowerCase().replace(/\s+/g, '-') : 
@@ -230,10 +271,49 @@ function showMovieDetails(movie) {
         });
 }
 
-// Back button event listener to return to the movie results page
+// Back button event listener with custom navigation logic
 document.getElementById('backButton').addEventListener('click', () => {
-    window.history.back();
+    handleBackNavigation();
 });
+
+function handleBackNavigation() {
+    // Get current navigation history
+    const currentHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
+    
+    console.log('Current navigation history:', currentHistory);
+    console.log('History length:', currentHistory.length);
+    
+    if (currentHistory.length <= 1) {
+        // If we're at the first movie or no history, go to main page
+        console.log('Going to main page - history too short');
+        sessionStorage.removeItem('navigationHistory'); // Clean up
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Remove current page from history
+    currentHistory.pop();
+    
+    // Get the previous page
+    const previousPage = currentHistory[currentHistory.length - 1];
+    console.log('Going back to:', previousPage);
+    
+    // Update history in session storage
+    sessionStorage.setItem('navigationHistory', JSON.stringify(currentHistory));
+    
+    if (previousPage.type === 'main') {
+        // Go back to main page
+        console.log('Navigating to main page');
+        sessionStorage.removeItem('navigationHistory'); // Clean up
+        window.location.href = previousPage.url;
+    } else if (previousPage.type === 'movie') {
+        // Go back to previous movie - set it as selected movie and reload
+        console.log('Navigating to previous movie:', previousPage.movieData.movie_name);
+        sessionStorage.setItem('selectedMovie', JSON.stringify(previousPage.movieData));
+        // Use replace to avoid creating new history entry
+        window.location.replace(`movie-details.html?movie=${previousPage.movieSlug}`);
+    }
+}
 
 function convertRuntime(runtime) {
     const hours = Math.floor(runtime / 60);
@@ -508,14 +588,24 @@ function navigateToMovie(movieId, movieTitle) {
       movie_name: movieTitle
     };
     
-    // Store the movie data in sessionStorage
-    sessionStorage.setItem('selectedMovie', JSON.stringify(movieData));
-    
-    // Create a URL-friendly version of the title
+    // Add current movie to navigation history before navigating
+    const currentHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
     const movieSlug = movieTitle.toLowerCase().replace(/\s+/g, '-');
     
-    // Navigate to the movie details page
-    window.location.href = `movie-details.html?movie=${movieSlug}`;
+    // Add the new movie to history
+    currentHistory.push({
+        type: 'movie',
+        movieData: movieData,
+        movieSlug: movieSlug,
+        url: `movie-details.html?movie=${movieSlug}`
+    });
+    
+    // Store updated history and movie data
+    sessionStorage.setItem('navigationHistory', JSON.stringify(currentHistory));
+    sessionStorage.setItem('selectedMovie', JSON.stringify(movieData));
+    
+    // Navigate to the movie details page using replace to avoid browser history buildup
+    window.location.replace(`movie-details.html?movie=${movieSlug}`);
   }
 
 // FIXED: Add function to show actor details with improved scrolling for mobile
