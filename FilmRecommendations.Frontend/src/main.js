@@ -8,6 +8,9 @@ const themeSwitcher = document.getElementById('themeSwitcher');
 
 // Update the DOMContentLoaded event handler to properly restore the grid layout
 window.addEventListener('DOMContentLoaded', () => {
+  // Clear navigation history when returning to main page
+  sessionStorage.removeItem('navigationHistory');
+  
   const savedMovies = sessionStorage.getItem('movieRecommendations');
   if (savedMovies) {
     const movies = JSON.parse(savedMovies);
