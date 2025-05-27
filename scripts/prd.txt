@@ -1,0 +1,120 @@
+# Product Requirements Document: Series Implementation for Film Recommendations
+
+## Project Overview
+Implement a comprehensive TV series feature that mirrors the existing movie functionality in the Film Recommendations application. The series feature should provide identical functionality to movies with a seamless toggle interface.
+
+## Objectives
+- Create a complete series implementation that mirrors movie functionality
+- Implement a toggle switch between Movies and Series views
+- Maintain consistent user experience across both content types
+- Ensure scalable architecture for future enhancements
+
+## Technical Requirements
+
+### Backend Implementation
+- Create Series database models (SeriesDbM) mirroring movie structure
+- Implement Series repository pattern (ISeriesRepo, SeriesRepo)
+- Create Series DTOs (SeriesGetDto, SeriesCUDDto, SeriesDetails, etc.)
+- Develop SeriesController with full CRUD operations
+- Add Series extension methods
+- Integrate TMDB TV API for series data
+
+### Database Schema
+- Create Series table with fields: SeriesId, Title, TMDbId, Liked, UserId
+- Implement proper relationships and constraints
+- Add migration scripts for database updates
+- Ensure data integrity and foreign key relationships
+
+### Frontend Implementation
+- Create series-details.html page mirroring movie-details.html
+- Implement series-details-script.js for series-specific functionality
+- Create series-buttons-actions.js for series interactions
+- Develop toggle component for switching between Movies/Series
+- Update navigation and routing to support series pages
+
+### UI/UX Components
+- Implement toggle switch using best practices from research
+- Use MagicUI components for enhanced user experience
+- Ensure responsive design across all devices
+- Maintain consistent styling with existing movie pages
+
+### API Integration
+- Integrate TMDB TV series endpoints
+- Handle series-specific data (seasons, episodes, etc.)
+- Implement series search functionality
+- Add series recommendations feature
+
+### Testing & Quality Assurance
+- Write unit tests for new repositories and controllers
+- Implement integration tests for API endpoints
+- Test frontend functionality across browsers
+- Validate TMDB API integration
+- Performance testing for new features
+
+## User Stories
+
+### As a user, I want to:
+1. Switch between Movies and Series using an intuitive toggle
+2. Browse series with the same interface as movies
+3. Add series to my watchlist
+4. Like/dislike series
+5. View detailed series information including cast and trailers
+6. Search for specific series
+7. Get series recommendations
+
+### As a developer, I need to:
+1. Maintain clean architecture with separated concerns
+2. Ensure code reusability between movies and series
+3. Implement proper error handling and logging
+4. Follow existing coding standards and patterns
+5. Create comprehensive documentation
+
+## Acceptance Criteria
+
+### Toggle Implementation
+- Toggle switch clearly indicates current view (Movies/Series)
+- Smooth transition between views
+- Maintains user's current position/filters when switching
+- Follows accessibility guidelines
+
+### Series Functionality
+- All movie features available for series
+- Series details page shows seasons, episodes, cast, trailers
+- Proper TMDB integration for series data
+- Database operations work correctly
+
+### Performance
+- Page load times remain under 3 seconds
+- Toggle switching is instantaneous
+- API calls are optimized and cached when appropriate
+
+### User Experience
+- Consistent styling and behavior with movie pages
+- Mobile-responsive design
+- Intuitive navigation and controls
+- Proper error messaging
+
+## Technical Constraints
+- Must use existing technology stack (.NET, Entity Framework, Vanilla JS)
+- Maintain compatibility with existing authentication system
+- Follow current project structure and naming conventions
+- Use TMDB API for series data
+
+## Success Metrics
+- Feature parity with movie functionality
+- User engagement with series features
+- Performance benchmarks met
+- Zero critical bugs in production
+- Positive user feedback on toggle interface
+
+## Timeline Considerations
+- Backend implementation: High priority
+- Frontend toggle component: High priority  
+- Series details page: Medium priority
+- Advanced features (recommendations): Low priority
+
+## Dependencies
+- TMDB API documentation and rate limits
+- Database migration coordination
+- Frontend framework limitations
+- MagicUI component availability
