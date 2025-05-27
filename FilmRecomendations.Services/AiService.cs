@@ -1,6 +1,9 @@
-﻿using OpenAI.Chat;
+﻿using FilmRecomendations.Models.DTOs;
+using OpenAI.Chat;
 using System.ClientModel;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Web;
 
@@ -42,8 +45,36 @@ namespace FilmRecomendations.Services
             // return new ChatClient("gpt-4o-mini", apiKey);
         }
 
-        public async Task<string> GetMovieRecommendationsAsync(string prompt)
+        public async Task<string> GetMovieRecommendationsAsync(string prompt, List<MovieGetDto>? userMovies)
         {
+            StringBuilder moviesStringBuilder = new StringBuilder();
+            if (userMovies != null && userMovies.Count > 0)
+            {
+                moviesStringBuilder.Append("Consider the following information about the users movie taste:\n");
+                foreach (var movie in userMovies)
+                {
+                    moviesStringBuilder.Append($"- {movie.Title} -");
+                    if (movie.Liked is null)
+                    {
+                        moviesStringBuilder.Append(" already on watchlist");
+                    }
+                    else if (movie.Liked == true)
+                    {
+                        moviesStringBuilder.Append(" liked");
+                    }
+                    else if (movie.Liked == false)
+                    {
+                        moviesStringBuilder.Append(" disliked");
+                    }
+                    moviesStringBuilder.Append("\n");
+                }
+                moviesStringBuilder.Append("Dont recommend movies allready on watchlist. Recommend movies that are similar to the users taste.\n");
+            }
+            else
+            {
+                moviesStringBuilder.Append("");
+            }
+            string moviesString = moviesStringBuilder.ToString();
             var messages = new List<ChatMessage>
             {
                 new SystemChatMessage(
@@ -60,6 +91,7 @@ namespace FilmRecomendations.Services
                     "    \"release_year\": 2001\n" +
                     "  }\n" +
                     "]\n\n" +
+                    moviesString +
                     "Make sure that your entire output is only this JSON without any additional commentary."
                 ),
                 new UserChatMessage(prompt)

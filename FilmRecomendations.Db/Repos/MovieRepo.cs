@@ -49,7 +49,7 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         return movie != null ? MapToDto(movie) : null;
     }
 
-    public async Task<ResponsePageDto<MovieGetDto>> GetMoviesAsync(string userId, string? filter, int pageNumber, int pageSize)
+    public async Task<ResponsePageDto<MovieGetDto>> GetMoviesAsync(string userId, int pageNumber, int pageSize, string? filter)
     {
         filter ??= "";
         filter = filter.ToLower();
@@ -75,45 +75,73 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
             PageSize = pageSize
         };
     }
-
-    public async Task<ResponsePageDto<MovieGetDto>> GetWatchlistAsync(string userId, string? filter, int pageNumber, int pageSize)
+    
+    public async Task<List<MovieGetDto>?> GetMoviesAsync(string userId, string? filter = null)
     {
         filter ??= "";
         filter = filter.ToLower();
         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
-        
+            
+        var items = await query
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter))
+            .ToListAsync();
+
+        return items.Select(MapToDto).ToList();
+    }
+
+    public async Task<ResponsePageDto<MovieGetDto>> GetWatchlistAsync(string userId, int pageNumber, int pageSize, string? filter)
+    {
+        filter ??= "";
+        filter = filter.ToLower();
+        IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
+
         var count = await query
             .Where(m => m.UserId == userId &&
-                m.Title.ToLower().Contains(filter) && 
+                m.Title.ToLower().Contains(filter) &&
                 m.Liked == null)
             .CountAsync();
+
+        var items = await query
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter) &&
+                m.Liked == null)
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new ResponsePageDto<MovieGetDto>()
+        {
+            DbItemsCount = count,
+            PageItems = items.Select(MapToDto).ToList(),
+            PageNr = pageNumber,
+            PageSize = pageSize
+        };
+    }
+    public async Task<List<MovieGetDto>?> GetWatchlistAsync(string userId, string? filter)
+    {
+        filter ??= "";
+        filter = filter.ToLower();
+        IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
             
         var items = await query
             .Where(m => m.UserId == userId && 
                 m.Title.ToLower().Contains(filter) && 
                 m.Liked == null)
-            .Skip(pageNumber * pageSize)
-            .Take(pageSize)
             .ToListAsync();
 
-        return new ResponsePageDto<MovieGetDto>()
-        {
-            DbItemsCount = count,
-            PageItems = items.Select(MapToDto).ToList(),
-            PageNr = pageNumber,
-            PageSize = pageSize
-        };
+        return items.Select(MapToDto).ToList();
     }
 
     public async Task<MovieGetDto> UpdateMovieAsync(MovieCUDtO item)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId) ?? 
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId) ??
             throw new ArgumentException($"User {item.UserId} does not exist in the database");
 
         var query = _context.Movies
             .Where(m => m.MovieId == item.MovieId);
 
-        var movie = await query.FirstOrDefaultAsync() ?? 
+        var movie = await query.FirstOrDefaultAsync() ??
             throw new ArgumentException($"Item {item.MovieId} does not exist in the database");
 
         movie.Title = item.Title;

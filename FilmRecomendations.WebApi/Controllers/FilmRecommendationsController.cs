@@ -1,5 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using FilmRecomendations.Services;
+using FilmRecomendations.Db.Repos;
+using Microsoft.AspNetCore.Identity;
+using FilmRecomendations.Db.DbModels;
+using Microsoft.AspNetCore.Authorization;
+using FilmRecomendations.Models.DTOs;
 namespace FilmRecomendations.WebApi.Controllers;
 
 [ApiController]
@@ -9,23 +14,42 @@ public class FilmRecomendationsController : ControllerBase
     private readonly ILogger<FilmRecomendationsController> _logger;
     private readonly IAiService _aiService;
     private readonly ITMDBService _tmdbService;
-    
+    private readonly IMovieRepo _movieRepo;
+    private readonly UserManager<ApplicationUser> _userManager;
+
     public FilmRecomendationsController(
-        ILogger<FilmRecomendationsController> logger, 
+        ILogger<FilmRecomendationsController> logger,
         IAiService aiService,
-        ITMDBService tmdbService)
+        ITMDBService tmdbService,
+        IMovieRepo movieRepo,
+        UserManager<ApplicationUser> userManager)
     {
         _logger = logger;
         _aiService = aiService;
         _tmdbService = tmdbService;
+        _movieRepo = movieRepo;
+        _userManager = userManager;
     }
 
+    [Authorize]
     [HttpGet("GetFilmRecommendation")]
     public async Task<IActionResult> GetFilmRecommendation(string prompt)
     {
+        var movies = new List<MovieGetDto>();
         try
         {
-            var recommendationsJson = await _aiService.GetMovieRecommendationsAsync(prompt);
+            if (User is not null && _userManager.GetUserId(User) is not null)
+            {
+                var userId = _userManager.GetUserId(User);
+                movies = await _movieRepo.GetMoviesAsync(userId!);
+            }
+
+
+            if (string.IsNullOrWhiteSpace(prompt))
+            {
+                return BadRequest("Prompt is required");
+            }
+            var recommendationsJson = await _aiService.GetMovieRecommendationsAsync(prompt, movies);
             return Content(recommendationsJson, "application/json");
         }
         catch (Exception ex)

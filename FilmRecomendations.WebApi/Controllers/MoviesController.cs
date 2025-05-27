@@ -42,7 +42,7 @@ public class MoviesController : ControllerBase
                 return BadRequest("User not found");
             }
 
-            var watchList = await _movieRepo.GetWatchlistAsync(user.Id, filter, pageNumber, pageSize);
+            var watchList = await _movieRepo.GetWatchlistAsync(user.Id, pageNumber, pageSize, filter);
 
             return Ok(watchList);
         }
@@ -71,7 +71,7 @@ public class MoviesController : ControllerBase
                 return BadRequest("User not found");
             }
 
-            var movies = await _movieRepo.GetMoviesAsync(user.Id, filter, pageNumber, pageSize);
+            var movies = await _movieRepo.GetMoviesAsync(user.Id, pageNumber, pageSize, filter);
 
             return Ok(movies);
         }
