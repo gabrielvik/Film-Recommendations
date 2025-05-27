@@ -372,4 +372,113 @@ public class TMDBService : ITMDBService
             return new List<MovieTrailer>();
         }
     }
+
+    public async Task<ActorDetails> GetActorDetailsAsync(int actorId)
+    {
+        try
+        {
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+            var personUrl = $"person/{actorId}?api_key={apiKey}";
+            var creditsUrl = $"person/{actorId}/movie_credits?api_key={apiKey}";
+            _logger.LogInformation($"Fetching details for actor ID: {actorId}");
+
+            // Create tasks for parallel requests
+            var personTask = _httpClient.GetAsync(personUrl);
+            var creditsTask = _httpClient.GetAsync(creditsUrl);
+
+            // Wait for both requests to complete
+            await Task.WhenAll(personTask, creditsTask);
+
+            var personResponse = personTask.Result;
+            var creditsResponse = creditsTask.Result;
+
+            if (!personResponse.IsSuccessStatusCode || !creditsResponse.IsSuccessStatusCode)
+            {
+                _logger.LogWarning($"Failed to fetch actor details for ID {actorId}. Person status: {personResponse.StatusCode}, Credits status: {creditsResponse.StatusCode}");
+                return null;
+            }
+
+            // Parse person details
+            var personContent = await personResponse.Content.ReadAsStringAsync();
+            using var personDocument = JsonDocument.Parse(personContent);
+            var person = personDocument.RootElement;
+
+            // Parse movie credits
+            var creditsContent = await creditsResponse.Content.ReadAsStringAsync();
+            using var creditsDocument = JsonDocument.Parse(creditsContent);
+            var cast = creditsDocument.RootElement.GetProperty("cast");
+
+            // Create actor details object
+            var actorDetails = new ActorDetails
+            {
+                Id = person.GetProperty("id").GetInt32(),
+                Name = person.GetProperty("name").GetString(),
+                ProfilePath = person.TryGetProperty("profile_path", out var profilePath) && !profilePath.ValueKind.Equals(JsonValueKind.Null) 
+                    ? profilePath.GetString() 
+                    : null,
+                Biography = person.TryGetProperty("biography", out var bio) && !bio.ValueKind.Equals(JsonValueKind.Null) 
+                    ? bio.GetString() 
+                    : "No biography available.",
+                Birthday = person.TryGetProperty("birthday", out var bday) && !bday.ValueKind.Equals(JsonValueKind.Null) 
+                    ? bday.GetString() 
+                    : null,
+                PlaceOfBirth = person.TryGetProperty("place_of_birth", out var pob) && !pob.ValueKind.Equals(JsonValueKind.Null) 
+                    ? pob.GetString() 
+                    : null,
+                KnownForMovies = new List<ActorMovieCredit>()
+            };
+
+            // Get movies by popularity (for "known for" section)
+            var actorMovies = new List<ActorMovieCredit>();
+            foreach (var movie in cast.EnumerateArray())
+            {
+                if (movie.TryGetProperty("id", out var id) && 
+                    movie.TryGetProperty("title", out var title) &&
+                    movie.TryGetProperty("poster_path", out var poster))
+                {
+                    var movieCredit = new ActorMovieCredit
+                    {
+                        Id = id.GetInt32(),
+                        Title = title.GetString(),
+                        Character = movie.TryGetProperty("character", out var character) && !character.ValueKind.Equals(JsonValueKind.Null)
+                            ? character.GetString()
+                            : "Unknown",
+                        PosterPath = !poster.ValueKind.Equals(JsonValueKind.Null)
+                            ? $"https://image.tmdb.org/t/p/w200{poster.GetString()}"
+                            : null,
+                        ReleaseDate = movie.TryGetProperty("release_date", out var releaseDate) && !releaseDate.ValueKind.Equals(JsonValueKind.Null)
+                            ? releaseDate.GetString()
+                            : null,
+                        // Extract popularity and vote metrics
+                        Popularity = movie.TryGetProperty("popularity", out var popularity) && !popularity.ValueKind.Equals(JsonValueKind.Null)
+                            ? popularity.GetDouble()
+                            : 0,
+                        VoteAverage = movie.TryGetProperty("vote_average", out var voteAverage) && !voteAverage.ValueKind.Equals(JsonValueKind.Null)
+                            ? voteAverage.GetDouble()
+                            : 0,
+                        VoteCount = movie.TryGetProperty("vote_count", out var voteCount) && !voteCount.ValueKind.Equals(JsonValueKind.Null)
+                            ? voteCount.GetInt32()
+                            : 0
+                    };
+                    
+                    actorMovies.Add(movieCredit);
+                }
+            }
+
+            // Sort by a combined score of popularity and vote_average, with a minimum vote_count threshold
+            // to ensure we get meaningful ratings, and filter out documentaries (by checking if actor is in their own movie)
+            actorDetails.KnownForMovies = actorMovies
+                .Where(m => m.VoteCount >= 20 && !m.Title.Contains(actorDetails.Name)) // Remove movies with low vote count and potential documentaries
+                .OrderByDescending(m => (m.Popularity * 0.6) + (m.VoteAverage * 0.4)) // Weight popularity higher than ratings
+                .Take(5)
+                .ToList();
+
+            return actorDetails;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching actor details for ID {actorId}");
+            throw;
+        }
+    }
 }
