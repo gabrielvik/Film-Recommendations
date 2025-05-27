@@ -24,8 +24,8 @@ Follow these steps to set up the development environment and run the application
 
 1. **Clone the Repository:**  
    ```bash
-   git clone https://github.com/martinolsson89/exam-film-recommendations.git
-   cd exam-film-recommendations
+   git clone https://github.com/gabrielvik/Film-Recommendations.git
+   cd film-recommendations
    ```
 
 2. **Install Backend Dependencies:**  
