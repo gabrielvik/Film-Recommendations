@@ -163,8 +163,13 @@ function showModalError(modalId, message) {
         }
         // Handle structured errors object
         else if (data.errors) {
+          // Check for .NET serialization format with $values
+          if (data.errors.$values && Array.isArray(data.errors.$values)) {
+            errorMessage = 'Password requirements:<br>';
+            errorMessage += data.errors.$values.map(err => `• ${err}`).join('<br>');
+          }
           // Check for specific error types
-          if (data.errors.Email) {
+          else if (data.errors.Email) {
             errorMessage = `Email: ${data.errors.Email[0]}`;
           } else if (data.errors.Password) {
             if (Array.isArray(data.errors.Password)) {
@@ -303,6 +308,14 @@ loginForm.addEventListener('submit', async (e) => {
       
       if (!document.getElementById('logoutButton')) {
         authContainer.appendChild(logoutButton);
+      }
+      
+      // Clear the "Log in to continue" message if it exists
+      const movieRecommendations = document.getElementById('movieRecommendations');
+      if (movieRecommendations && movieRecommendations.innerHTML.includes('Log in to continue')) {
+        movieRecommendations.innerHTML = '';
+        movieRecommendations.classList.remove('flex', 'items-center', 'justify-center');
+        movieRecommendations.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
       }
     } else {
       // User is not logged in
