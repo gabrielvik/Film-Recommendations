@@ -17,11 +17,10 @@ jobs:
           dotnet-version: '9.0.x'  # Ensure .NET 9 SDK is available
 
       - name: Restore NuGet packages
-        run: dotnet restore Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj
+        run: dotnet restore Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi
 
       - name: Build API
-        run: dotnet build --configuration Release Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj
-
+        run: dotnet build --configuration Release Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi
       - name: Run EF database migrations
         run: |
           dotnet tool install --global dotnet-ef       # Install EF CLI tool
