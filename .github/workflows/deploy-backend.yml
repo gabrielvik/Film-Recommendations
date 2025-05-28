@@ -17,10 +17,10 @@ jobs:
           dotnet-version: '9.0.x'  # Ensure .NET 9 SDK is available
 
       - name: Restore NuGet packages
-        run: dotnet restore ./FilmRecommendations.WebApi/FilmRecommendations.WebApi.csproj
+        run: dotnet restore ./Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj
 
       - name: Build API
-        run: dotnet build --configuration Release ./FilmRecommendations.WebApi/FilmRecommendations.WebApi.csproj
+        run: dotnet build --configuration Release ./Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj
 
       - name: Run EF database migrations
         run: |
@@ -28,18 +28,18 @@ jobs:
           dotnet ef database update --no-build
         env:
           ConnectionStrings__FilmConnectionString: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
-        working-directory: ./FilmRecommendations.WebApi
+        working-directory: ./Film-Recommendations/FilmRecomendations.WebApi
       # ^ Ensure the env var name matches the connection string key used in your appsettings (e.g. "DefaultConnection").
       # The EF CLI will use this to connect to Azure SQL and apply migrations.
 
       - name: Publish API for deployment
         run: dotnet publish --configuration Release --output publish --no-build
-        working-directory: ./FilmRecommendations.WebApi
+        working-directory: ./Film-Recommendations/FilmRecomendations.WebApi
 
       - name: Deploy to Azure App Service (Backend API)
         uses: azure/webapps-deploy@v2
         with:
           app-name: ai-film-recommendations           # Azure App Service name for the API
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_API }}
-          package: ./FilmRecommendations.WebApi/publish      # Deploy the published folder
+          package: ./Film-Recommendations/FilmRecomendations.WebApi/publish      # Deploy the published folder
           # slot-name: 'staging'   # (Optional) specify if deploying to a deployment slot
