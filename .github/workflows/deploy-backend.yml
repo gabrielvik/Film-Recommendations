@@ -17,10 +17,10 @@ jobs:
           dotnet-version: '9.0.x'  # Ensure .NET 9 SDK is available
 
       - name: Restore NuGet packages
-        run: dotnet restore ./FilmRecommendations.WebApi
+        run: dotnet restore ./FilmRecommendations.WebApi/FilmRecommendations.WebApi.csproj
 
       - name: Build API
-        run: dotnet build --configuration Release ./FilmRecommendations.WebApi
+        run: dotnet build --configuration Release ./FilmRecommendations.WebApi/FilmRecommendations.WebApi.csproj
 
       - name: Run EF database migrations
         run: |
