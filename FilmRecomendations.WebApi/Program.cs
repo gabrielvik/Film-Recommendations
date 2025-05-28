@@ -108,10 +108,6 @@ builder.Services.AddHttpClient<ITMDBService, TMDBService>();
 
 var app = builder.Build();
 
-//*****DEBUGGING PURPOSES ONLY*****
-var jwtKey = builder.Configuration["Jwt:Key"];
-Console.WriteLine($"JWT Key: {jwtKey ?? "Not Set"}");
-//***************************************
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
