@@ -24,13 +24,13 @@ jobs:
       - name: Run EF database migrations
         run: |
           dotnet tool install --global dotnet-ef
-          dotnet ef database update --no-build
+          cd ./FilmRecomendations.WebApi
+          dotnet ef database update
         env:
           ConnectionStrings__FilmConnectionString: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
-        working-directory: ./FilmRecomendations.WebApi
 
       - name: Publish API for deployment
-        run: dotnet publish --configuration Release --output publish --no-build
+        run: dotnet publish --configuration Release --output publish
         working-directory: ./FilmRecomendations.WebApi
 
       - name: Deploy to Azure App Service (Backend API)
