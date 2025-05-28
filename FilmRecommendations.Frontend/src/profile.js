@@ -82,7 +82,7 @@ function setupProfilePictureChange() {
 
         localStorage.setItem('userProfilePicture', e.target.result);
 
-        showSuccessAlert('Profilbild uppdaterad!');
+        showSuccessAlert('Profile picture updated successfully!');
       };
 
       reader.readAsDataURL(event.target.files[0]);
@@ -128,7 +128,7 @@ function fetchWatchlist() {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('Du måste logga in för att se din watchlist.');
+    showErrorAlert('You must log in to see your watchlist.'); 
     return;
   }
 
@@ -192,7 +192,7 @@ function fetchWatchlist() {
 
       } else {
         moviesContainer.innerHTML = `
-          <p class="text-gray-500 dark:text-gray-400 italic">Du har inte sparat några filmer än.</p>
+          <p class="text-gray-500 dark:text-gray-400 italic">You haven't saved any movies yet.</p> // Changed from 'Du har inte sparat några filmer än.'
         `;
       }
     })
@@ -207,7 +207,7 @@ function removeFromWatchlist(movieId) {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('Du måste logga in för att ta bort filmer från din watchlist.');
+    showErrorAlert('You must log in to remove movies from your watchlist.'); 
     return;
   }
 
@@ -224,11 +224,11 @@ function removeFromWatchlist(movieId) {
       fetchWatchlist();
       fetchLikedMovies();
       fetchDislikedMovies();
-      showSuccessAlert('Filmen har tagits bort från din lista');
+      showSuccessAlert('The movie has been removed from your list'); 
     })
     .catch(error => {
       console.error('Error removing movie from watchlist:', error);
-      showErrorAlert('Kunde inte ta bort filmen från din lista. Försök igen senare.');
+      showErrorAlert('Could not remove the movie from your list. Try again later.'); 
     });
 }
 
@@ -238,7 +238,7 @@ function fetchLikedMovies() {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('Du måste logga in för att se dina gillade filmer.');
+    showErrorAlert('You must log in to see your liked movies.'); 
     return;
   }
 
@@ -274,8 +274,7 @@ function fetchLikedMovies() {
             <button class="liked-remove-btn ml-2 text-red-500 hover:text-red-700" 
                     data-movie-id="${movie.movieId}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6
-a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
             </button>
           `;
@@ -301,7 +300,7 @@ a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8
     })
     .catch(error => {
       console.error('Error fetching watchlist:', error);
-      showErrorAlert('Kunde inte hämta din watchlist. Försök igen senare.');
+      showErrorAlert('Could not fetch your watchlist. Try again later.'); 
     });
 }
 
@@ -311,7 +310,7 @@ function fetchDislikedMovies() {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('Du måste logga in för att se dina ogillade filmer.');
+    showErrorAlert('You must log in to see your disliked movies.'); 
     return;
   }
 
@@ -381,7 +380,7 @@ function showErrorAlert(message) {
   const successAlert = document.getElementById('successAlert');
   const successAlertMessage = document.getElementById('successAlertMessage');
 
-  successAlertMessage.textContent = message || 'Ett fel har inträffat.';
+  successAlertMessage.textContent = message || 'An error has occurred.'; 
   successAlert.classList.remove('bg-green-100', 'border-green-400', 'text-green-700');
   successAlert.classList.add('bg-red-100', 'border-red-400', 'text-red-700', 'hidden');
 
