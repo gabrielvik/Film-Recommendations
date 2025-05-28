@@ -24,7 +24,7 @@ export function addToWatchlist(movieData) {
     .then((result) => {
       if (result.exists) {
         showNotification(
-          `"${movieData.original_title}" finns redan i din lista`,
+          `"${movieData.original_title}" is already in your list`,
           "info"
         );
         return;
@@ -47,14 +47,14 @@ export function addToWatchlist(movieData) {
         })
         .then((data) => {
           showNotification(
-            `${movieData.original_title} har lagts till i din lista`,
+            `${movieData.original_title} has been added to your list`,
             "success"
           );
         })
         .catch((error) => {
           console.error("Error adding movie to watchlist:", error);
           showNotification(
-            "Ett fel inträffade. Kunde inte lägga till filmen i din lista.",
+            "An error occurred. Could not add the movie to your list.",
             "error"
           );
         });
@@ -87,7 +87,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
       if (response.status === 401) {
         localStorage.removeItem("authToken"); // Clear invalid token
         showNotification(
-          "Din session har gått ut. Logga in igen för att fortsätta.",
+          "Your session has expired. Please log in again to continue.",
           "error"
         );
         setTimeout(() => {
@@ -107,9 +107,9 @@ export function updateMovieLikeStatus(movieData, isLiked) {
       if (result.exists) {
         // Movie exists, check if it's already liked/disliked
         if (result.movie.liked === isLiked) {
-          const action = isLiked ? "gillat" : "ogillat";
+          const action = isLiked ? "liked" : "disliked";
           showNotification(
-            `Du har redan ${action} "${movieData.original_title}"`,
+            `You have already ${action} "${movieData.original_title}"`,
             "info"
           );
           return;
@@ -136,7 +136,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
             if (response.status === 401) {
               localStorage.removeItem("authToken");
               showNotification(
-                "Din session har gått ut. Logga in igen för att fortsätta.",
+                "Your session has expired. Log in to continue.",
                 "error"
               );
               setTimeout(() => {
@@ -152,10 +152,10 @@ export function updateMovieLikeStatus(movieData, isLiked) {
             return response.json();
           })
           .then(data => {
-            const action = isLiked ? "gillar" : "ogillar";
+            const action = isLiked ? "like" : "dislike";
             const notificationType = isLiked ? "success" : "danger";
             showNotification(
-              `Du ${action} nu "${movieData.original_title}"`,
+              `You now ${action} "${movieData.original_title}"`,
               notificationType
             );
           })
@@ -163,7 +163,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
             console.error("Error updating movie:", updateError);
             if (!updateError.message.includes("Unauthorized")) {
               showNotification(
-                "Ett fel inträffade vid uppdateringen av filmen.",
+                "An error occurred while updating the movie.",
                 "error"
               );
             }
@@ -184,7 +184,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
           if (response.status === 401) {
             localStorage.removeItem("authToken");
             showNotification(
-              "Din session har gått ut. Logga in igen för att fortsätta.",
+              "Your session has expired. Log in to continue.",
               "error"
             );
             setTimeout(() => {
@@ -199,10 +199,10 @@ export function updateMovieLikeStatus(movieData, isLiked) {
           return response.json();
         })
         .then(data => {
-          const action = isLiked ? "gillar" : "ogillar";
+          const action = isLiked ? "like" : "dislike";
           const notificationType = isLiked ? "success" : "danger";
           showNotification(
-            `Du ${action} nu "${movieData.original_title}"`,
+            `You now ${action} "${movieData.original_title}"`,
             notificationType
           );
         });
@@ -213,7 +213,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
       // Don't show additional error messages for auth errors (already handled)
       if (!error.message.includes("Unauthorized")) {
         showNotification(
-          "Ett fel inträffade. Kunde inte genomföra åtgärden.",
+          "An error occurred. Could not complete the action.",
           "error"
         );
       }
@@ -240,7 +240,7 @@ export function checkLogin() {
   const token = localStorage.getItem("authToken");
   if (!token) {
     showNotification(
-      "Du måste logga in för att lägga till filmer i din lista",
+      "You must log in to add movies to your list",
       "error"
     );
     // Redirect to login page after a short delay

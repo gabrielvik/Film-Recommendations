@@ -874,7 +874,7 @@ document.addEventListener('click', (event) => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+                showNotification('An error occurred. Could not retrieve movie details.', 'error');
             });
     }
 });
@@ -893,7 +893,7 @@ document.addEventListener('click', (event) => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+                showNotification('An error occurred. Could not retrieve movie details.', 'error');
             });
     }
 });
@@ -912,7 +912,7 @@ document.addEventListener('click', (event) => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+                showNotification('An error occurred. Could not retrieve movie details.', 'error');
             });
     }
 });

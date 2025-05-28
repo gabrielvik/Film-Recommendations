@@ -192,13 +192,13 @@ function fetchWatchlist() {
 
       } else {
         moviesContainer.innerHTML = `
-          <p class="text-gray-500 dark:text-gray-400 italic">You haven't saved any movies yet.</p> // Changed from 'Du har inte sparat några filmer än.'
+          <p class="text-gray-500 dark:text-gray-400 italic">You haven't saved any movies yet.</p>
         `;
       }
     })
     .catch(error => {
       console.error('Error fetching watchlist:', error);
-      showErrorAlert('Kunde inte hämta din watchlist. Försök igen senare.');
+      showErrorAlert('Could not fetch your watchlist. Try again later.');
     });
 }
 
@@ -294,7 +294,7 @@ function fetchLikedMovies() {
 
       } else {
         moviesContainer.innerHTML = `
-          <p class="text-gray-500 dark:text-gray-400 italic">Du har inte sparat några filmer än.</p>
+          <p class="text-gray-500 dark:text-gray-400 italic">You have not liked any movies yet.</p>
         `;
       }
     })
@@ -364,7 +364,7 @@ function fetchDislikedMovies() {
       }
       else {
         moviesContainer.innerHTML = `
-          <p class="text-gray-500 dark:text-gray-400 italic">Du har inte sparat några filmer än.</p>
+          <p class="text-gray-500 dark:text-gray-400 italic">You have not disliked any movies yet.</p>
         `;
       }
     }
