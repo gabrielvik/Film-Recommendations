@@ -27,7 +27,7 @@ public class MoviesController : ControllerBase
     [HttpGet("watchlist")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<MovieGetDto>))]
     [ProducesResponseType(400, Type = typeof(string))]
-    public async Task<IActionResult> GetWatchList(string? filter = null, int pageNumber = 0, int pageSize = 10)
+    public async Task<IActionResult> GetWatchList(int pageNumber = 0, int pageSize = 10, string? filter = null)
     {
         try
         {
@@ -56,7 +56,7 @@ public class MoviesController : ControllerBase
     [HttpGet()]
     [ProducesResponseType(200, Type = typeof(IEnumerable<MovieGetDto>))]
     [ProducesResponseType(400, Type = typeof(string))]
-    public async Task<IActionResult> GetMovies(string? filter = null, int pageNumber = 0, int pageSize = 10)
+    public async Task<IActionResult> GetMovies(int pageNumber = 0, int pageSize = 10, string? filter = null)
     {
         try
         {

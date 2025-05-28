@@ -47,6 +47,7 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(ApplicationUser user)
     {
+
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
@@ -55,7 +56,12 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.NameIdentifier, user.Id)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var key = new SymmetricSecurityKey(Convert.FromBase64String(_configuration["Jwt:Key"])
+)
+        {
+            KeyId = "myKeyId"
+        };
+
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(

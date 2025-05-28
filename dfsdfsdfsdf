@@ -1,0 +1,89 @@
+[1mdiff --git a/FilmRecomendations.Db/Repos/MovieRepo.cs b/FilmRecomendations.Db/Repos/MovieRepo.cs[m
+[1mindex 4c707e2..83e4585 100644[m
+[1m--- a/FilmRecomendations.Db/Repos/MovieRepo.cs[m
+[1m+++ b/FilmRecomendations.Db/Repos/MovieRepo.cs[m
+[36m@@ -49,7 +49,7 @@[m [mpublic class MovieRepo(FilmDbContext _context) : IMovieRepo[m
+         return movie != null ? MapToDto(movie) : null;[m
+     }[m
+ [m
+[31m-    public async Task<ResponsePageDto<MovieGetDto>> GetMoviesAsync(string userId, string? filter, int pageNumber, int pageSize)[m
+[32m+[m[32m    public async Task<ResponsePageDto<MovieGetDto>> GetMoviesAsync(string userId, int pageNumber, int pageSize, string? filter)[m
+     {[m
+         filter ??= "";[m
+         filter = filter.ToLower();[m
+[36m@@ -75,22 +75,36 @@[m [mpublic class MovieRepo(FilmDbContext _context) : IMovieRepo[m
+             PageSize = pageSize[m
+         };[m
+     }[m
+[32m+[m[41m    [m
+[32m+[m[32m    public async Task<List<MovieGetDto>?> GetMoviesAsync(string userId, string? filter = null)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        filter ??= "";[m
+[32m+[m[32m        filter = filter.ToLower();[m
+[32m+[m[32m        IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();[m
+[32m+[m[41m            [m
+[32m+[m[32m        var items = await query[m
+[32m+[m[32m            .Where(m => m.UserId == userId &&[m
+[32m+[m[32m                m.Title.ToLower().Contains(filter))[m
+[32m+[m[32m            .ToListAsync();[m
+[32m+[m
+[32m+[m[32m        return items.Select(MapToDto).ToList();[m
+[32m+[m[32m    }[m
+ [m
+[31m-    public async Task<ResponsePageDto<MovieGetDto>> GetWatchlistAsync(string userId, string? filter, int pageNumber, int pageSize)[m
+[32m+[m[32m    public async Task<ResponsePageDto<MovieGetDto>> GetWatchlistAsync(string userId, int pageNumber, int pageSize, string? filter)[m
+     {[m
+         filter ??= "";[m
+         filter = filter.ToLower();[m
+         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();[m
+[31m-        [m
+[32m+[m
+         var count = await query[m
+             .Where(m => m.UserId == userId &&[m
+[31m-                m.Title.ToLower().Contains(filter) && [m
+[32m+[m[32m                m.Title.ToLower().Contains(filter) &&[m
+                 m.Liked == null)[m
+             .CountAsync();[m
+[31m-            [m
+[32m+[m
+         var items = await query[m
+[31m-            .Where(m => m.UserId == userId && [m
+[31m-                m.Title.ToLower().Contains(filter) && [m
+[32m+[m[32m            .Where(m => m.UserId == userId &&[m
+[32m+[m[32m                m.Title.ToLower().Contains(filter) &&[m
+                 m.Liked == null)[m
+             .Skip(pageNumber * pageSize)[m
+             .Take(pageSize)[m
+[36m@@ -104,16 +118,30 @@[m [mpublic class MovieRepo(FilmDbContext _context) : IMovieRepo[m
+             PageSize = pageSize[m
+         };[m
+     }[m
+[32m+[m[32m    public async Task<List<MovieGetDto>?> GetWatchlistAsync(string userId, string? filter)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        filter ??= "";[m
+[32m+[m[32m        filter = filter.ToLower();[m
+[32m+[m[32m        IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();[m
+[32m+[m[41m            [m
+[32m+[m[32m        var items = await query[m
+[32m+[m[32m            .Where(m => m.UserId == userId &&[m[41m [m
+[32m+[m[32m                m.Title.ToLower().Contains(filter) &&[m[41m [m
+[32m+[m[32m                m.Liked == null)[m
+[32m+[m[32m            .ToListAsync();[m
+[32m+[m
+[32m+[m[32m        return items.Select(MapToDto).ToList();[m
+[32m+[m[32m    }[m
+ [m
+     public async Task<MovieGetDto> UpdateMovieAsync(MovieCUDtO item)[m
+     {[m
+[31m-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId) ?? [m
+[32m+[m[32m        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId) ??[m
+             throw new ArgumentException($"User {item.UserId} does not exist in the database");[m
+ [m
+         var query = _context.Movies[m
+             .Where(m => m.MovieId == item.MovieId);[m
+ [m
+[31m-        var movie = await query.FirstOrDefaultAsync() ?? [m
+[32m+[m[32m        var movie = await query.FirstOrDefaultAsync() ??[m
+             throw new ArgumentException($"Item {item.MovieId} does not exist in the database");[m
+ [m
+         movie.Title = item.Title;[m

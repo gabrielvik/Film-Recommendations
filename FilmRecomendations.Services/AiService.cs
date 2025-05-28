@@ -71,7 +71,7 @@ namespace FilmRecomendations.Services
                     }
                     moviesStringBuilder.Append("\n");
                 }
-                moviesStringBuilder.Append("Dont recommend movies allready on watchlist. Recommend movies that are similar to the users taste.\n");
+                moviesStringBuilder.Append("Dont recommend liked movies, disliked movies, or movies allready on watchlist, consider users likes and dislikes in your search for movies to recommend. \n");
             }
             else
             {
@@ -94,11 +94,19 @@ namespace FilmRecomendations.Services
                     "    \"release_year\": 2001\n" +
                     "  }\n" +
                     "]\n\n" +
-                    moviesString +
                     "Make sure that your entire output is only this JSON without any additional commentary."
                 ),
+                new UserChatMessage(moviesString),
                 new UserChatMessage(prompt)
             };
+
+#if DEBUG
+            _logger.LogInformation("Sending prompt to AI");
+            foreach (var message in messages)
+            {
+                _logger.LogInformation("{message}", message.Content.ToString());
+            }
+#endif
 
             var completionOptions = new ChatCompletionOptions
             {

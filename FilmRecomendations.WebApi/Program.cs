@@ -64,7 +64,7 @@ builder.Services.AddDbContext<FilmDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<FilmDbContext>()
         .AddDefaultTokenProviders();
-        
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -80,10 +80,14 @@ builder.Services.AddAuthentication(options =>
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration["Jwt:Key"]))
+                {
+                    KeyId = "myKeyId"
+                }
             };
         });
 
+// Register services
 
 
 builder.Services.AddTransient<IAiService, AiService>();
@@ -103,6 +107,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient<ITMDBService, TMDBService>();
 
 var app = builder.Build();
+
+//*****DEBUGGING PURPOSES ONLY*****
+var jwtKey = builder.Configuration["Jwt:Key"];
+Console.WriteLine($"JWT Key: {jwtKey ?? "Not Set"}");
+//***************************************
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

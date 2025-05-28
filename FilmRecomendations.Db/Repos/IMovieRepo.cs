@@ -14,4 +14,6 @@ public interface IMovieRepo
     Task<MovieGetDto> UpdateMovieAsync(MovieCUDtO item);
     Task<MovieGetDto> DeleteMovieAsync(Guid MovieDbId);
     Task<MovieGetDto?> GetMovieByTMDbIdAsync(string userId, int tmdbId);
+    Task<ResponsePageDto<MovieGetDto>> GetLikedMoviesAsync(string userId, string? filter, int pageNumber, int pageSize);
+    Task<ResponsePageDto<MovieGetDto>> GetDislikedMoviesAsync(string userId, string? filter, int pageNumber, int pageSize);
 }

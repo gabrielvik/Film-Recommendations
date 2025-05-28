@@ -12,7 +12,7 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         if (item.MovieId != null)
             throw new ArgumentException($"{nameof(item.MovieId)} must be null when creating a new object");
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId) ?? 
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.UserId) ??
             throw new ArgumentException($"User {item.UserId} does not exist in the database");
 
         var movie = new MovieDbM()
@@ -34,7 +34,7 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         var query = _context.Movies
             .Where(m => m.MovieId == movieId);
 
-        var item = await query.FirstOrDefaultAsync() ?? 
+        var item = await query.FirstOrDefaultAsync() ??
             throw new ArgumentException($"Item {movieId} does not exist in the database");
 
         _context.Movies.Remove(item);
@@ -54,12 +54,12 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         filter ??= "";
         filter = filter.ToLower();
         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
-        
+
         var count = await query
             .Where(m => m.UserId == userId &&
                 m.Title.ToLower().Contains(filter))
             .CountAsync();
-            
+
         var items = await query
             .Where(m => m.UserId == userId &&
                 m.Title.ToLower().Contains(filter))
@@ -75,13 +75,13 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
             PageSize = pageSize
         };
     }
-    
+
     public async Task<List<MovieGetDto>?> GetMoviesAsync(string userId, string? filter = null)
     {
         filter ??= "";
         filter = filter.ToLower();
         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
-            
+
         var items = await query
             .Where(m => m.UserId == userId &&
                 m.Title.ToLower().Contains(filter))
@@ -123,10 +123,10 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         filter ??= "";
         filter = filter.ToLower();
         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
-            
+
         var items = await query
-            .Where(m => m.UserId == userId && 
-                m.Title.ToLower().Contains(filter) && 
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter) &&
                 m.Liked == null)
             .ToListAsync();
 
@@ -169,7 +169,7 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         var movie = await _context.Movies
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.UserId == userId && m.TMDbId == tmdbId);
-        
+
         return movie == null ? null : MapToDto(movie);
     }
 
@@ -178,16 +178,16 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         filter ??= "";
         filter = filter.ToLower();
         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
-        
+
         var count = await query
             .Where(m => m.UserId == userId &&
-                m.Title.ToLower().Contains(filter) && 
+                m.Title.ToLower().Contains(filter) &&
                 m.Liked == true)
             .CountAsync();
-            
+
         var items = await query
-            .Where(m => m.UserId == userId && 
-                m.Title.ToLower().Contains(filter) && 
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter) &&
                 m.Liked == true)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
@@ -207,16 +207,16 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
         filter ??= "";
         filter = filter.ToLower();
         IQueryable<MovieDbM> query = _context.Movies.AsNoTracking();
-        
+
         var count = await query
             .Where(m => m.UserId == userId &&
-                m.Title.ToLower().Contains(filter) && 
+                m.Title.ToLower().Contains(filter) &&
                 m.Liked == false)
             .CountAsync();
-            
+
         var items = await query
-            .Where(m => m.UserId == userId && 
-                m.Title.ToLower().Contains(filter) && 
+            .Where(m => m.UserId == userId &&
+                m.Title.ToLower().Contains(filter) &&
                 m.Liked == false)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
@@ -230,4 +230,6 @@ public class MovieRepo(FilmDbContext _context) : IMovieRepo
             PageSize = pageSize
         };
     }
+    
+    
 }
