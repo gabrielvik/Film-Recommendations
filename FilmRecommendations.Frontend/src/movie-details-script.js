@@ -190,11 +190,6 @@ function showMovieDetails(movie) {
                                         <img src="/src/assets/layer-plus1.png" class="w-4 h-4 me-2"> Add to List
                                     </div>
                                 </button>
-                                <button class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
-                                    <div class="flex items-center">
-                                        <img src="/src/assets/check1.png" class="w-4 h-4 me-2"> Mark as Watched
-                                    </div>
-                                </button>
                                 <button id="like" class="bg-transparent hover:bg-green-700 text-white font-semibold hover:text-white py-2 px-4 border border-green-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
                                         <img src="/src/assets/thumbs-up.png" class="w-4 h-4 me-2"> Like
@@ -879,7 +874,7 @@ document.addEventListener('click', (event) => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+                showNotification('An error occurred. Could not retrieve movie details.', 'error');
             });
     }
 });
@@ -898,7 +893,7 @@ document.addEventListener('click', (event) => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+                showNotification('An error occurred. Could not retrieve movie details.', 'error');
             });
     }
 });
@@ -917,7 +912,7 @@ document.addEventListener('click', (event) => {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Ett fel inträffade. Kunde inte hämta filmdetaljer.', 'error');
+                showNotification('An error occurred. Could not retrieve movie details.', 'error');
             });
     }
 });

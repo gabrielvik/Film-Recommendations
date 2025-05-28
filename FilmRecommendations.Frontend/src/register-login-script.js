@@ -10,7 +10,7 @@ const modalContent = registerModal.querySelector('div');
 const logoutButton = document.createElement('button');
 logoutButton.id = 'logoutButton';
 logoutButton.className = 'bg-red-600 hover:bg-red-500 text-white font-semibold hover:text-white py-2 px-4 rounded';
-logoutButton.innerHTML = '<div class="flex items-center">Logga ut</div>';
+logoutButton.innerHTML = '<div class="flex items-center">Log out</div>';
 
 const userDisplay = document.createElement('span');
 userDisplay.id = 'userDisplay';
@@ -20,7 +20,7 @@ const profilePicture = document.createElement('div');
 profilePicture.id = 'profilePicture';
 profilePicture.className = 'w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-white dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-colors';
 profilePicture.innerHTML = '<img src="/src/assets/default-avatar.png" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=\\\'text-xl font-bold text-gray-700 dark:text-gray-300\\\'>U</span>\';" class="w-full h-full object-cover">';
-profilePicture.title = "Min profil";
+profilePicture.title = "My profile";
 
 // Add click event to redirect to profile page
 profilePicture.addEventListener('click', () => {
@@ -61,7 +61,7 @@ function showSuccessAlert(message) {
     const successAlert = document.getElementById('successAlert');
     const successAlertMessage = document.getElementById('successAlertMessage');
     
-    successAlertMessage.textContent = message || 'Registrering lyckades!';
+    successAlertMessage.textContent = message || 'Registration successful';
     successAlert.classList.remove('hidden');
     
     // Auto-hide after 5 seconds
@@ -75,7 +75,7 @@ function showSuccessAlert(message) {
   const errorAlertMessage = document.getElementById('errorAlertMessage');
   
   // Use innerHTML instead of textContent to allow HTML formatting
-  errorAlertMessage.innerHTML = message || 'Ett fel uppstod vid registrering';
+  errorAlertMessage.innerHTML = message || 'An error occurred during registration';
   
   // Make the alert wider for multi-line messages
   if (message && message.includes('<br>')) {
@@ -99,7 +99,7 @@ function showModalError(modalId, message) {
     const modalErrorMessage = document.getElementById(`${modalId}ModalErrorMessage`);
     
     // Use innerHTML instead of textContent to allow HTML formatting
-    modalErrorMessage.innerHTML = message || 'Ett fel uppstod. Försök igen';
+    modalErrorMessage.innerHTML = message || 'An error occurred. Please try again';
     
     // Make the alert wider for multi-line messages
     if (message && message.includes('<br>')) {
@@ -143,38 +143,38 @@ function showModalError(modalId, message) {
       
       if (response.ok) {
         console.log('Success:', data);
-        showSuccessAlert('Ditt konto har skapats! Du kan nu logga in');
+        showSuccessAlert('Your account has been created! You can now log in');
         closeRegisterModalFunction();
         registerForm.reset();
       } else {
         console.error('Error:', data);
         // Handle specific error messages from the API
-        let errorMessage = 'Ett fel uppstod vid registrering';
+        let errorMessage = 'An error occurred during registration';
         
         // Check if data.errors is an array (password validation errors)
         if (data.errors && Array.isArray(data.errors)) {
-          errorMessage = 'Lösenordet måste uppfylla följande krav:<br>';
+          errorMessage = 'The password must meet the following requirements:<br>';
           errorMessage += data.errors.map(err => `• ${err}`).join('<br>');
         }
         // Handle array directly
         else if (Array.isArray(data)) {
-          errorMessage = 'Lösenordet måste uppfylla följande krav:<br>';
+          errorMessage = 'The password must meet the following requirements:<br>';
           errorMessage += data.map(err => `• ${err}`).join('<br>');
         }
         // Handle structured errors object
         else if (data.errors) {
           // Check for specific error types
           if (data.errors.Email) {
-            errorMessage = `E-post: ${data.errors.Email[0]}`;
+            errorMessage = `Email: ${data.errors.Email[0]}`;
           } else if (data.errors.Password) {
             if (Array.isArray(data.errors.Password)) {
-              errorMessage = 'Lösenordsfel:<br>';
+              errorMessage = 'Password error:<br>';
               errorMessage += data.errors.Password.map(err => `• ${err}`).join('<br>');
             } else {
-              errorMessage = `Lösenord: ${data.errors.Password[0]}`;
+              errorMessage = `Password: ${data.errors.Password[0]}`;
             }
           } else if (data.errors.Username) {
-            errorMessage = `Användarnamn: ${data.errors.Username[0]}`;
+            errorMessage = `Username: ${data.errors.Username[0]}`;
           }
         } else if (data.message) {
           errorMessage = data.message;
@@ -185,7 +185,7 @@ function showModalError(modalId, message) {
       }
     } catch (error) {
       console.error('Error:', error);
-      showModalError('register', 'Kunde inte ansluta till servern. Försök igen senare');
+      showModalError('register', 'Could not connect to the server. Please try again later');
     }
   });
 
@@ -244,7 +244,7 @@ loginForm.addEventListener('submit', async (e) => {
         if (data.token) {
           saveAuthToken(data.token);
           updateAuthUI();
-          showSuccessAlert('Inloggning lyckades!');
+          showSuccessAlert('Log in successful');
         }
         
         closeLoginModalFunction();
@@ -252,11 +252,11 @@ loginForm.addEventListener('submit', async (e) => {
       } else {
         console.error('Login Error:', data);
         // Show error in the modal instead of the global alert
-        showModalError('login', data.message || 'Felaktig e-post eller lösenord');
+        showModalError('login', data.message || 'Wrong email or password');
       }
     } catch (error) {
       console.error('Login Error:', error);
-      showModalError('login', 'Kunde inte ansluta till servern. Försök igen senare');
+      showModalError('login', 'Could not connect to the server. Please try again later');
     }
   });
   
@@ -328,7 +328,7 @@ loginForm.addEventListener('submit', async (e) => {
   logoutButton.addEventListener('click', () => {
     removeAuthToken();
     updateAuthUI();
-    showSuccessAlert('Du har loggats ut');
+    showSuccessAlert('You have been logged out successfully');
   });
   
   // Call this function on page load to set the initial state

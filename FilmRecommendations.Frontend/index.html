@@ -6,7 +6,7 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/src/style.css" />
-  <title>Film-Recommendation-Frontend</title>
+  <title>Film Recommendation</title>
 </head>
 <body class="bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
   <!-- Toggle light and darkmode-->
@@ -14,12 +14,12 @@
     <div class="flex flex-wrap gap-3">
       <button id="loginButton" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold hover:text-white py-2 px-4 rounded">
           <div class="flex items-center">
-            Logga in
+            Log in
           </div>
       </button>
       <button id="registerButton" class="bg-pink-600 hover:bg-pink-500 text-white font-semibold hover:text-white py-2 px-4 rounded">
         <div class="flex items-center">
-          Skapa ett konto
+          Create an account
         </div>
     </button>
     </div>
@@ -39,17 +39,17 @@
   <div class="min-h-screen flex flex-col">
     <!-- Main content area -->
     <main class="flex-grow flex flex-col items-center px-4 md:px-16 pt-20">
-      <h1 class="mt-10 text-2xl font-semibold mb-2 text-center dark:text-gray-100 max-w-3xl">
-        Vilken typ av film vill du se?
+      <h1 class="mt-10 text-xl font-semibold mb-2 text-center dark:text-gray-100 max-w-3xl">
+        What kind of movie are you in the mood for?
       </h1>
       <!-- Input form -->
       <div class="w-full max-w-xl">
         <form id="promptForm" class="flex space-x-2">
-          <input id="promptInput" placeholder="T.ex. 'Jag vill se en thriller...'"
+          <input id="promptInput" placeholder="T.ex. 'I want to see a thriller...'"
             class="flex-grow rounded border border-gray-300 dark:border-gray-700 px-3 py-2 focus:outline-none focus:border-blue-500 transition bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-none">
           </input>
           <button type="submit" class="bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-600 transition dark:bg-blue-600 dark:hover:bg-blue-700">
-            Skicka
+            Send
           </button>
         </form>
       </div>
@@ -57,13 +57,13 @@
       <!-- Suggested phrases -->
       <div class="flex flex-wrap gap-2 justify-center mt-4">
         <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
-          Filmer regisserade av Christopher Nolan
+          Movies directed by Christopher Nolan
         </span>
         <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
-          Romantisk komedi från 00-talet
+          Romantic comedy from the 2000s
         </span>
         <span class="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer">
-          Filmer för hela familjen
+          Movies for the whole family
       </div>
 
       <!-- Loading Indicator -->
@@ -80,7 +80,7 @@
    <div id="registerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-xl transform transition-all opacity-0 scale-95">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Skapa ett konto</h3>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Create an account</h3>
         <button id="closeRegisterModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -90,19 +90,19 @@
       
       <form id="registerForm" class="space-y-6">
         <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Användarnamn</label>
+          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
           <input type="text" id="username" name="username" required 
             class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
         </div>
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">E-post</label>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
           <input type="email" id="email" name="email" required 
             class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lösenord</label>
+          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
           <input type="password" id="password" name="password" required 
             class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
@@ -110,7 +110,7 @@
         <div>
           <button type="submit" 
             class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
-            Skapa konto
+            Create account
           </button>
         </div>
       </form>
@@ -129,7 +129,7 @@
    <div id="loginModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-xl transform transition-all opacity-0 scale-95">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Logga in</h3>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Log in</h3>
         <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -139,13 +139,13 @@
       
       <form id="loginForm" class="space-y-6">
         <div>
-          <label for="loginEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">E-post</label>
+          <label for="loginEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
           <input type="email" id="loginEmail" name="loginEmail" required 
             class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
         </div>
         <div>
-          <label for="loginPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lösenord</label>
+          <label for="loginPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
           <input type="password" id="loginPassword" name="loginPassword" required 
             class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
@@ -154,19 +154,19 @@
           <div class="flex items-center">
             <input id="rememberMe" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
             <label for="rememberMe" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-              Kom ihåg mig
+              Remember me
             </label>
           </div>
           <div class="text-sm">
             <a href="#" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
-              Glömt lösenord?
+              Forgot your password?
             </a>
           </div>
         </div>
         <div>
           <button type="submit" 
             class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Logga in
+            Log in
           </button>
         </div>
       </form>
@@ -187,7 +187,7 @@
       <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
-      <span id="successAlertMessage">Registrering lyckades!</span>
+      <span id="successAlertMessage">Registration successful</span>
       <button type="button" class="ml-auto" onclick="document.getElementById('successAlert').classList.add('hidden')">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -201,7 +201,7 @@
       <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
-      <span id="errorAlertMessage">Ett fel uppstod vid registrering.</span>
+      <span id="errorAlertMessage">An error occurred during registration</span>
       <button type="button" class="ml-auto" onclick="document.getElementById('errorAlert').classList.add('hidden')">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
