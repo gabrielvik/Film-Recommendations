@@ -1,5 +1,5 @@
 import './style.css';
-import { withAuth } from './auth-utils';
+import { withAuth, isAuthenticated } from './auth-utils';
 
 const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
@@ -52,6 +52,22 @@ promptForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return;
+
+  // Check if user is authenticated
+  const isAuthenticated = checkUserAuthentication();
+  if (!isAuthenticated) {
+    // Show login message
+    movieRecommendations.innerHTML = '';
+    movieRecommendations.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
+    movieRecommendations.classList.add('flex', 'items-center', 'justify-center');
+    movieRecommendations.innerHTML = `
+      <div class="text-center p-6 bg-white dark:bg-gray-700 rounded-lg shadow-md">
+        <h3 class="text-xl font-bold mb-3">Log in to continue</h3>
+        <p class="mb-4">You need to login in or register an account to get movie recommendations.</p>
+      </div>
+    `;
+    return;
+  }
 
   movieRecommendations.innerHTML = '';
   loadingIndicator.classList.remove('hidden');
@@ -148,3 +164,9 @@ promptInput.addEventListener('input', () => {
     lastSearchQuery = currentQuery;
   }
 });
+
+function checkUserAuthentication() {
+  // Use the isAuthenticated helper from auth-utils instead
+  return isAuthenticated();
+}
+
