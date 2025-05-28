@@ -1,16 +1,19 @@
 name: Build and Deploy API
 on:
   push:
-    branches:
-      - master
+    branches: [master]
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
+
+      - name: Debug: show workspace
+        run: |
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          ls -R .
 
       - name: Setup .NET 9.0 SDK
         uses: actions/setup-dotnet@v3
@@ -25,7 +28,7 @@ jobs:
         working-directory: Film-Recommendations/FilmRecomendations.WebApi
         run: dotnet build --configuration Release
 
-      - name: Run EF database migrations
+      - name: Run EF migrations
         working-directory: Film-Recommendations/FilmRecomendations.WebApi
         run: |
           dotnet tool install --global dotnet-ef
@@ -33,11 +36,11 @@ jobs:
         env:
           ConnectionStrings__FilmConnectionString: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
 
-      - name: Publish API for deployment
+      - name: Publish API
         working-directory: Film-Recommendations/FilmRecomendations.WebApi
         run: dotnet publish --configuration Release --output publish
 
-      - name: Deploy to Azure App Service (Backend API)
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
           app-name: ai-film-recommendations
