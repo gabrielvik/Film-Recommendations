@@ -1,12 +1,13 @@
 name: Build and Deploy API
 on:
   push:
-    branches: [ "master" ]
-    # You could add 'paths:' filters here to only run when backend files change.
+    branches:
+      - master
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -14,32 +15,31 @@ jobs:
       - name: Setup .NET 9.0 SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.0.x'  # Ensure .NET 9 SDK is available
+          dotnet-version: '9.0.x'
 
       - name: Restore NuGet packages
-        run: dotnet restore ./Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj
+        working-directory: Film-Recommendations/FilmRecomendations.WebApi
+        run: dotnet restore
 
       - name: Build API
-        run: dotnet build --configuration Release ./Film-Recommendations/FilmRecomendations.WebApi/FilmRecomendations.WebApi.csproj
+        working-directory: Film-Recommendations/FilmRecomendations.WebApi
+        run: dotnet build --configuration Release
 
       - name: Run EF database migrations
+        working-directory: Film-Recommendations/FilmRecomendations.WebApi
         run: |
-          dotnet tool install --global dotnet-ef       # Install EF CLI tool
+          dotnet tool install --global dotnet-ef
           dotnet ef database update --no-build
         env:
           ConnectionStrings__FilmConnectionString: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
-        working-directory: ./Film-Recommendations/FilmRecomendations.WebApi
-      # ^ Ensure the env var name matches the connection string key used in your appsettings (e.g. "DefaultConnection").
-      # The EF CLI will use this to connect to Azure SQL and apply migrations.
 
       - name: Publish API for deployment
-        run: dotnet publish --configuration Release --output publish --no-build
-        working-directory: ./Film-Recommendations/FilmRecomendations.WebApi
+        working-directory: Film-Recommendations/FilmRecomendations.WebApi
+        run: dotnet publish --configuration Release --output publish
 
       - name: Deploy to Azure App Service (Backend API)
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ai-film-recommendations           # Azure App Service name for the API
+          app-name: ai-film-recommendations
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_API }}
-          package: ./Film-Recommendations/FilmRecomendations.WebApi/publish      # Deploy the published folder
-          # slot-name: 'staging'   # (Optional) specify if deploying to a deployment slot
+          package: Film-Recommendations/FilmRecomendations.WebApi/publish
