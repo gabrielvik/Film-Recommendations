@@ -20,14 +20,13 @@ userDisplay.className = 'mr-4 font-bold pt-2 text-gray-900 dark:text-gray-100';
 const profilePicture = document.createElement('div');
 profilePicture.id = 'profilePicture';
 profilePicture.className = 'w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-white dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-colors';
-profilePicture.innerHTML = '<img id="profileImage" src="/src/assets/default-avatar.png" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=\\\'text-xl font-bold text-gray-700 dark:text-gray-300\\\'>U</span>\';" class="w-full h-full object-cover">';
+profilePicture.innerHTML = '<img id="profileImage" src="/assets/default-avatar.png" class="w-full h-full object-cover">';
 profilePicture.title = "My profile";
 
 // Add click event to redirect to profile page
 profilePicture.addEventListener('click', () => {
     window.location.href = '/profile.html';
-  });
-
+});
 
 registerButton.addEventListener('click', () => {
     registerModal.classList.remove('hidden');
@@ -120,63 +119,63 @@ registerForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('password').value;
     console.log('Registration submitted:', { username, email, password });
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/Auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, email, password })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log('Success:', data);
-        showSuccessAlert('Your account has been created! You can now log in');
-        closeRegisterModalFunction();
-        registerForm.reset();
-      } else {
-        console.error('Error:', data);
-        // Handle specific error messages from the API
-        let errorMessage = 'An error occurred during registration';
+        const response = await fetch(`${config.apiBaseUrl}/api/Auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, email, password })
+        });
         
-        // Check if data.errors is an array (password validation errors)
-        if (data.errors && Array.isArray(data.errors)) {
-          errorMessage = 'The password must meet the following requirements:<br>';
-          errorMessage += data.errors.map(err => `• ${err}`).join('<br>');
-        }
-        // Handle array directly
-        else if (Array.isArray(data)) {
-          errorMessage = 'The password must meet the following requirements:<br>';
-          errorMessage += data.map(err => `• ${err}`).join('<br>');
-        }
-        // Handle structured errors object
-        else if (data.errors) {
-          // Check for .NET serialization format with $values
-          if (data.errors.$values && Array.isArray(data.errors.$values)) {
-            errorMessage = 'Password requirements:<br>';
-            errorMessage += data.errors.$values.map(err => `• ${err}`).join('<br>');
-          }
-          // Check for specific error types
-          else if (data.errors.Email) {
-            errorMessage = `Email: ${data.errors.Email[0]}`;
-          } else if (data.errors.Password) {
-            if (Array.isArray(data.errors.Password)) {
-              errorMessage = 'Password error:<br>';
-              errorMessage += data.errors.Password.map(err => `• ${err}`).join('<br>');
-            } else {
-              errorMessage = `Password: ${data.errors.Password[0]}`;
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log('Success:', data);
+            showSuccessAlert('Your account has been created! You can now log in');
+            closeRegisterModalFunction();
+            registerForm.reset();
+        } else {
+            console.error('Error:', data);
+            // Handle specific error messages from the API
+            let errorMessage = 'An error occurred during registration';
+            
+            // Check if data.errors is an array (password validation errors)
+            if (data.errors && Array.isArray(data.errors)) {
+                errorMessage = 'The password must meet the following requirements:<br>';
+                errorMessage += data.errors.map(err => `• ${err}`).join('<br>');
             }
-          } else if (data.errors.Username) {
-            errorMessage = `Username: ${data.errors.Username[0]}`;
-          }
-        } else if (data.message) {
-          errorMessage = data.message;
+            // Handle array directly
+            else if (Array.isArray(data)) {
+                errorMessage = 'The password must meet the following requirements:<br>';
+                errorMessage += data.map(err => `• ${err}`).join('<br>');
+            }
+            // Handle structured errors object
+            else if (data.errors) {
+                // Check for .NET serialization format with $values
+                if (data.errors.$values && Array.isArray(data.errors.$values)) {
+                    errorMessage = 'Password requirements:<br>';
+                    errorMessage += data.errors.$values.map(err => `• ${err}`).join('<br>');
+                }
+                // Check for specific error types
+                else if (data.errors.Email) {
+                    errorMessage = `Email: ${data.errors.Email[0]}`;
+                } else if (data.errors.Password) {
+                    if (Array.isArray(data.errors.Password)) {
+                        errorMessage = 'Password error:<br>';
+                        errorMessage += data.errors.Password.map(err => `• ${err}`).join('<br>');
+                    } else {
+                        errorMessage = `Password: ${data.errors.Password[0]}`;
+                    }
+                } else if (data.errors.Username) {
+                    errorMessage = `Username: ${data.errors.Username[0]}`;
+                }
+            } else if (data.message) {
+                errorMessage = data.message;
+            }
+            
+            // Show error in the modal instead of the global alert
+            showModalError('register', errorMessage);
         }
-        
-        // Show error in the modal instead of the global alert
-        showModalError('register', errorMessage);
-      }
     } catch (error) {
         console.error('Error:', error);
         showModalError('register', 'Could not connect to the server. Please try again later');
@@ -217,33 +216,33 @@ loginForm.addEventListener('submit', async (e) => {
     const rememberMe = document.getElementById('rememberMe').checked;
     console.log('Login submitted:', { email, password, rememberMe });
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/Auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log('Login Success:', data);
+        const response = await fetch(`${config.apiBaseUrl}/api/Auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
         
-        // Store the JWT token
-        if (data.token) {
-          saveAuthToken(data.token);
-          updateAuthUI();
-          showSuccessAlert('Log in successful');
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log('Login Success:', data);
+            
+            // Store the JWT token
+            if (data.token) {
+                saveAuthToken(data.token);
+                updateAuthUI();
+                showSuccessAlert('Log in successful');
+            }
+            
+            closeLoginModalFunction();
+            loginForm.reset();
+        } else {
+            console.error('Login Error:', data);
+            // Show error in the modal instead of the global alert
+            showModalError('login', data.message || 'Wrong email or password');
         }
-        
-        closeLoginModalFunction();
-        loginForm.reset();
-      } else {
-        console.error('Login Error:', data);
-        // Show error in the modal instead of the global alert
-        showModalError('login', data.message || 'Wrong email or password');
-      }
     } catch (error) {
         console.error('Login Error:', error);
         showModalError('login', 'Could not connect to the server. Please try again later');
@@ -251,7 +250,6 @@ loginForm.addEventListener('submit', async (e) => {
 });
 
 function closeLoginModalFunction() {
-    
     // Animate out  
     loginModalContent.classList.remove('opacity-100', 'scale-100');
     loginModalContent.classList.add('opacity-0', 'scale-95');
@@ -265,32 +263,32 @@ function closeLoginModalFunction() {
 
 // Function to fetch the profile picture URL
 async function fetchProfilePicture() {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-      console.log('No auth token found');
-      return null;
-  }
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.log('No auth token found');
+        return null;
+    }
 
-  try {
-      const response = await fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
-          headers: {
-              'Authorization': `Bearer ${token}`
-          }
-      });
+    try {
+        const response = await fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-      console.log('Profile picture API response status:', response.status);
-      if (!response.ok) {
-          console.error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+        console.log('Profile picture API response status:', response.status);
+        if (!response.ok) {
+            console.error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-      const data = await response.text();
-      console.log('Profile picture URL:', data);
-      return data || null;
-  } catch (error) {
-      console.error('Error fetching profile picture:', error.message);
-      return null;
-  }
+        const data = await response.text();
+        console.log('Profile picture URL:', data);
+        return data || null;
+    } catch (error) {
+        console.error('Error fetching profile picture:', error.message);
+        return null;
+    }
 }
 
 function updateAuthUI() {
@@ -305,25 +303,6 @@ function updateAuthUI() {
         const username = getUsername();
         if (username) {
             userDisplay.textContent = `Inloggad som: ${username}`;
-
-            // Set first letter of username as fallback
-            if (username.length > 0) {
-                const firstLetter = username.charAt(0).toUpperCase();
-                // Ensure the span exists for fallback
-                const fallbackSpan = profilePicture.querySelector('span');
-                if (fallbackSpan) {
-                    fallbackSpan.textContent = firstLetter;
-                } else {
-                    // If span doesn't exist, ensure onerror will create it
-                    const img = profilePicture.querySelector('#profileImage');
-                    if (img) {
-                        img.onerror = function() {
-                            this.style.display = 'none';
-                            this.parentNode.innerHTML = `<span class="text-xl font-bold text-gray-700 dark:text-gray-300">${firstLetter}</span>`;
-                        };
-                    }
-                }
-            }
         }
 
         // Add user display and profile elements if not already there
@@ -332,6 +311,8 @@ function updateAuthUI() {
         }
 
         if (!document.getElementById('profilePicture')) {
+            // Ensure profilePicture has the img element
+            profilePicture.innerHTML = '<img id="profileImage" src="/assets/default-avatar.png" class="w-full h-full object-cover">';
             authContainer.appendChild(profilePicture);
         }
 
@@ -340,15 +321,59 @@ function updateAuthUI() {
         }
 
         // Fetch and set the profile picture
+        const profileImage = profilePicture.querySelector('#profileImage');
+        if (!profileImage) {
+            console.error('Profile image element not found, recreating...');
+            profilePicture.innerHTML = '<img id="profileImage" src="/assets/default-avatar.png" class="w-full h-full object-cover">';
+        }
+
         fetchProfilePicture().then(profilePictureUrl => {
             const profileImage = profilePicture.querySelector('#profileImage');
-            if (profilePictureUrl) {
-                profileImage.src = profilePictureUrl; // Set the fetched URL
-                profileImage.style.display = 'block'; // Ensure image is visible
-            } else {
-                // If no profile picture URL, fallback to default
-                profileImage.src = '/src/assets/default-avatar.png';
+            const fallbackLetter = username ? username.charAt(0).toUpperCase() : 'U';
+            if (profilePictureUrl && profileImage) {
+                profileImage.src = profilePictureUrl;
                 profileImage.style.display = 'block';
+                // Clear any existing fallback span
+                const existingSpan = profilePicture.querySelector('span');
+                if (existingSpan) existingSpan.remove();
+                // Set onerror handler
+                profileImage.onerror = function() {
+                    console.log('Profile image failed to load, showing fallback');
+                    this.style.display = 'none';
+                    const fallbackSpan = document.createElement('span');
+                    fallbackSpan.className = 'text-xl font-bold text-gray-700 dark:text-gray-300';
+                    fallbackSpan.textContent = fallbackLetter;
+                    this.parentNode.appendChild(fallbackSpan);
+                };
+            } else {
+                console.log('No profile picture URL or profileImage element not found, using default');
+                if (profileImage) {
+                    profileImage.src = '/assets/default-avatar.png';
+                    profileImage.style.display = 'block';
+                    profileImage.onerror = function() {
+                        console.log('Default image failed to load, showing fallback');
+                        this.style.display = 'none';
+                        const fallbackSpan = document.createElement('span');
+                        fallbackSpan.className = 'text-xl font-bold text-gray-700 dark:text-gray-300';
+                        fallbackSpan.textContent = fallbackLetter;
+                        this.parentNode.appendChild(fallbackSpan);
+                    };
+                }
+            }
+        }).catch(error => {
+            console.error('Error in profile picture fetch:', error);
+            const profileImage = profilePicture.querySelector('#profileImage');
+            if (profileImage) {
+                profileImage.src = '/assets/default-avatar.png';
+                profileImage.style.display = 'block';
+                profileImage.onerror = function() {
+                    console.log('Default image failed to load, showing fallback');
+                    this.style.display = 'none';
+                    const fallbackSpan = document.createElement('span');
+                    fallbackSpan.className = 'text-xl font-bold text-gray-700 dark:text-gray-300';
+                    fallbackSpan.textContent = username ? username.charAt(0).toUpperCase() : 'U';
+                    this.parentNode.appendChild(fallbackSpan);
+                };
             }
         });
 
