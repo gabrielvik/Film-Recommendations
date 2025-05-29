@@ -3,8 +3,17 @@
     {
       "route": "/api/*",
       "allowedRoles": ["authenticated", "anonymous"]
+    },  
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "statusCode": 200
     }
   ],
+
+  "globalHeaders": {
+    "content-type": "text/html"
+  },
   "responseOverrides": {
     "401": {
       "redirect": "/.auth/login/aad",
