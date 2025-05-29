@@ -3,49 +3,8 @@
     {
       "route": "/api/*",
       "allowedRoles": ["authenticated", "anonymous"]
-    },
-    {
-      "route": "/profile.html",
-      "allowedRoles": ["authenticated"],
-      "statusCode": 200,
-      "serve": "/profile.html"
-    },
-    {
-      "route": "/movie-details.html",
-      "allowedRoles": ["authenticated", "anonymous"],
-      "methods": ["GET"],
-      "statusCode": 200,
-      "serve": "/movie-details.html"
-    },
-    {
-      "route": "/movie-details.html/*", 
-      "allowedRoles": ["authenticated", "anonymous"],
-      "methods": ["GET"],
-      "statusCode": 200,
-      "serve": "/movie-details.html"
-    },
-    {
-      "route": "/*",
-      "serve": "/index.html",
-      "statusCode": 200
     }
   ],
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/images/*.{png,jpg,gif,svg}",
-      "/css/*",
-      "/js/*",
-      "/assets/*", 
-      "/api/*",
-      "/*.{css,js,png,jpg,gif,svg,ico,woff,woff2,ttf,eot}",
-      "/favicon.ico",
-      "/robots.txt"
-    ]
-  },
-  "globalHeaders": {
-    "content-type": "text/html"
-  },
   "responseOverrides": {
     "401": {
       "redirect": "/.auth/login/aad",
