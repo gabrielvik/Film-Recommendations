@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Microsoft.Extensions.Configuration;
 
 namespace FilmRecomendations.Services
 {
@@ -16,11 +17,14 @@ namespace FilmRecomendations.Services
         private ITMDBService _tmdbService;
         private readonly ILogger<AiService> _logger;
 
-        public AiService(ITMDBService tmdbService, ILogger<AiService> logger)
+         private readonly IConfiguration _configuration;
+
+        public AiService(ITMDBService tmdbService, ILogger<AiService> logger, IConfiguration configuration)
         {
             _chatClient = InitializeChatClient();
             _tmdbService = tmdbService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         private ChatClient InitializeChatClient()
@@ -29,7 +33,22 @@ namespace FilmRecomendations.Services
             // string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
             // Set up the API key and endpoint for GROK.
-            var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            string apiKey;
+
+
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    
+            if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
+            {
+                // Use environment variable in development
+                apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            }
+            else
+            {
+            // Use configuration in other environments
+            apiKey = _configuration["GROK:ApiKey"];
+            }
+            
             var credential = new ApiKeyCredential(apiKey);
             var baseURL = new OpenAI.OpenAIClientOptions
             {
