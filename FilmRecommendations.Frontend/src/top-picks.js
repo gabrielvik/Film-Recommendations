@@ -8,49 +8,50 @@ const moviesPerPage = 6;
 
 // Initialize Top Picks on page load
 export function initializeTopPicks() {
-    // Always show top picks - personalized for authenticated users, trending for guests
-    fetchTopPicks();
+    console.log('Initializing Top Picks...');
+    console.log('Is authenticated:', isAuthenticated());
+    console.log('Auth token exists:', !!localStorage.getItem('authToken'));
+    
+    // Only show top picks for authenticated users with liked movies
+    if (isAuthenticated()) {
+        console.log('User is authenticated, fetching top picks');
+        fetchTopPicks();
+    } else {
+        console.log('User not authenticated, skipping top picks');
+    }
+    
+
 }
 
 // Fetch top picks based on user preferences
 async function fetchTopPicks() {
     try {
-        let headingText = 'Top picks for you';
+        console.log('Fetching top picks...');
+        // Only get user's liked movies - no fallbacks
+        const likedMovies = await getUserLikedMovies();
+        console.log('Liked movies found:', likedMovies.length);
         
-        if (isAuthenticated()) {
-            // Try to get user's liked movies first to personalize recommendations
-            const likedMovies = await getUserLikedMovies();
+        // Only show Top Picks if user has liked movies
+        if (likedMovies && likedMovies.length > 0) {
+            console.log('Getting personalized recommendations based on:', likedMovies.map(m => m.title || m.movie_name));
+            const recommendations = await getPersonalizedRecommendations(likedMovies);
             
-            // If user has liked movies, get similar recommendations
-            if (likedMovies && likedMovies.length > 0) {
-                const recommendations = await getPersonalizedRecommendations(likedMovies);
+            if (recommendations && recommendations.length > 0) {
+                console.log('Recommendations received:', recommendations.length);
                 topPicksData = recommendations;
-                headingText = 'Recommended for you';
+                updateHeading('Top picks for you');
+                displayTopPicks();
+                showTopPicksSection();
             } else {
-                // Fallback to trending movies if no user preferences
-                const trendingMovies = await getTrendingMovies();
-                topPicksData = trendingMovies;
-                headingText = 'Popular movies';
+                console.log('No recommendations received');
             }
         } else {
-            // Show trending movies for non-authenticated users
-            const trendingMovies = await getTrendingMovies();
-            topPicksData = trendingMovies;
-            headingText = 'Popular movies';
+            console.log('No liked movies found, hiding top picks section');
         }
-        
-        if (topPicksData && topPicksData.length > 0) {
-            updateHeading(headingText);
-            displayTopPicks();
-            showTopPicksSection();
-        }
+        // If no liked movies or no recommendations, don't show the section
     } catch (error) {
         console.error('Error fetching top picks:', error);
-        // Fallback to sample movies
-        topPicksData = getSampleTopPicks();
-        updateHeading('Popular movies');
-        displayTopPicks();
-        showTopPicksSection();
+        // Don't show anything if there's an error
     }
 }
 
@@ -79,12 +80,55 @@ async function getUserLikedMovies() {
             if (response.status === 401) {
                 localStorage.removeItem('authToken');
             }
+            console.log('API response not OK:', response.status, response.statusText);
             return [];
         }
 
         const userMovies = await response.json();
+        console.log('User movies response:', userMovies);
+        console.log('Response type:', typeof userMovies);
+        console.log('Response keys:', Object.keys(userMovies || {}));
+        
+        // Handle paginated API response structure
+        let moviesArray = [];
+        
+        if (Array.isArray(userMovies)) {
+            moviesArray = userMovies;
+        } else if (userMovies && userMovies.pageItems) {
+            console.log('pageItems exists, type:', typeof userMovies.pageItems);
+            console.log('pageItems content:', userMovies.pageItems);
+            console.log('pageItems is array:', Array.isArray(userMovies.pageItems));
+            
+            if (Array.isArray(userMovies.pageItems)) {
+                moviesArray = userMovies.pageItems;
+                console.log('Found pageItems array');
+            } else if (userMovies.pageItems.$values && Array.isArray(userMovies.pageItems.$values)) {
+                moviesArray = userMovies.pageItems.$values;
+                console.log('Found pageItems.$values array');
+            } else {
+                console.log('pageItems structure not recognized');
+            }
+        } else if (userMovies && userMovies.data && Array.isArray(userMovies.data)) {
+            moviesArray = userMovies.data;
+        } else if (userMovies && userMovies.items && Array.isArray(userMovies.items)) {
+            moviesArray = userMovies.items;
+        } else if (userMovies && userMovies.$values && Array.isArray(userMovies.$values)) {
+            moviesArray = userMovies.$values;
+        } else if (userMovies && userMovies.movies && Array.isArray(userMovies.movies)) {
+            moviesArray = userMovies.movies;
+        } else {
+            console.log('Could not find movies array in response structure');
+            return [];
+        }
+        
+        console.log('Movies array found:', moviesArray.length, 'movies');
+        console.log('Sample movie:', moviesArray[0]);
+        
         // Filter for liked movies (where liked === true)
-        return userMovies.filter(movie => movie.liked === true);
+        const likedMovies = moviesArray.filter(movie => movie.liked === true);
+        console.log('Filtered liked movies:', likedMovies.length);
+        
+        return likedMovies;
     } catch (error) {
         console.error('Error fetching liked movies:', error);
         return [];
@@ -109,75 +153,14 @@ async function getPersonalizedRecommendations(likedMovies) {
         }
 
         const recommendations = await response.json();
-        return recommendations && recommendations.length > 0 ? recommendations.slice(0, 12) : getSampleTopPicks();
+        return recommendations && recommendations.length > 0 ? recommendations.slice(0, 12) : [];
     } catch (error) {
         console.error('Error getting personalized recommendations:', error);
-        return getSampleTopPicks();
+        return [];
     }
 }
 
-// Get trending movies as fallback
-async function getTrendingMovies() {
-    try {
-        // Use a generic prompt to get popular movies
-        const prompt = 'Popular trending movies from 2020-2024';
-        
-        const response = await fetch(`${config.apiBaseUrl}/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(prompt)}`);
 
-        if (!response.ok) {
-            // If API fails, return some sample popular movies
-            return getSampleTopPicks();
-        }
-
-        const movies = await response.json();
-        return movies && movies.length > 0 ? movies.slice(0, 12) : getSampleTopPicks();
-    } catch (error) {
-        console.error('Error getting trending movies:', error);
-        return getSampleTopPicks();
-    }
-}
-
-// Sample top picks for fallback
-function getSampleTopPicks() {
-    return [
-        {
-            movie_id: 597,
-            movie_name: "Titanic",
-            release_year: 1997,
-            poster_path: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg"
-        },
-        {
-            movie_id: 550,
-            movie_name: "Fight Club",
-            release_year: 1999,
-            poster_path: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
-        },
-        {
-            movie_id: 13,
-            movie_name: "Forrest Gump",
-            release_year: 1994,
-            poster_path: "https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"
-        },
-        {
-            movie_id: 155,
-            movie_name: "The Dark Knight",
-            release_year: 2008,
-            poster_path: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
-        },
-        {
-            movie_id: 680,
-            movie_name: "Pulp Fiction",
-            release_year: 1994,
-            poster_path: "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg"
-        },
-        {
-            movie_id: 27205,
-            movie_name: "Inception",
-            release_year: 2010,
-            poster_path: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg"
-        }
-    ];
-}
 
 // Display top picks in the horizontal layout
 function displayTopPicks() {
