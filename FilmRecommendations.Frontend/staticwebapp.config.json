@@ -7,21 +7,17 @@
     {
       "route": "/profile/*",
       "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/*",
-      "serve": "/index.html",
-      "statusCode": 200
     }
+    
   ],
   "navigationFallback": {
-    "rewrite": "/index.html",
+    "rewrite": "/index.html", 
     "exclude": [
       "/images/*.{png,jpg,gif,svg}",
       "/css/*",
       "/js/*",
       "/assets/*",
-      "/api/*",
+      "/api/*", 
       "/*.{css,js,png,jpg,gif,svg,ico,woff,woff2,ttf,eot}",
       "/favicon.ico",
       "/robots.txt"
@@ -37,16 +33,12 @@
   },
   "responseOverrides": {
     "401": {
-      "redirect": "/.auth/login/aad",
+      "redirect": "/.auth/login/aad", 
       "statusCode": 302
     },
     "403": {
       "redirect": "/",
       "statusCode": 302
-    },
-    "404": {
-      "rewrite": "/index.html",
-      "statusCode": 200
     }
   }
 }
