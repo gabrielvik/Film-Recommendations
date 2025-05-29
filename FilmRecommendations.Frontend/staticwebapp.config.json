@@ -10,9 +10,8 @@
     "rewrite": "/index.html",
     "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/assets/*"]
   },
-  "globalHeaders": {
-    "content-type": {
-      "text/css": "*.css"
-    }
+  "mimeTypes": {
+    ".css": "text/css",
+    ".js": "application/javascript"
   }
 }
