@@ -37,7 +37,6 @@ function initProfile() {
     profileImageContainer.style.maxHeight = '6rem';
   }
 
-
   const payload = getTokenPayload();
   if (payload) {
     if (payload.email) {
@@ -50,10 +49,36 @@ function initProfile() {
       document.getElementById('profileJoinDate').textContent = joinDate.toLocaleDateString();
     }
 
-    const savedProfilePic = localStorage.getItem('userProfilePicture');
-    if (savedProfilePic) {
-      profileImage.src = savedProfilePic;
-      profileImage.style.display = 'block';
+    // Fetch profile picture from the server
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      fetch('https://localhost:7103/api/Movies/profile-picture', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.text(); // Use text() since the response is a plain URL string
+        })
+        .then(data => {
+          if (data) {
+            profileImage.src = data;
+            profileImage.style.display = 'block';
+          } else {
+            // Fallback to default avatar if no profile picture is set
+            profileImage.src = '/src/assets/default-avatar.png';
+            profileImage.style.display = 'block';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching profile picture:', error);
+          showErrorAlert('Could not load profile picture. Try again later.');
+          profileImage.src = '/src/assets/default-avatar.png';
+          profileImage.style.display = 'block';
+        });
     }
   }
 }
@@ -69,8 +94,21 @@ function setupProfilePictureChange() {
 
   profilePicInput.addEventListener('change', (event) => {
     if (event.target.files && event.target.files[0]) {
-      const reader = new FileReader();
+      const file = event.target.files[0];
 
+      // Validate file type and size on the client side
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        showErrorAlert('Invalid file type. Only JPG, PNG, and GIF are allowed.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showErrorAlert('File size exceeds 5MB limit.');
+        return;
+      }
+
+      // Display the image locally before uploading
+      const reader = new FileReader();
       reader.onload = (e) => {
         profileImage.src = e.target.result;
         profileImage.style.display = 'block';
@@ -79,13 +117,42 @@ function setupProfilePictureChange() {
         if (letterSpan) {
           letterSpan.remove();
         }
-
-        localStorage.setItem('userProfilePicture', e.target.result);
-
-        showSuccessAlert('Profile picture updated successfully!');
       };
+      reader.readAsDataURL(file);
 
-      reader.readAsDataURL(event.target.files[0]);
+      // Upload the file to the server
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('https://localhost:7103/api/Movies/profile-picture', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        })
+          .then(async response => {
+            if (!response.ok) {
+              const errorText = await response.text(); // Get the error message from the response
+              throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+            }
+            return response.text(); // Expect a URL string in response
+          })
+          .then(url => {
+            if (url) {
+              profileImage.src = url; // Update the image with the URL returned by the server
+              showSuccessAlert('Profile picture updated successfully!');
+            }
+          })
+          .catch(error => {
+            console.error('Error uploading profile picture:', error);
+            showErrorAlert(`Could not update profile picture: ${error.message}`);
+          });
+      } else {
+        showErrorAlert('You must be logged in to update your profile picture.');
+      }
     }
   });
 }
@@ -128,7 +195,7 @@ function fetchWatchlist() {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('You must log in to see your watchlist.'); 
+    showErrorAlert('You must log in to see your watchlist.');
     return;
   }
 
@@ -207,7 +274,7 @@ function removeFromWatchlist(movieId) {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('You must log in to remove movies from your watchlist.'); 
+    showErrorAlert('You must log in to remove movies from your watchlist.');
     return;
   }
 
@@ -224,11 +291,11 @@ function removeFromWatchlist(movieId) {
       fetchWatchlist();
       fetchLikedMovies();
       fetchDislikedMovies();
-      showSuccessAlert('The movie has been removed from your list'); 
+      showSuccessAlert('The movie has been removed from your list');
     })
     .catch(error => {
       console.error('Error removing movie from watchlist:', error);
-      showErrorAlert('Could not remove the movie from your list. Try again later.'); 
+      showErrorAlert('Could not remove the movie from your list. Try again later.');
     });
 }
 
@@ -238,7 +305,7 @@ function fetchLikedMovies() {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('You must log in to see your liked movies.'); 
+    showErrorAlert('You must log in to see your liked movies.');
     return;
   }
 
@@ -283,7 +350,6 @@ function fetchLikedMovies() {
 
         moviesContainer.appendChild(movieGrid);
 
-
         const removeButtons = document.querySelectorAll('.liked-remove-btn');
         removeButtons.forEach(button => {
           button.addEventListener('click', () => {
@@ -300,7 +366,7 @@ function fetchLikedMovies() {
     })
     .catch(error => {
       console.error('Error fetching watchlist:', error);
-      showErrorAlert('Could not fetch your watchlist. Try again later.'); 
+      showErrorAlert('Could not fetch your watchlist. Try again later.');
     });
 }
 
@@ -310,7 +376,7 @@ function fetchDislikedMovies() {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
-    showErrorAlert('You must log in to see your disliked movies.'); 
+    showErrorAlert('You must log in to see your disliked movies.');
     return;
   }
 
@@ -367,20 +433,18 @@ function fetchDislikedMovies() {
           <p class="text-gray-500 dark:text-gray-400 italic">You have not disliked any movies yet.</p>
         `;
       }
-    }
-    )
+    })
     .catch(error => {
       console.error('Error fetching watchlist:', error);
       showErrorAlert('Kunde inte hämta din watchlist. Försök igen senare.');
     });
 }
 
-
 function showErrorAlert(message) {
   const successAlert = document.getElementById('successAlert');
   const successAlertMessage = document.getElementById('successAlertMessage');
 
-  successAlertMessage.textContent = message || 'An error has occurred.'; 
+  successAlertMessage.textContent = message || 'An error has occurred.';
   successAlert.classList.remove('bg-green-100', 'border-green-400', 'text-green-700');
   successAlert.classList.add('bg-red-100', 'border-red-400', 'text-red-700', 'hidden');
 
@@ -390,4 +454,3 @@ function showErrorAlert(message) {
     successAlert.classList.add('hidden');
   }, 3000);
 }
-
