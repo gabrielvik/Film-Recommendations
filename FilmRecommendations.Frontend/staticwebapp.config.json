@@ -13,8 +13,16 @@
     {
       "route": "/movie-details.html",
       "allowedRoles": ["authenticated", "anonymous"],
+      "methods": ["GET"],
       "statusCode": 200,
-      "serve": "/movie-details.html" 
+      "serve": "/movie-details.html"
+    },
+    {
+      "route": "/movie-details.html/*", 
+      "allowedRoles": ["authenticated", "anonymous"],
+      "methods": ["GET"],
+      "statusCode": 200,
+      "serve": "/movie-details.html"
     },
     {
       "route": "/*",
@@ -35,6 +43,9 @@
       "/robots.txt"
     ]
   },
+  "globalHeaders": {
+    "content-type": "text/html"
+  },
   "responseOverrides": {
     "401": {
       "redirect": "/.auth/login/aad",
@@ -48,5 +59,11 @@
       "rewrite": "/index.html",
       "statusCode": 200
     }
+  },
+  "mimeTypes": {
+    ".html": "text/html",
+    ".js": "text/javascript",
+    ".css": "text/css",
+    ".json": "application/json"
   }
 }
