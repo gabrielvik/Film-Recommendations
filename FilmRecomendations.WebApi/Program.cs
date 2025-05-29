@@ -125,6 +125,20 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 });
 
+string webRootPath = builder.Environment.WebRootPath;
+if (string.IsNullOrEmpty(webRootPath))
+{
+    webRootPath = builder.Environment.ContentRootPath; // Fallback to project root
+    Console.WriteLine($"WebRootPath is null, falling back to ContentRootPath: {webRootPath}");
+}
+
+var uploadsPath = Path.Combine(webRootPath, "Uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+    Console.WriteLine($"Created Uploads directory at: {uploadsPath}");
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
