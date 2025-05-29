@@ -167,8 +167,6 @@ function displayTopPicks() {
     const container = document.getElementById('topPicksContainer');
     if (!container) return;
 
-    container.innerHTML = '';
-
     // Calculate how many pages we need
     const totalPages = Math.ceil(topPicksData.length / moviesPerPage);
     
@@ -177,10 +175,22 @@ function displayTopPicks() {
     const endIndex = Math.min(startIndex + moviesPerPage, topPicksData.length);
     const currentMovies = topPicksData.slice(startIndex, endIndex);
 
-    currentMovies.forEach((movie) => {
-        const movieCard = createTopPicksMovieCard(movie);
-        container.appendChild(movieCard);
-    });
+    // Fade out current content
+    container.style.opacity = '0';
+    container.style.transition = 'opacity 0.3s ease-in-out';
+    
+    setTimeout(() => {
+        // Clear and rebuild content
+        container.innerHTML = '';
+        
+        currentMovies.forEach((movie) => {
+            const movieCard = createTopPicksMovieCard(movie);
+            container.appendChild(movieCard);
+        });
+        
+        // Fade in new content
+        container.style.opacity = '1';
+    }, 300);
 
     // Setup pagination if we have more than one page
     if (totalPages > 1) {

@@ -41,6 +41,11 @@
     display: none;
 }
 
+#topPicksContainer {
+    min-height: 400px; /* Prevent layout jumping during transitions */
+    transition: opacity 0.3s ease-in-out;
+}
+
 .top-picks-card {
     min-width: 200px;
     flex-shrink: 0;
@@ -76,6 +81,7 @@
     
     #topPicksContainer {
         gap: 12px;
+        min-height: 320px; /* Smaller min-height for mobile */
     }
 }
 
