@@ -265,28 +265,32 @@ function closeLoginModalFunction() {
 
 // Function to fetch the profile picture URL
 async function fetchProfilePicture() {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        return null; // No token, return null to indicate failure
-    }
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+      console.log('No auth token found');
+      return null;
+  }
 
-    try {
-        const response = await fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+  try {
+      const response = await fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
+          headers: {
+              'Authorization': `Bearer ${token}`
+          }
+      });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+      console.log('Profile picture API response status:', response.status);
+      if (!response.ok) {
+          console.error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
-        const data = await response.text(); // Expecting a URL string
-        return data || null; // Return the URL or null if empty
-    } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        return null; // Return null on error
-    }
+      const data = await response.text();
+      console.log('Profile picture URL:', data);
+      return data || null;
+  } catch (error) {
+      console.error('Error fetching profile picture:', error.message);
+      return null;
+  }
 }
 
 function updateAuthUI() {
