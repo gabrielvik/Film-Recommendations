@@ -1,4 +1,4 @@
-// import './style.css';
+import './style.css';
 import { withAuth, isAuthenticated } from './auth-utils';
 import config from './config.js';
 

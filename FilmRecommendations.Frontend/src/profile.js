@@ -53,7 +53,7 @@ function initProfile() {
     // Fetch profile picture from the server
     const token = localStorage.getItem('authToken');
     if (token) {
-      fetch('https://localhost:7103/api/Movies/profile-picture', {
+      fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -127,7 +127,7 @@ function setupProfilePictureChange() {
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch('https://localhost:7103/api/Movies/profile-picture', {
+        fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
