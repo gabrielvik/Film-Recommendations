@@ -217,7 +217,7 @@ loginForm.addEventListener('submit', async (e) => {
     const rememberMe = document.getElementById('rememberMe').checked;
     console.log('Login submitted:', { email, password, rememberMe });
     try {
-      const response = await fetch('https://localhost:7103/api/Auth/login', {
+      const response = await fetch(`${config.apiBaseUrl}/api/Auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -271,7 +271,7 @@ async function fetchProfilePicture() {
     }
 
     try {
-        const response = await fetch('https://localhost:7103/api/Movies/profile-picture', {
+        const response = await fetch(`${config.apiBaseUrl}/api/Movies/profile-picture`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

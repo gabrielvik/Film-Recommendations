@@ -8,7 +8,7 @@ let navigationHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) 
 if (navigationHistory.length === 0) {
     // Check if we came from main page
     const referrer = document.referrer;
-    if (referrer.includes('index.html') || referrer.includes('localhost:5173') && !referrer.includes('movie-details.html')) {
+    if (referrer.includes('index.html') || referrer.includes(`${config.apiBaseUrl}`) && !referrer.includes('movie-details.html')) {
         navigationHistory.push({ type: 'main', url: referrer || 'index.html' });
     }
 }
