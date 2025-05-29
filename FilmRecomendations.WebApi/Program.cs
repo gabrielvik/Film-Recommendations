@@ -14,17 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-if (builder.Environment.IsProduction())
-{
-
-}
-else
-{
     Environment.SetEnvironmentVariable("OPENAI_API_KEY", builder.Configuration["OpenAI:ApiKey"]);
     Environment.SetEnvironmentVariable("TMDb:ApiKey", builder.Configuration["TMDb:ApiKey"]);
     Environment.SetEnvironmentVariable("GROK_API_KEY", builder.Configuration["GROK:ApiKey"]);
     Environment.SetEnvironmentVariable("TMDb:BaseUrl", builder.Configuration["TMDb:BaseUrl"]);
-}
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -105,7 +98,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "https://kind-smoke-050d18e03.6.azurestaticapps.net")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

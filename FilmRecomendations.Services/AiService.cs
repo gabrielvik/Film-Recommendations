@@ -33,22 +33,8 @@ namespace FilmRecomendations.Services
             // string apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
             // Set up the API key and endpoint for GROK.
-            string apiKey;
-
-
-            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    
-            if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
-            {
-                // Use environment variable in development
-                apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
-            }
-            else
-            {
-            // Use configuration in other environments
-            apiKey = _configuration["GROK:ApiKey"];
-            }
-            
+            var apiKey = Environment.GetEnvironmentVariable("GROK_API_KEY");
+            // var apiKey = _configuration["GROK:ApiKey"];
             var credential = new ApiKeyCredential(apiKey);
             var baseURL = new OpenAI.OpenAIClientOptions
             {

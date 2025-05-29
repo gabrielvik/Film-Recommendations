@@ -1,4 +1,5 @@
 import { saveAuthToken, removeAuthToken, isAuthenticated, getUsername } from './auth-utils.js';
+import config from './config.js';
 
 // Register modal functionality
 const registerButton = document.getElementById('registerButton');
@@ -119,60 +120,63 @@ registerForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('password').value;
     console.log('Registration submitted:', { username, email, password });
     try {
-        const response = await fetch('https://localhost:7103/api/Auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, email, password })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            console.log('Success:', data);
-            showSuccessAlert('Your account has been created! You can now log in');
-            closeRegisterModalFunction();
-            registerForm.reset();
-        } else {
-            console.error('Error:', data);
-            // Handle specific error messages from the API
-            let errorMessage = 'An error occurred during registration';
-            // Check if data.errors is an array (password validation errors)
-            if (data.errors && Array.isArray(data.errors)) {
-                errorMessage = 'The password must meet the following requirements:<br>';
-                errorMessage += data.errors.map(err => `• ${err}`).join('<br>');
-            }
-            // Handle array directly
-            else if (Array.isArray(data)) {
-                errorMessage = 'The password must meet the following requirements:<br>';
-                errorMessage += data.map(err => `• ${err}`).join('<br>');
-            }
-            // Handle structured errors object
-            else if (data.errors) {
-                
-                // Check for .NET serialization format with $values
-                if (data.errors.$values && Array.isArray(data.errors.$values)) {
-                    errorMessage = 'Password requirements:<br>';
-                    errorMessage += data.errors.$values.map(err => `• ${err}`).join('<br>');
-                }
-                // Check for specific error types 
-                else if (data.errors.Email) {
-                    errorMessage = `Email: ${data.errors.Email[0]}`;
-                } else if (data.errors.Password) {
-                    if (Array.isArray(data.errors.Password)) {
-                        errorMessage = 'Password error:<br>';
-                        errorMessage += data.errors.Password.map(err => `• ${err}`).join('<br>');
-                    } else {
-                        errorMessage = `Password: ${data.errors.Password[0]}`;
-                    }
-                } else if (data.errors.Username) {
-                    errorMessage = `Username: ${data.errors.Username[0]}`;
-                }
-            } else if (data.message) {
-                errorMessage = data.message;
-            }
-            // Show error in the modal instead of the global alert
-            showModalError('register', errorMessage);
+      const response = await fetch(`${config.apiBaseUrl}/api/Auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('Success:', data);
+        showSuccessAlert('Your account has been created! You can now log in');
+        closeRegisterModalFunction();
+        registerForm.reset();
+      } else {
+        console.error('Error:', data);
+        // Handle specific error messages from the API
+        let errorMessage = 'An error occurred during registration';
+        
+        // Check if data.errors is an array (password validation errors)
+        if (data.errors && Array.isArray(data.errors)) {
+          errorMessage = 'The password must meet the following requirements:<br>';
+          errorMessage += data.errors.map(err => `• ${err}`).join('<br>');
         }
+        // Handle array directly
+        else if (Array.isArray(data)) {
+          errorMessage = 'The password must meet the following requirements:<br>';
+          errorMessage += data.map(err => `• ${err}`).join('<br>');
+        }
+        // Handle structured errors object
+        else if (data.errors) {
+          // Check for .NET serialization format with $values
+          if (data.errors.$values && Array.isArray(data.errors.$values)) {
+            errorMessage = 'Password requirements:<br>';
+            errorMessage += data.errors.$values.map(err => `• ${err}`).join('<br>');
+          }
+          // Check for specific error types
+          else if (data.errors.Email) {
+            errorMessage = `Email: ${data.errors.Email[0]}`;
+          } else if (data.errors.Password) {
+            if (Array.isArray(data.errors.Password)) {
+              errorMessage = 'Password error:<br>';
+              errorMessage += data.errors.Password.map(err => `• ${err}`).join('<br>');
+            } else {
+              errorMessage = `Password: ${data.errors.Password[0]}`;
+            }
+          } else if (data.errors.Username) {
+            errorMessage = `Username: ${data.errors.Username[0]}`;
+          }
+        } else if (data.message) {
+          errorMessage = data.message;
+        }
+        
+        // Show error in the modal instead of the global alert
+        showModalError('register', errorMessage);
+      }
     } catch (error) {
         console.error('Error:', error);
         showModalError('register', 'Could not connect to the server. Please try again later');
@@ -213,29 +217,33 @@ loginForm.addEventListener('submit', async (e) => {
     const rememberMe = document.getElementById('rememberMe').checked;
     console.log('Login submitted:', { email, password, rememberMe });
     try {
-        const response = await fetch('https://localhost:7103/api/Auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            console.log('Login Success:', data);
-            // Store the JWT token
-            if (data.token) {
-                saveAuthToken(data.token);
-                updateAuthUI(); // Update UI after login
-                showSuccessAlert('Log in successful');
-            }
-            closeLoginModalFunction();
-            loginForm.reset();
-        } else {
-            console.error('Login Error:', data);
-            // Show error in the modal instead of the global alert
-            showModalError('login', data.message || 'Wrong email or password');
+      const response = await fetch('https://localhost:7103/api/Auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('Login Success:', data);
+        
+        // Store the JWT token
+        if (data.token) {
+          saveAuthToken(data.token);
+          updateAuthUI();
+          showSuccessAlert('Log in successful');
         }
+        
+        closeLoginModalFunction();
+        loginForm.reset();
+      } else {
+        console.error('Login Error:', data);
+        // Show error in the modal instead of the global alert
+        showModalError('login', data.message || 'Wrong email or password');
+      }
     } catch (error) {
         console.error('Login Error:', error);
         showModalError('login', 'Could not connect to the server. Please try again later');

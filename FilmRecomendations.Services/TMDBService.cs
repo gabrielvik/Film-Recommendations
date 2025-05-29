@@ -20,31 +20,14 @@ public class TMDBService : ITMDBService
         _configuration = configuration;
     }
 
-    // Add a helper method to get the API key based on environment
-    private string GetApiKey()
-    {
-        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        
-        if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
-        {
-            // Use environment variable in development
-            return Environment.GetEnvironmentVariable("TMDb:ApiKey");
-        }
-        else
-        {
-            // Use configuration in other environments
-            return _configuration["TMDb:ApiKey"];
-        }
-    }
-
     public async Task<MovieIdResponse> GetMovieIdAsync(string movieName, int releaseYear)
     {
         var movieResponse = new MovieIdResponse();
 
         try
         {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var apiKey = GetApiKey();
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
+            // var apiKey = _configuration["TMDb:ApiKey"];
             var searchUrl = $"search/movie?api_key={apiKey}&query={Uri.EscapeDataString(movieName)}&year={releaseYear}";
             _logger.LogInformation($"Searching for movie: {movieName} ({releaseYear})");
 
@@ -94,8 +77,7 @@ public class TMDBService : ITMDBService
 {
     try
     {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-        var apiKey = GetApiKey();
+        var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
         var requestUrl = $"movie/{movieId}/credits?api_key={apiKey}";
         _logger.LogInformation($"Fetching credits for movie ID: {movieId} for directors");
 
@@ -144,8 +126,7 @@ public class TMDBService : ITMDBService
     {
         try
         {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var apiKey = GetApiKey();
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             var requestUrl = $"movie/{movieId}/credits?api_key={apiKey}";
             _logger.LogInformation($"Fetching credits for movie ID: {movieId} for actors");
 
@@ -193,8 +174,7 @@ public class TMDBService : ITMDBService
     {
         try
         {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var apiKey = GetApiKey();
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             var detailsUrl = $"movie/{movieId}?api_key={apiKey}";
             _logger.LogInformation($"Fetching details for movie ID: {movieId}");
 
@@ -261,8 +241,7 @@ public class TMDBService : ITMDBService
     {
         try
         {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var apiKey = GetApiKey();
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             if (string.IsNullOrEmpty(apiKey))
             {
                 _logger.LogError("TMDB API key is missing.");
@@ -337,8 +316,7 @@ public class TMDBService : ITMDBService
     {
         try
         {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var apiKey = GetApiKey();
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             _logger.LogInformation($"Fetching trailers for movie ID: {movieId}");
 
             // Create a request message as per the TMDB docs
@@ -400,8 +378,7 @@ public class TMDBService : ITMDBService
     {
         try
         {
-            // var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
-            var apiKey = GetApiKey();
+            var apiKey = Environment.GetEnvironmentVariable("TMDb:ApiKey");
             var personUrl = $"person/{actorId}?api_key={apiKey}";
             var creditsUrl = $"person/{actorId}/movie_credits?api_key={apiKey}";
             _logger.LogInformation($"Fetching details for actor ID: {actorId}");

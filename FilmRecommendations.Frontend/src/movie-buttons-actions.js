@@ -1,3 +1,4 @@
+import config from './config.js';
 // Function to add a movie to the user's watchlist
 export function addToWatchlist(movieData) {
 
@@ -15,7 +16,7 @@ export function addToWatchlist(movieData) {
   };
 
   // Check if the movie is already in the user's watchlist
-  fetch(`https://localhost:7103/api/Movies/exists/${movieData.id}`, {
+  fetch(`${config.apiBaseUrl}/api/Movies/exists/${movieData.id}`, {
     headers: {
       Authorization: `Bearer ${user.token}`,
     },
@@ -31,7 +32,7 @@ export function addToWatchlist(movieData) {
       }
 
       // Call the API to add the movie to the watchlist
-      fetch("https://localhost:7103/api/Movies", {
+      fetch(`${config.apiBaseUrl}/api/Movies`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
   };
 
   // Check if the movie is already in the user's watchlist
-  fetch(`https://localhost:7103/api/Movies/exists/${movieData.id}`, {
+  fetch(`${config.apiBaseUrl}/api/Movies/exists/${movieData.id}`, {
     headers: {
       Authorization: `Bearer ${user.token}`,
     },
@@ -123,7 +124,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
           };
           console.log(updateData);
           
-          return fetch("https://localhost:7103/api/Movies", {
+          return fetch(`${config.apiBaseUrl}/api/Movies`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -171,7 +172,7 @@ export function updateMovieLikeStatus(movieData, isLiked) {
         }
       } else {
         // Movie doesn't exist, add it as a new liked/disliked movie
-        return fetch("https://localhost:7103/api/Movies", {
+        return fetch(`${config.apiBaseUrl}/api/Movies`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

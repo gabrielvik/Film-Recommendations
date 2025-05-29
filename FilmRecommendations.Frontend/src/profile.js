@@ -1,4 +1,5 @@
 import { isAuthenticated, getUsername, getTokenPayload } from './auth-utils.js';
+import config from './config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!isAuthenticated()) {
@@ -199,7 +200,7 @@ function fetchWatchlist() {
     return;
   }
 
-  fetch('https://localhost:7103/api/Movies/watchlist?pageNumber=0&pageSize=10', {
+  fetch(`${config.apiBaseUrl}/api/Movies/watchlist?pageNumber=0&pageSize=10`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -278,7 +279,7 @@ function removeFromWatchlist(movieId) {
     return;
   }
 
-  fetch(`https://localhost:7103/api/Movies/${movieId}`, {
+  fetch(`${config.apiBaseUrl}/api/Movies/${movieId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -309,7 +310,7 @@ function fetchLikedMovies() {
     return;
   }
 
-  fetch('https://localhost:7103/api/Movies/LikedMovies?pageNumber=0&pageSize=10', {
+  fetch(`${config.apiBaseUrl}/api/Movies/LikedMovies?pageNumber=0&pageSize=10`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -380,7 +381,7 @@ function fetchDislikedMovies() {
     return;
   }
 
-  fetch('https://localhost:7103/api/Movies/DislikedMovies?pageNumber=0&pageSize=10', {
+  fetch(`${config.apiBaseUrl}/api/Movies/DislikedMovies?pageNumber=0&pageSize=10`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
