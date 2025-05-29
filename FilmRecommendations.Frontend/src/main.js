@@ -1,5 +1,6 @@
 import './style.css';
 import { withAuth, isAuthenticated } from './auth-utils';
+import config from './config.json';
 
 const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
@@ -72,7 +73,7 @@ promptForm.addEventListener('submit', async (e) => {
   movieRecommendations.innerHTML = '';
   loadingIndicator.classList.remove('hidden');
 
-  const apiUrl = `https://localhost:7103/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
+  const apiUrl = `${config.apiBaseUrl}/FilmRecomendations/GetFilmRecommendation?prompt=${encodeURIComponent(userPrompt)}`;
 
   try {
     const response = await fetch(apiUrl, withAuth());

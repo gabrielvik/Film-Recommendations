@@ -1,4 +1,5 @@
 import { addToWatchlist, showNotification, addToLikeList, addToDislikeList } from './movie-buttons-actions.js';
+import config from './config.json';
 
 // Navigation History Management
 let navigationHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
@@ -93,7 +94,7 @@ function showMovieDetails(movie) {
     const movieDetailsContainer = document.getElementById('movieDetailsContainer');
     
     // Fetch detailed movie data using the movie_id property from the selected movie
-    fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+    fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Error fetching movie details.');
@@ -132,7 +133,7 @@ function showMovieDetails(movie) {
             // Fetch streaming providers
             let streamingProviders = null;
             try {
-                const providersResponse = await fetch(`https://localhost:7103/FilmRecomendations/GetStreamingProviders/${movie.movie_id}`);
+                const providersResponse = await fetch(`${config.apiBaseUrl}/FilmRecomendations/GetStreamingProviders/${movie.movie_id}`);
                 if (providersResponse.ok) {
                     streamingProviders = await providersResponse.json();
                 }
@@ -628,7 +629,7 @@ async function showActorDetails(actorId) {
     
     try {
         // Use the new endpoint that provides summarized actor details
-        const response = await fetch(`https://localhost:7103/FilmRecomendations/GetSummarizedActorDetails/${actorId}`);
+        const response = await fetch(`${config.apiBaseUrl}/FilmRecomendations/GetSummarizedActorDetails/${actorId}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch actor details');
@@ -862,7 +863,7 @@ function displayStaticMovieData(movie) {
 document.addEventListener('click', (event) => {
     if (event.target.closest('#watchlist')) {
         // Get the currently displayed movie
-        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+        fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error fetching movie details.');
@@ -881,7 +882,7 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
     if(event.target.closest('#like')) {
-        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+        fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error fetching movie details.');
@@ -900,7 +901,7 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
     if(event.target.closest('#dislike')) {
-        fetch(`https://localhost:7103/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
+        fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error fetching movie details.');

@@ -1,4 +1,5 @@
 import { saveAuthToken, removeAuthToken, isAuthenticated, getUsername } from './auth-utils.js';
+import config from './config.js';
 
 // Register modal functionality
 const registerButton = document.getElementById('registerButton');
@@ -131,7 +132,7 @@ function showModalError(modalId, message) {
     console.log('Registration submitted:', { username, email, password });
     
     try {
-      const response = await fetch('https://localhost:7103/api/Auth/register', {
+      const response = await fetch(`${config.apiBaseUrl}/api/Auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -232,7 +233,7 @@ loginForm.addEventListener('submit', async (e) => {
     console.log('Login submitted:', { email, password, rememberMe });
     
     try {
-      const response = await fetch('https://localhost:7103/api/Auth/login', {
+      const response = await fetch(`${config.apiBaseUrl}/api/Auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
