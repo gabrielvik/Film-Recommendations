@@ -1,5 +1,5 @@
 import { addToWatchlist, showNotification, addToLikeList, addToDislikeList } from './movie-buttons-actions.js';
-import config from './config.json';
+import config from './config.js';
 
 // Navigation History Management
 let navigationHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];

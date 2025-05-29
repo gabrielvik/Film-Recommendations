@@ -1,6 +1,6 @@
 import './style.css';
 import { withAuth, isAuthenticated } from './auth-utils';
-import config from './config.json';
+import config from './config.js';
 
 const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
