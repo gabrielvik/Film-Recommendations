@@ -312,10 +312,12 @@ function updateAuthUI() {
                 } else {
                     // If span doesn't exist, ensure onerror will create it
                     const img = profilePicture.querySelector('#profileImage');
-                    img.onerror = function() {
-                        this.style.display = 'none';
-                        this.parentNode.innerHTML = `<span class="text-xl font-bold text-gray-700 dark:text-gray-300">${firstLetter}</span>`;
-                    };
+                    if (img) {
+                        img.onerror = function() {
+                            this.style.display = 'none';
+                            this.parentNode.innerHTML = `<span class="text-xl font-bold text-gray-700 dark:text-gray-300">${firstLetter}</span>`;
+                        };
+                    }
                 }
             }
         }
