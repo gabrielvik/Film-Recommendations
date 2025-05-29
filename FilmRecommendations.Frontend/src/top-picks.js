@@ -4,7 +4,7 @@ import { isAuthenticated } from './auth-utils.js';
 // Top Picks functionality
 let topPicksData = [];
 let currentPage = 0;
-const moviesPerPage = 6;
+const moviesPerPage = 3;
 
 // Initialize Top Picks on page load
 export function initializeTopPicks() {
@@ -185,6 +185,30 @@ function displayTopPicks() {
     // Setup pagination if we have more than one page
     if (totalPages > 1) {
         setupPagination(totalPages);
+        startAutoSlideshow(totalPages);
+    }
+}
+
+// Auto slideshow functionality
+let slideshowInterval;
+
+function startAutoSlideshow(totalPages) {
+    // Clear existing interval
+    if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+    }
+    
+    // Start auto slideshow (change page every 5 seconds)
+    slideshowInterval = setInterval(() => {
+        currentPage = (currentPage + 1) % totalPages;
+        displayTopPicks();
+    }, 5000);
+}
+
+function stopAutoSlideshow() {
+    if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
     }
 }
 
@@ -245,6 +269,8 @@ function setupPagination(totalPages) {
         dot.addEventListener('click', () => {
             currentPage = i;
             displayTopPicks();
+            // Restart auto slideshow after manual click
+            startAutoSlideshow(totalPages);
         });
 
         paginationContainer.appendChild(dot);
