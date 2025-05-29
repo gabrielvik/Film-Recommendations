@@ -29,7 +29,6 @@ jobs:
           cd ./FilmRecommendations.Frontend
           npm run build
 
-
       - name: Copy Azure config
         run: |
           cp FilmRecommendations.Frontend/staticwebapp.config.json FilmRecommendations.Frontend/dist/
@@ -41,5 +40,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "./FilmRecommendations.Frontend/dist"
-          output_location: "dist"  
-          skip_app_build: true 
+          skip_app_build: true
