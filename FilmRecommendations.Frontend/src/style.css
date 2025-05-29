@@ -31,6 +31,54 @@
     }
 }
 
+/* Top Picks Styling */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.top-picks-card {
+    min-width: 200px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.top-picks-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.pagination-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #d1d5db;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.pagination-dot.active {
+    background-color: #3b82f6;
+}
+
+.pagination-dot:hover {
+    background-color: #6b7280;
+}
+
+@media (max-width: 640px) {
+    .top-picks-card {
+        min-width: 160px;
+    }
+    
+    #topPicksContainer {
+        gap: 12px;
+    }
+}
+
 .backButton{
     background-color: #222936;
 }

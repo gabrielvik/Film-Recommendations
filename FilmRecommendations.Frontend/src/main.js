@@ -1,6 +1,7 @@
 import './style.css';
 import { withAuth, isAuthenticated } from './auth-utils';
 import config from './config.js';
+import { initializeTopPicks } from './top-picks.js';
 
 const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
@@ -11,6 +12,9 @@ const themeSwitcher = document.getElementById('themeSwitcher');
 window.addEventListener('DOMContentLoaded', () => {
   // Clear navigation history when returning to main page
   sessionStorage.removeItem('navigationHistory');
+  
+  // Initialize Top Picks for authenticated users
+  initializeTopPicks();
   
   const savedMovies = sessionStorage.getItem('movieRecommendations');
   if (savedMovies) {
