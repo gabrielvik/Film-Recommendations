@@ -20,7 +20,7 @@ userDisplay.className = 'mr-4 font-bold pt-2 text-gray-900 dark:text-gray-100';
 const profilePicture = document.createElement('div');
 profilePicture.id = 'profilePicture';
 profilePicture.className = 'w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-white dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-colors';
-profilePicture.innerHTML = '<img id="profileImage" src="/assets/default-avatar.png" class="w-full h-full object-cover">';
+profilePicture.innerHTML = '<span id="profileFallback" class="text-xl font-bold text-gray-700 dark:text-gray-300">?</span>';
 profilePicture.title = "My profile";
 
 // Add click event to redirect to profile page
@@ -311,8 +311,8 @@ function updateAuthUI() {
         }
 
         if (!document.getElementById('profilePicture')) {
-            // Ensure profilePicture has the img element
-            profilePicture.innerHTML = '<img id="profileImage" src="/assets/default-avatar.png" class="w-full h-full object-cover">';
+            // Ensure profilePicture has the fallback span
+            profilePicture.innerHTML = '<span id="profileFallback" class="text-xl font-bold text-gray-700 dark:text-gray-300">?</span>';
             authContainer.appendChild(profilePicture);
         }
 
@@ -321,59 +321,31 @@ function updateAuthUI() {
         }
 
         // Fetch and set the profile picture
-        const profileImage = profilePicture.querySelector('#profileImage');
-        if (!profileImage) {
-            console.error('Profile image element not found, recreating...');
-            profilePicture.innerHTML = '<img id="profileImage" src="/assets/default-avatar.png" class="w-full h-full object-cover">';
-        }
-
         fetchProfilePicture().then(profilePictureUrl => {
-            const profileImage = profilePicture.querySelector('#profileImage');
-            const fallbackLetter = username ? username.charAt(0).toUpperCase() : 'U';
-            if (profilePictureUrl && profileImage) {
-                profileImage.src = profilePictureUrl;
-                profileImage.style.display = 'block';
-                // Clear any existing fallback span
-                const existingSpan = profilePicture.querySelector('span');
-                if (existingSpan) existingSpan.remove();
-                // Set onerror handler
-                profileImage.onerror = function() {
-                    console.log('Profile image failed to load, showing fallback');
-                    this.style.display = 'none';
-                    const fallbackSpan = document.createElement('span');
-                    fallbackSpan.className = 'text-xl font-bold text-gray-700 dark:text-gray-300';
-                    fallbackSpan.textContent = fallbackLetter;
-                    this.parentNode.appendChild(fallbackSpan);
-                };
-            } else {
-                console.log('No profile picture URL or profileImage element not found, using default');
+            const profileFallback = profilePicture.querySelector('#profileFallback');
+            if (profilePictureUrl) {
+                // Replace the span with an img element
+                profilePicture.innerHTML = '<img id="profileImage" src="' + profilePictureUrl + '" class="w-full h-full object-cover">';
+                const profileImage = profilePicture.querySelector('#profileImage');
                 if (profileImage) {
-                    profileImage.src = '/assets/default-avatar.png';
-                    profileImage.style.display = 'block';
                     profileImage.onerror = function() {
-                        console.log('Default image failed to load, showing fallback');
-                        this.style.display = 'none';
-                        const fallbackSpan = document.createElement('span');
-                        fallbackSpan.className = 'text-xl font-bold text-gray-700 dark:text-gray-300';
-                        fallbackSpan.textContent = fallbackLetter;
-                        this.parentNode.appendChild(fallbackSpan);
+                        console.log('Profile image failed to load, showing fallback');
+                        this.parentNode.innerHTML = '<span id="profileFallback" class="text-xl font-bold text-gray-700 dark:text-gray-300">?</span>';
                     };
+                }
+            } else {
+                console.log('No profile picture URL, using fallback');
+                // Ensure fallback is set
+                if (!profileFallback) {
+                    profilePicture.innerHTML = '<span id="profileFallback" class="text-xl font-bold text-gray-700 dark:text-gray-300">?</span>';
                 }
             }
         }).catch(error => {
             console.error('Error in profile picture fetch:', error);
-            const profileImage = profilePicture.querySelector('#profileImage');
-            if (profileImage) {
-                profileImage.src = '/assets/default-avatar.png';
-                profileImage.style.display = 'block';
-                profileImage.onerror = function() {
-                    console.log('Default image failed to load, showing fallback');
-                    this.style.display = 'none';
-                    const fallbackSpan = document.createElement('span');
-                    fallbackSpan.className = 'text-xl font-bold text-gray-700 dark:text-gray-300';
-                    fallbackSpan.textContent = username ? username.charAt(0).toUpperCase() : 'U';
-                    this.parentNode.appendChild(fallbackSpan);
-                };
+            // Ensure fallback is set
+            const profileFallback = profilePicture.querySelector('#profileFallback');
+            if (!profileFallback) {
+                profilePicture.innerHTML = '<span id="profileFallback" class="text-xl font-bold text-gray-700 dark:text-gray-300">?</span>';
             }
         });
 
