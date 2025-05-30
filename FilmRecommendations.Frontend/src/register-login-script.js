@@ -1,6 +1,6 @@
 import { saveAuthToken, removeAuthToken, isAuthenticated, getUsername } from './auth-utils.js';
 import config from './config.js';
-import { hideTopPicksSection } from './top-picks.js';
+import { hideTopPicksSection, initializeTopPicks } from './top-picks.js';
 import { clearSearchResults } from './main.js';
 
 // Register modal functionality
@@ -236,6 +236,8 @@ loginForm.addEventListener('submit', async (e) => {
         if (data.token) {
           saveAuthToken(data.token);
           updateAuthUI();
+          // Initialize Top Picks after successful login
+          initializeTopPicks();
           showSuccessAlert('Log in successful');
         }
         
@@ -355,6 +357,9 @@ function updateAuthUI() {
             movieRecommendations.classList.remove('flex', 'items-center', 'justify-center');
             movieRecommendations.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
         }
+
+        // Initialize Top Picks when user is authenticated
+        initializeTopPicks();
     } else {
         // User is not logged in
         loginButton.classList.remove('hidden');
