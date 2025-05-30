@@ -14,9 +14,8 @@ export function initializeTopPicks() {
     
     // Only show top picks for authenticated users with liked movies
     if (isAuthenticated()) {
-        console.log('User is authenticated, showing loading state and fetching top picks');
-        showLoadingTopPicks();
-        fetchTopPicks();
+        console.log('User is authenticated, checking for liked movies before showing loading');
+        fetchTopPicks(); // This will handle showing loading only if needed
     } else {
         console.log('User not authenticated, hiding top picks');
         hideTopPicksSection();
@@ -98,12 +97,15 @@ export function hideTopPicksSection() {
 async function fetchTopPicks() {
     try {
         console.log('Fetching top picks...');
-        // Only get user's liked movies - no fallbacks
+        // First check if user has liked movies
         const likedMovies = await getUserLikedMovies();
         console.log('Liked movies found:', likedMovies.length);
         
-        // Only show Top Picks if user has liked movies
+        // Only show loading and proceed if user has liked movies
         if (likedMovies && likedMovies.length > 0) {
+            console.log('User has liked movies, showing loading state');
+            showLoadingTopPicks();
+            
             console.log('Getting personalized recommendations based on:', likedMovies.map(m => m.title || m.movie_name));
             const recommendations = await getPersonalizedRecommendations(likedMovies);
             
@@ -114,10 +116,12 @@ async function fetchTopPicks() {
                 displayTopPicks();
                 showTopPicksSection();
             } else {
-                console.log('No recommendations received');
+                console.log('No recommendations received, hiding section');
+                hideTopPicksSection();
             }
         } else {
             console.log('No liked movies found, hiding top picks section');
+            hideTopPicksSection();
         }
         // If no liked movies or no recommendations, don't show the section
     } catch (error) {
