@@ -14,12 +14,63 @@ export function initializeTopPicks() {
     
     // Only show top picks for authenticated users with liked movies
     if (isAuthenticated()) {
-        console.log('User is authenticated, fetching top picks');
+        console.log('User is authenticated, showing loading state and fetching top picks');
+        showLoadingTopPicks();
         fetchTopPicks();
     } else {
         console.log('User not authenticated, hiding top picks');
         hideTopPicksSection();
     }
+}
+
+// Show loading skeleton for Top Picks
+function showLoadingTopPicks() {
+    const section = document.getElementById('topPicksSection');
+    const container = document.getElementById('topPicksContainer');
+    
+    if (section && container) {
+        // Update heading to show loading state
+        updateHeading('Loading your top picks...');
+        
+        // Clear any existing content
+        container.innerHTML = '';
+        
+        // Create 3 skeleton cards
+        for (let i = 0; i < 3; i++) {
+            const skeletonCard = createSkeletonCard();
+            container.appendChild(skeletonCard);
+        }
+        
+        // Show the section with fade-in
+        section.classList.remove('hidden');
+        section.style.opacity = '0';
+        section.style.transition = 'opacity 0.5s ease-in';
+        
+        setTimeout(() => {
+            section.style.opacity = '1';
+        }, 10);
+    }
+}
+
+// Create a skeleton loading card
+function createSkeletonCard() {
+    const skeletonCard = document.createElement('div');
+    skeletonCard.classList.add('skeleton-card');
+    
+    const skeletonPoster = document.createElement('div');
+    skeletonPoster.classList.add('skeleton-poster');
+    
+    const skeletonTitle = document.createElement('div');
+    skeletonTitle.classList.add('skeleton-title');
+    
+    const skeletonYear = document.createElement('div');
+    skeletonYear.classList.add('skeleton-year');
+    
+    skeletonCard.appendChild(skeletonPoster);
+    skeletonCard.appendChild(skeletonTitle);
+    skeletonCard.appendChild(skeletonYear);
+    
+    return skeletonCard;
 }
 
 // Hide top picks section with fade effect
@@ -188,6 +239,9 @@ function displayTopPicks() {
     const section = document.getElementById('topPicksSection');
     if (!container) return;
 
+    // Update heading to final state
+    updateHeading('Top picks for you');
+
     // Calculate how many pages we need
     const totalPages = Math.ceil(topPicksData.length / moviesPerPage);
     
@@ -196,9 +250,9 @@ function displayTopPicks() {
     const endIndex = Math.min(startIndex + moviesPerPage, topPicksData.length);
     const currentMovies = topPicksData.slice(startIndex, endIndex);
 
-    // Fade out current content
+    // Fade out current content (loading skeleton or previous content)
     container.style.opacity = '0';
-    container.style.transition = 'opacity 0.3s ease-in-out';
+    container.style.transition = 'opacity 0.4s ease-in-out';
     
     setTimeout(() => {
         // Clear and rebuild content
@@ -209,9 +263,11 @@ function displayTopPicks() {
             container.appendChild(movieCard);
         });
         
-        // Fade in new content
-        container.style.opacity = '1';
-    }, 300);
+        // Fade in new content with slight delay for smooth transition
+        setTimeout(() => {
+            container.style.opacity = '1';
+        }, 50);
+    }, 400);
 
     // Setup pagination if we have more than one page
     if (totalPages > 1) {
@@ -346,10 +402,10 @@ function setupPagination(totalPages) {
     }
 }
 
-// Show the Top Picks section with fade effect
+// Show the Top Picks section with fade effect (only if not already visible)
 function showTopPicksSection() {
     const section = document.getElementById('topPicksSection');
-    if (section) {
+    if (section && section.classList.contains('hidden')) {
         section.classList.remove('hidden');
         section.style.opacity = '0';
         section.style.transition = 'opacity 0.5s ease-in';
