@@ -268,6 +268,11 @@ function displayTopPicks() {
     const moviesPerPage = getMoviesPerPage();
     const totalPages = Math.ceil(topPicksData.length / moviesPerPage);
     
+    // Ensure currentPage is within bounds (fix for empty pages)
+    if (currentPage >= totalPages) {
+        currentPage = 0;
+    }
+    
     // Create movie cards for current page
     const startIndex = currentPage * moviesPerPage;
     const endIndex = Math.min(startIndex + moviesPerPage, topPicksData.length);
@@ -292,7 +297,7 @@ function displayTopPicks() {
         }, 50);
     }, 400);
 
-    // Setup pagination if we have more than one page
+    // Setup pagination and slideshow only if we have more than one page
     if (totalPages > 1) {
         setupPagination(totalPages);
         startAutoSlideshow(totalPages);
@@ -308,6 +313,14 @@ function displayTopPicks() {
                 startAutoSlideshow(totalPages);
             });
         }
+    } else {
+        // Hide pagination dots when there's only one page
+        const paginationContainer = document.getElementById('topPicksPagination');
+        if (paginationContainer) {
+            paginationContainer.innerHTML = '';
+        }
+        // Stop any running slideshow
+        stopAutoSlideshow();
     }
 }
 
