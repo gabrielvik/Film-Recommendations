@@ -106,15 +106,21 @@
     height: 100%;
 }
 
-/* FIXED: Remove transparency on movie cards hover */
+/* FIXED: Movie cards styling with hover effects */
 .movie-card {
     isolation: isolate;
     /* Add solid background colors to ensure no transparency */
     background-color: #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dark .movie-card {
     background-color: #374151;
+}
+
+.movie-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* FIXED: Remove scale hover effect that might cause transparency impression */

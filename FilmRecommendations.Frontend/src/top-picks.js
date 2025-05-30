@@ -162,9 +162,10 @@ async function getPersonalizedRecommendations(likedMovies) {
 
 
 
-// Display top picks in the horizontal layout
+// Enhanced display with smooth fade transitions and hover pause
 function displayTopPicks() {
     const container = document.getElementById('topPicksContainer');
+    const section = document.getElementById('topPicksSection');
     if (!container) return;
 
     // Calculate how many pages we need
@@ -196,16 +197,32 @@ function displayTopPicks() {
     if (totalPages > 1) {
         setupPagination(totalPages);
         startAutoSlideshow(totalPages);
+        
+        // Add brief hover pause functionality
+        if (section) {
+            section.addEventListener('mouseenter', () => pauseSlideshowBriefly(totalPages));
+            section.addEventListener('mouseleave', () => {
+                // Clear any pending pause timeout and restart immediately
+                if (hoverPauseTimeout) {
+                    clearTimeout(hoverPauseTimeout);
+                }
+                startAutoSlideshow(totalPages);
+            });
+        }
     }
 }
 
-// Auto slideshow functionality
+// Auto slideshow functionality with brief hover pause
 let slideshowInterval;
+let hoverPauseTimeout;
 
 function startAutoSlideshow(totalPages) {
-    // Clear existing interval
+    // Clear existing interval and timeout
     if (slideshowInterval) {
         clearInterval(slideshowInterval);
+    }
+    if (hoverPauseTimeout) {
+        clearTimeout(hoverPauseTimeout);
     }
     
     // Start auto slideshow (change page every 5 seconds)
@@ -215,10 +232,32 @@ function startAutoSlideshow(totalPages) {
     }, 5000);
 }
 
+function pauseSlideshowBriefly(totalPages) {
+    // Clear current slideshow
+    if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
+    }
+    
+    // Clear any existing pause timeout
+    if (hoverPauseTimeout) {
+        clearTimeout(hoverPauseTimeout);
+    }
+    
+    // Resume slideshow after 2 seconds of no interaction
+    hoverPauseTimeout = setTimeout(() => {
+        startAutoSlideshow(totalPages);
+    }, 2000);
+}
+
 function stopAutoSlideshow() {
     if (slideshowInterval) {
         clearInterval(slideshowInterval);
         slideshowInterval = null;
+    }
+    if (hoverPauseTimeout) {
+        clearTimeout(hoverPauseTimeout);
+        hoverPauseTimeout = null;
     }
 }
 
