@@ -77,6 +77,26 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequest)
     {
+        // Validate input
+        if (string.IsNullOrWhiteSpace(registerRequest.UserName) || string.IsNullOrWhiteSpace(registerRequest.Email))
+        {
+            return BadRequest(new { Errors = new[] { "Username and email are required" } });
+        }
+
+        // Check if username already exists
+        var existingUserByName = await _userManager.FindByNameAsync(registerRequest.UserName);
+        if (existingUserByName != null)
+        {
+            return BadRequest(new { Errors = new[] { "Username already exists" } });
+        }
+
+        // Check if email already exists
+        var existingUserByEmail = await _userManager.FindByEmailAsync(registerRequest.Email);
+        if (existingUserByEmail != null)
+        {
+            return BadRequest(new { Errors = new[] { "Email already exists" } });
+        }
+
         var user = new ApplicationUser
         {
             UserName = registerRequest.UserName,
