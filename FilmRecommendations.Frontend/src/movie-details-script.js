@@ -28,15 +28,15 @@ const movie = JSON.parse(sessionStorage.getItem('selectedMovie'));
 function initializeCurrentMovieInHistory() {
     if (movie) {
         const currentHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
-        const movieSlug = movie.movie_name ? 
-            movie.movie_name.toLowerCase().replace(/\s+/g, '-') : 
+        const movieSlug = movie.movie_name ?
+            movie.movie_name.toLowerCase().replace(/\s+/g, '-') :
             movie.title.toLowerCase().replace(/\s+/g, '-');
-        
+
         // Check if current movie is already in history
-        const currentMovieInHistory = currentHistory.some(item => 
+        const currentMovieInHistory = currentHistory.some(item =>
             item.type === 'movie' && item.movieData && item.movieData.movie_id === movie.movie_id
         );
-        
+
         // If not in history, add it (this handles direct URL navigation)
         if (!currentMovieInHistory) {
             currentHistory.push({
@@ -58,22 +58,22 @@ if (!movie) {
 } else {
     // Initialize navigation history for current movie
     initializeCurrentMovieInHistory();
-    
+
     // Update URL in the address bar without reloading the page
-    const movieSlug = movie.movie_name ? 
-        movie.movie_name.toLowerCase().replace(/\s+/g, '-') : 
+    const movieSlug = movie.movie_name ?
+        movie.movie_name.toLowerCase().replace(/\s+/g, '-') :
         movie.title.toLowerCase().replace(/\s+/g, '-');
-    
+
     // Use search parameters instead of changing the path
     const url = new URL(window.location);
     url.searchParams.set('title', movieSlug);
     window.history.replaceState(null, '', url);
-    
+
     // Show loading state
     document.getElementById('movieDetailsContent').innerHTML = `
         <div class="text-center p-4">Loading movie details...</div>
     `;
-    
+
     // Call function to fetch and display movie details
     showMovieDetails(movie);
 }
@@ -92,7 +92,7 @@ function showMovieDetails(movie) {
     // Get the content container
     const movieDetailsContent = document.getElementById('movieDetailsContent');
     const movieDetailsContainer = document.getElementById('movieDetailsContainer');
-    
+
     // Fetch detailed movie data using the movie_id property from the selected movie
     fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
         .then(response => {
@@ -106,11 +106,11 @@ function showMovieDetails(movie) {
             if (data.backdrop_path) {
                 console.log("Backdrop path found:", data.backdrop_path);
                 const backdropUrl = `https://image.tmdb.org/t/p/original${data.backdrop_path}`;
-                
+
                 // Adjust the opacity in the rgba function
                 const topOpacity = 0.5; // Opacity at the top (0.1-0.7 recommended)
                 const bottomOpacity = Math.min(topOpacity + 0.4, 0.95); // More opaque at bottom, maximum 0.95
-                
+
                 // Apply gradient with increased opacity at bottom
                 movieDetailsContainer.style.backgroundImage = `linear-gradient(to bottom, 
                     rgba(0, 0, 0, ${topOpacity}) 0%, 
@@ -119,7 +119,7 @@ function showMovieDetails(movie) {
                 movieDetailsContainer.style.backgroundSize = 'cover';
                 movieDetailsContainer.style.backgroundPosition = 'center';
                 movieDetailsContainer.style.backgroundRepeat = 'no-repeat';
-                
+
                 // Add additional styling to ensure visibility of content
                 movieDetailsContainer.classList.remove('bg-gray-100', 'dark:bg-gray-800');
                 movieDetailsContainer.classList.add('text-white');
@@ -140,7 +140,7 @@ function showMovieDetails(movie) {
             } catch (error) {
                 console.error('Error fetching streaming providers:', error);
             }
-            
+
             // Display the fetched details with improved layout
             movieDetailsContent.innerHTML = `
                 <div class="container mx-auto px-4 py-8">
@@ -183,22 +183,30 @@ function showMovieDetails(movie) {
                             <div class="flex flex-wrap gap-2">
                                 <button id="trailerButton" class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
-                                        <img src="/src/assets/play.png" class="w-4 h-4 me-2"> Trailer
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 me-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg> Trailer
                                     </div>
                                 </button>
                                 <button id="watchlist" class="bg-transparent hover:bg-blue-700 text-white font-semibold hover:text-white py-2 px-4 border border-blue-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
-                                        <img src="/src/assets/layer-plus1.png" class="w-4 h-4 me-2"> Add to List
+                                       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 me-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
+                    </svg> Add to List
                                     </div>
                                 </button>
                                 <button id="like" class="bg-transparent hover:bg-green-700 text-white font-semibold hover:text-white py-2 px-4 border border-green-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
-                                        <img src="/src/assets/thumbs-up.png" class="w-4 h-4 me-2"> Like
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 me-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                    </svg> Like
                                     </div>
                                 </button>
                                 <button id="dislike" class="bg-transparent hover:bg-red-700 text-white font-semibold hover:text-white py-2 px-4 border border-red-300 hover:border-transparent rounded">
                                     <div class="flex items-center">
-                                        <img src="/src/assets/thumbs-down.png" class="w-4 h-4 me-2"> Dislike
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 me-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                    </svg> Dislike
                                     </div>
                                 </button>
                             </div>
@@ -231,13 +239,13 @@ function showMovieDetails(movie) {
                     </div>
                 </div>
             `;
-            
+
             // Add event listener for trailer button
             const trailerButton = document.getElementById('trailerButton');
             if (trailerButton) {
                 trailerButton.addEventListener('click', () => playTrailer(data.trailers.$values));
             }
-            
+
             // FIXED: Add event listener for closing the trailer modal with improved handling
             const closeTrailerModal = document.getElementById('closeTrailerModal');
             if (closeTrailerModal) {
@@ -247,7 +255,7 @@ function showMovieDetails(movie) {
                     closeTrailer();
                 });
             }
-            
+
             // Close modal when clicking outside the video
             const trailerModal = document.getElementById('trailerModal');
             if (trailerModal) {
@@ -257,13 +265,13 @@ function showMovieDetails(movie) {
                     }
                 });
             }
-            
+
             // FIXED: Setup actor click handlers
             setupActorClickHandlers();
         })
         .catch(error => {
             console.error(error);
-            
+
         });
 }
 
@@ -275,10 +283,10 @@ document.getElementById('backButton').addEventListener('click', () => {
 function handleBackNavigation() {
     // Get current navigation history
     const currentHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
-    
+
     console.log('Current navigation history:', currentHistory);
     console.log('History length:', currentHistory.length);
-    
+
     if (currentHistory.length <= 1) {
         // If we're at the first movie or no history, go to main page
         console.log('Going to main page - history too short');
@@ -286,17 +294,17 @@ function handleBackNavigation() {
         window.location.href = 'index.html';
         return;
     }
-    
+
     // Remove current page from history
     currentHistory.pop();
-    
+
     // Get the previous page
     const previousPage = currentHistory[currentHistory.length - 1];
     console.log('Going back to:', previousPage);
-    
+
     // Update history in session storage
     sessionStorage.setItem('navigationHistory', JSON.stringify(currentHistory));
-    
+
     if (previousPage.type === 'main') {
         // Go back to main page
         console.log('Navigating to main page');
@@ -326,14 +334,14 @@ function renderStreamingProviders(providersData) {
     // First try Swedish providers (SE)
     let flatrateProviders = [];
     let rentProviders = [];
-    
+
     // Try to find providers from different regions
     const regions = Object.keys(providersData.results);
-    
+
     // Check Swedish providers first, then try other regions
     const priorityRegions = ['SE', 'US', 'GB'];
     const orderedRegions = [...priorityRegions, ...regions.filter(r => !priorityRegions.includes(r))];
-    
+
     // Find flatrate (streaming) providers
     for (const region of orderedRegions) {
         if (providersData.results[region]?.flatrate?.$values?.length > 0) {
@@ -341,7 +349,7 @@ function renderStreamingProviders(providersData) {
             break;
         }
     }
-    
+
     // Find rent providers
     for (const region of orderedRegions) {
         if (providersData.results[region]?.rent?.$values?.length > 0) {
@@ -366,53 +374,53 @@ function renderStreamingProviders(providersData) {
             'Disney Plus': 'Disney+',
             'HBO Max': 'HBO Max'
         };
-        
+
         return nameMap[name] || name;
     }
 
     // Build the output HTML
     let html = '';
-    
+
     // Add streaming section if available
     if (flatrateProviders.length > 0) {
         html += `
             <div class="mb-4">
                 <h3 class="text-white text-lg font-semibold mb-2">Stream</h3>
                 <div class="flex flex-wrap gap-3">
-                    ${flatrateProviders.map(provider => 
-                        `<div class="flex flex-col items-center">
+                    ${flatrateProviders.map(provider =>
+            `<div class="flex flex-col items-center">
                             <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
                                 alt="${provider.providerName}" 
                                 class="w-12 h-12 rounded-lg shadow" 
                                 title="${provider.providerName}">
                             <span class="text-xs mt-1">${shortenProviderName(provider.providerName)}</span>
                         </div>`
-                    ).join('')}
+        ).join('')}
                 </div>
             </div>
         `;
     }
-    
+
     // Add rental section if available
     if (rentProviders.length > 0) {
         html += `
             <div class="mb-4">
                 <h3 class="text-white text-lg font-semibold mb-2">Rent</h3>
                 <div class="flex flex-wrap gap-3">
-                    ${rentProviders.map(provider => 
-                        `<div class="flex flex-col items-center">
+                    ${rentProviders.map(provider =>
+            `<div class="flex flex-col items-center">
                             <img src="${provider.logoUrl || `https://image.tmdb.org/t/p/original${provider.logoPath}`}" 
                                 alt="${provider.providerName}" 
                                 class="w-12 h-12 rounded-lg shadow" 
                                 title="${provider.providerName}">
                             <span class="text-xs mt-1">${shortenProviderName(provider.providerName)}</span>
                         </div>`
-                    ).join('')}
+        ).join('')}
                 </div>
             </div>
         `;
     }
-    
+
     return html;
 }
 
@@ -424,21 +432,21 @@ function playTrailer(trailers) {
     }
 
     // Find a YouTube trailer, preferring official trailers
-    const youtubeTrailers = trailers.filter(trailer => 
-        trailer.site.toLowerCase() === 'youtube' && 
+    const youtubeTrailers = trailers.filter(trailer =>
+        trailer.site.toLowerCase() === 'youtube' &&
         trailer.type.toLowerCase().includes('trailer')
     );
-    
+
     // If no YouTube trailers found, try any YouTube video
-    let selectedTrailer = youtubeTrailers.length > 0 ? 
-        youtubeTrailers[0] : 
+    let selectedTrailer = youtubeTrailers.length > 0 ?
+        youtubeTrailers[0] :
         trailers.find(trailer => trailer.site.toLowerCase() === 'youtube');
-    
+
     if (!selectedTrailer) {
         showNoTrailerMessage();
         return;
     }
-    
+
     // Get the trailer container and create the YouTube iframe
     const trailerContainer = document.getElementById('trailerContainer');
 
@@ -454,10 +462,10 @@ function playTrailer(trailers) {
             allowfullscreen>
         </iframe>
     `;
-    
+
     // Show the modal
     document.getElementById('trailerModal').classList.remove('hidden');
-    
+
     // Prevent body scrolling when modal is open
     document.body.style.overflow = 'hidden';
 }
@@ -466,16 +474,16 @@ function playTrailer(trailers) {
 function closeTrailer() {
     const trailerModal = document.getElementById('trailerModal');
     const trailerContainer = document.getElementById('trailerContainer');
-    
+
     if (trailerModal) {
         trailerModal.classList.add('hidden');
     }
-    
+
     // Clear the container to stop the video
     if (trailerContainer) {
         trailerContainer.innerHTML = '';
     }
-    
+
     // Re-enable body scrolling
     document.body.style.overflow = 'auto';
 }
@@ -484,7 +492,7 @@ function closeTrailer() {
 function showNoTrailerMessage() {
     const trailerModal = document.getElementById('trailerModal');
     const trailerContainer = document.getElementById('trailerContainer');
-    
+
     if (trailerContainer) {
         trailerContainer.innerHTML = `
             <div class="flex items-center justify-center h-64 bg-black">
@@ -495,11 +503,11 @@ function showNoTrailerMessage() {
             </div>
         `;
     }
-    
+
     if (trailerModal) {
         trailerModal.classList.remove('hidden');
     }
-    
+
     // Prevent body scrolling when modal is open
     document.body.style.overflow = 'hidden';
 }
@@ -517,21 +525,21 @@ function showActorModalWithBackground() {
     const actorModal = document.getElementById('actorModal');
     const movieDetailsContainer = document.getElementById('movieDetailsContainer');
     const modalContent = actorModal.querySelector('div');
-    
+
     if (actorModal) {
         // First ensure visibility but with initial opacity 0
         actorModal.style.opacity = '0';
         actorModal.classList.remove('hidden');
-        
+
         // Apply initial transform to content for subtle animation
         if (modalContent) {
             modalContent.style.transform = 'translateY(10px)';
             modalContent.style.opacity = '0';
         }
-        
+
         // Force a reflow before starting animation
         void actorModal.offsetWidth;
-        
+
         // Start animation
         actorModal.style.opacity = '1';
         if (modalContent) {
@@ -540,14 +548,14 @@ function showActorModalWithBackground() {
                 modalContent.style.opacity = '1';
             }, 50);
         }
-        
+
         // Add darkening class to the movie details background
         if (movieDetailsContainer) {
             // Store the original background for later restoration
             if (!movieDetailsContainer.dataset.originalBg) {
                 movieDetailsContainer.dataset.originalBg = movieDetailsContainer.style.backgroundImage;
             }
-            
+
             // Apply a darker overlay
             const currentBg = movieDetailsContainer.style.backgroundImage;
             if (currentBg) {
@@ -559,7 +567,7 @@ function showActorModalWithBackground() {
                 }
             }
         }
-        
+
         // Prevent body scrolling
         document.body.style.overflow = 'hidden';
     }
@@ -568,7 +576,7 @@ function showActorModalWithBackground() {
 // FIXED: Add back the setupActorClickHandlers function
 function setupActorClickHandlers() {
     document.querySelectorAll('.actor-element').forEach(actorElement => {
-        actorElement.addEventListener('click', function() {
+        actorElement.addEventListener('click', function () {
             const actorId = this.getAttribute('data-actor-id');
             if (actorId) {
                 showActorDetails(actorId);
@@ -580,14 +588,14 @@ function setupActorClickHandlers() {
 function navigateToMovie(movieId, movieTitle) {
     // Create minimal movie data object
     const movieData = {
-      movie_id: movieId,
-      movie_name: movieTitle
+        movie_id: movieId,
+        movie_name: movieTitle
     };
-    
+
     // Add current movie to navigation history before navigating
     const currentHistory = JSON.parse(sessionStorage.getItem('navigationHistory')) || [];
     const movieSlug = movieTitle.toLowerCase().replace(/\s+/g, '-');
-    
+
     // Add the new movie to history
     currentHistory.push({
         type: 'movie',
@@ -595,48 +603,48 @@ function navigateToMovie(movieId, movieTitle) {
         movieSlug: movieSlug,
         url: `movie-details.html?movie=${movieSlug}`
     });
-    
+
     // Store updated history and movie data
     sessionStorage.setItem('navigationHistory', JSON.stringify(currentHistory));
     sessionStorage.setItem('selectedMovie', JSON.stringify(movieData));
-    
+
     // Navigate to the movie details page using replace to avoid browser history buildup
     window.location.replace(`movie-details.html?movie=${movieSlug}`);
-  }
+}
 
 // FIXED: Add function to show actor details with improved scrolling for mobile
 async function showActorDetails(actorId) {
     const actorModal = document.getElementById('actorModal');
     const actorDetailsContent = document.getElementById('actorDetailsContent');
-    
+
     if (!actorModal || !actorDetailsContent) {
         console.error('Actor modal elements not found');
         return;
     }
-    
+
     // Show loading state
     actorDetailsContent.innerHTML = `
         <div class="flex justify-center items-center p-16">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
     `;
-    
+
     // Show modal with darkened background
     showActorModalWithBackground();
-    
+
     // Reset scroll position for the content div
     actorDetailsContent.scrollTop = 0;
-    
+
     try {
         // Use the new endpoint that provides summarized actor details
         const response = await fetch(`${config.apiBaseUrl}/FilmRecomendations/GetSummarizedActorDetails/${actorId}`);
-        
+
         if (!response.ok) {
             throw new Error('Failed to fetch actor details');
         }
-        
+
         const actorDetails = await response.json();
-        
+
         // Handle Leonardo DiCaprio with fixed Titanic poster URL
         if (actorId === "6193" || actorDetails.name === "Leonardo DiCaprio") {
             // Make sure knownForMovies exists
@@ -645,11 +653,11 @@ async function showActorDetails(actorId) {
             } else if (!actorDetails.knownForMovies.$values) {
                 actorDetails.knownForMovies.$values = [];
             }
-            
+
             // Fix Titanic entry if it exists or needs to be added
-            let titanicMovie = actorDetails.knownForMovies.$values.find(m => 
+            let titanicMovie = actorDetails.knownForMovies.$values.find(m =>
                 m.title === "Titanic" || m.title === "Titanic: Stories from the Heart");
-                
+
             if (titanicMovie) {
                 // Fix existing Titanic entry
                 titanicMovie.title = "Titanic";
@@ -658,12 +666,12 @@ async function showActorDetails(actorId) {
                 // Add Titanic to the known movies
                 actorDetails.knownForMovies.$values.push({
                     id: 597,
-                    title: "Titanic", 
+                    title: "Titanic",
                     posterPath: "/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg"
                 });
             }
         }
-        
+
         // Create content HTML
         actorDetailsContent.innerHTML = `
             <div class="p-6">
@@ -694,11 +702,11 @@ async function showActorDetails(actorId) {
                 <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-semibold mb-4">Known For</h3>
                     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        ${actorDetails.knownForMovies && actorDetails.knownForMovies.$values ? 
-                            actorDetails.knownForMovies.$values.slice(0, 4).map(movie => {
-                                // Special case for Titanic to ensure correct poster
-                                if (movie.title === "Titanic" || movie.title === "Titanic: Stories from the Heart") {
-                                    return `
+                        ${actorDetails.knownForMovies && actorDetails.knownForMovies.$values ?
+                actorDetails.knownForMovies.$values.slice(0, 4).map(movie => {
+                    // Special case for Titanic to ensure correct poster
+                    if (movie.title === "Titanic" || movie.title === "Titanic: Stories from the Heart") {
+                        return `
                                     <div class="flex flex-col movie-item cursor-pointer transition duration-200 hover:opacity-80 hover:scale-105" 
                                          data-movie-id="597" 
                                          data-movie-title="Titanic"
@@ -715,8 +723,8 @@ async function showActorDetails(actorId) {
                                         <p class="text-center text-sm mt-2 font-medium">Titanic</p>
                                     </div>
                                     `;
-                                }
-                                return `
+                    }
+                    return `
                                 <div class="flex flex-col movie-item cursor-pointer transition duration-200 hover:opacity-80 hover:scale-105" 
                                      data-movie-id="${movie.id}" 
                                      data-movie-title="${movie.title}"
@@ -733,17 +741,17 @@ async function showActorDetails(actorId) {
                                     <p class="text-center text-sm mt-2 font-medium">${movie.title}</p>
                                 </div>
                                 `;
-                            }).join('') : 
-                            '<p>No movie information available.</p>'
-                        }
+                }).join('') :
+                '<p>No movie information available.</p>'
+            }
                     </div>
                 </div>
             </div>
         `;
-        
+
         // Set up click handlers for movie items after rendering the content
         setupMovieClickHandlers();
-        
+
     } catch (error) {
         console.error('Error fetching actor details:', error);
         actorDetailsContent.innerHTML = `
@@ -757,16 +765,16 @@ async function showActorDetails(actorId) {
 
 // Function to handle movie click events
 function setupMovieClickHandlers() {
-  document.querySelectorAll('.movie-item').forEach(movieElement => {
-    movieElement.addEventListener('click', function() {
-      const movieId = this.getAttribute('data-movie-id');
-      const movieTitle = this.getAttribute('data-movie-title');
-      
-      if (movieId && movieTitle) {
-        navigateToMovie(movieId, movieTitle);
-      }
+    document.querySelectorAll('.movie-item').forEach(movieElement => {
+        movieElement.addEventListener('click', function () {
+            const movieId = this.getAttribute('data-movie-id');
+            const movieTitle = this.getAttribute('data-movie-title');
+
+            if (movieId && movieTitle) {
+                navigateToMovie(movieId, movieTitle);
+            }
+        });
     });
-  });
 }
 
 // FIXED: Enhanced closeActorModal function to restore original background
@@ -774,35 +782,35 @@ function closeActorModal() {
     const actorModal = document.getElementById('actorModal');
     const movieDetailsContainer = document.getElementById('movieDetailsContainer');
     const modalContent = actorModal.querySelector('div');
-    
+
     if (actorModal) {
         // Start fade out animation
         actorModal.style.opacity = '0';
-        
+
         // Animate the modal content
         if (modalContent) {
             modalContent.style.transform = 'translateY(8px)';
             modalContent.style.opacity = '0';
         }
-        
+
         // Wait for animation to complete before hiding completely
         setTimeout(() => {
             actorModal.classList.add('hidden');
-            
+
             // Reset transform for next time
             if (modalContent) {
                 modalContent.style.transform = '';
                 modalContent.style.opacity = '';
             }
-            
+
             // Reset opacity
             actorModal.style.opacity = '';
-            
+
             // Restore original background if we stored it
             if (movieDetailsContainer && movieDetailsContainer.dataset.originalBg) {
                 movieDetailsContainer.style.backgroundImage = movieDetailsContainer.dataset.originalBg;
             }
-            
+
             // Re-enable body scrolling
             document.body.style.overflow = 'auto';
         }, 180);
@@ -819,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
             closeActorModal();
         });
     }
-    
+
     // Close actor modal when clicking outside content
     const actorModal = document.getElementById('actorModal');
     if (actorModal) {
@@ -834,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Display fallback static movie data in case of API failure
 function displayStaticMovieData(movie) {
     const movieDetailsContent = document.getElementById('movieDetailsContent');
-    
+
     movieDetailsContent.innerHTML = `
         <div class="container mx-auto px-4 py-8">
             <div class="flex flex-col md:flex-row items-start md:items-start gap-8">
@@ -881,7 +889,7 @@ document.addEventListener('click', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-    if(event.target.closest('#like')) {
+    if (event.target.closest('#like')) {
         fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
             .then(response => {
                 if (!response.ok) {
@@ -900,7 +908,7 @@ document.addEventListener('click', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-    if(event.target.closest('#dislike')) {
+    if (event.target.closest('#dislike')) {
         fetch(`${config.apiBaseUrl}/FilmRecomendations/GetMovieDetails/${movie.movie_id}`)
             .then(response => {
                 if (!response.ok) {

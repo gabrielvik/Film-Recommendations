@@ -1,6 +1,7 @@
 import './style.css';
 import { withAuth, isAuthenticated } from './auth-utils';
 import config from './config.js';
+import { initializeTopPicks } from './top-picks.js';
 
 const promptForm = document.getElementById('promptForm');
 const promptInput = document.getElementById('promptInput');
@@ -11,6 +12,9 @@ const themeSwitcher = document.getElementById('themeSwitcher');
 window.addEventListener('DOMContentLoaded', () => {
   // Clear navigation history when returning to main page
   sessionStorage.removeItem('navigationHistory');
+  
+  // Initialize Top Picks for authenticated users
+  initializeTopPicks();
   
   const savedMovies = sessionStorage.getItem('movieRecommendations');
   if (savedMovies) {
@@ -103,6 +107,27 @@ promptForm.addEventListener('submit', async (e) => {
 
 // FIXED: Changed movie card creation to remove transparency issues and hover effects
 function displayMovies(movies) {
+  const movieContainer = document.getElementById('movieRecommendations');
+  
+  // Set up container classes for grid layout
+  movieContainer.classList.remove('flex', 'items-center', 'justify-center');
+  movieContainer.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
+  
+  // Fade out current content if any exists
+  if (movieContainer.children.length > 0) {
+    movieContainer.style.opacity = '0';
+    movieContainer.style.transition = 'opacity 0.3s ease-out';
+    
+    setTimeout(() => {
+      movieContainer.innerHTML = '';
+      addMovieCards(movies, movieContainer);
+    }, 300);
+  } else {
+    addMovieCards(movies, movieContainer);
+  }
+}
+
+function addMovieCards(movies, container) {
   movies.forEach((movie) => {
     // Create the card container with modified classes to remove transparency and scale effects
     const movieCard = document.createElement('div');
@@ -142,13 +167,17 @@ function displayMovies(movies) {
 
     movieCard.addEventListener('click', () => showMovieDetails(movie));
 
-    movieRecommendations.appendChild(movieCard);
+    container.appendChild(movieCard);
 
     requestAnimationFrame(() => {
       movieCard.classList.remove('opacity-0');
       movieCard.classList.add('opacity-100');
     });
   });
+  
+  // Fade in the container with new content
+  container.style.opacity = '1';
+  container.style.transition = 'opacity 0.3s ease-in';
 }
 
 function showMovieDetails(movie) {
@@ -165,6 +194,23 @@ promptInput.addEventListener('input', () => {
     lastSearchQuery = currentQuery;
   }
 });
+
+// Clear search results with fade effect
+export function clearSearchResults() {
+  const movieContainer = document.getElementById('movieRecommendations');
+  if (movieContainer && movieContainer.children.length > 0) {
+    // Fade out existing results
+    movieContainer.style.transition = 'opacity 0.5s ease-out';
+    movieContainer.style.opacity = '0';
+    
+    setTimeout(() => {
+      movieContainer.innerHTML = '';
+      movieContainer.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
+      movieContainer.classList.add('flex', 'items-center', 'justify-center');
+      movieContainer.style.opacity = '1';
+    }, 500);
+  }
+}
 
 function checkUserAuthentication() {
   // Use the isAuthenticated helper from auth-utils instead
