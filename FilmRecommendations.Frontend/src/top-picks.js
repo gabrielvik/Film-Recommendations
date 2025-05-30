@@ -379,14 +379,15 @@ function createTopPicksMovieCard(movie) {
     posterImg.classList.add('w-full', 'h-72', 'object-cover'); // Desktop: h-72, Mobile will be overridden by CSS
 
     const titleDiv = document.createElement('div');
-    titleDiv.classList.add('p-3');
+    titleDiv.classList.add('p-4'); // Match search results padding
 
-    const titleText = document.createElement('h3');
-    titleText.classList.add('text-sm', 'font-semibold', 'mb-1', 'text-gray-900', 'dark:text-gray-100');
+    const titleText = document.createElement('h2');
+    titleText.classList.add('text-lg', 'font-semibold', 'text-gray-900', 'dark:text-gray-100'); // Match search results
     titleText.textContent = movie.movie_name;
 
-    const releaseYearText = document.createElement('p');
-    releaseYearText.classList.add('text-xs', 'text-gray-600', 'dark:text-gray-400');
+    const releaseYearText = document.createElement('h5');
+    releaseYearText.classList.add('text-l', 'font-semibold'); // Removed default color classes
+    releaseYearText.style.color = '#e5e7eb'; // Custom color
     releaseYearText.textContent = `(${movie.release_year})`;
 
     titleDiv.appendChild(titleText);
