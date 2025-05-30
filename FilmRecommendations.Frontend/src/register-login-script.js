@@ -1,5 +1,7 @@
 import { saveAuthToken, removeAuthToken, isAuthenticated, getUsername } from './auth-utils.js';
 import config from './config.js';
+import { hideTopPicksSection } from './top-picks.js';
+import { clearSearchResults } from './main.js';
 
 // Register modal functionality
 const registerButton = document.getElementById('registerButton');
@@ -358,6 +360,10 @@ function updateAuthUI() {
         loginButton.classList.remove('hidden');
         registerButton.classList.remove('hidden');
 
+        // Hide top picks section and clear search results when not authenticated
+        hideTopPicksSection();
+        clearSearchResults();
+
         // Remove user display, profile picture and logout button if they exist
         if (document.getElementById('userDisplay')) {
             userDisplay.remove();
@@ -375,6 +381,14 @@ function updateAuthUI() {
 
 // Add logout functionality
 logoutButton.addEventListener('click', () => {
+    // Hide top picks and clear search results with fade effects
+    hideTopPicksSection();
+    clearSearchResults();
+    
+    // Clear any saved search data
+    sessionStorage.removeItem('movieRecommendations');
+    sessionStorage.removeItem('lastSearchQuery');
+    
     removeAuthToken();
     updateAuthUI();
     showSuccessAlert('You have been logged out successfully');

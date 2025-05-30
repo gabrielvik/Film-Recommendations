@@ -17,10 +17,30 @@ export function initializeTopPicks() {
         console.log('User is authenticated, fetching top picks');
         fetchTopPicks();
     } else {
-        console.log('User not authenticated, skipping top picks');
+        console.log('User not authenticated, hiding top picks');
+        hideTopPicksSection();
     }
-    
+}
 
+// Hide top picks section with fade effect
+export function hideTopPicksSection() {
+    const section = document.getElementById('topPicksSection');
+    if (section && !section.classList.contains('hidden')) {
+        console.log('Hiding top picks section with fade effect');
+        
+        // Stop any running slideshow
+        stopAutoSlideshow();
+        
+        // Fade out the section
+        section.style.transition = 'opacity 0.5s ease-out';
+        section.style.opacity = '0';
+        
+        // Hide the section after fade completes
+        setTimeout(() => {
+            section.classList.add('hidden');
+            section.style.opacity = ''; // Reset opacity
+        }, 500);
+    }
 }
 
 // Fetch top picks based on user preferences
@@ -326,11 +346,18 @@ function setupPagination(totalPages) {
     }
 }
 
-// Show the Top Picks section
+// Show the Top Picks section with fade effect
 function showTopPicksSection() {
     const section = document.getElementById('topPicksSection');
     if (section) {
         section.classList.remove('hidden');
+        section.style.opacity = '0';
+        section.style.transition = 'opacity 0.5s ease-in';
+        
+        // Fade in the section
+        setTimeout(() => {
+            section.style.opacity = '1';
+        }, 10);
     }
 }
 
