@@ -31,6 +31,90 @@
     }
 }
 
+/* Top Picks Styling */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+#topPicksContainer {
+    min-height: 400px; /* Prevent layout jumping during transitions */
+    transition: opacity 0.3s ease-in-out;
+}
+
+.top-picks-card {
+    min-width: 200px;
+    max-width: 200px; /* Prevent width expansion */
+    flex-shrink: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Allow natural height expansion like search results */
+}
+
+.top-picks-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.pagination-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #d1d5db;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.pagination-dot.active {
+    background-color: #3b82f6;
+}
+
+.pagination-dot:hover {
+    background-color: #6b7280;
+}
+
+@media (max-width: 640px) {
+    .top-picks-card {
+        min-width: 200px; /* Larger width for single movie display */
+        max-width: 280px !important; /* Constrain maximum width - override desktop */
+        width: 100%; /* Take full available width */
+    }
+    
+    /* Mobile-only: Override poster height to prevent cropping */
+    .top-picks-card img {
+        height: auto !important; /* Override h-72 */
+        aspect-ratio: 2/3 !important; /* Standard movie poster ratio */
+        min-height: 300px !important;
+    }
+    
+    #topPicksContainer {
+        gap: 16px;
+        min-height: 400px; /* Taller for single movie */
+        justify-content: center !important; /* Center single movie */
+        flex-direction: column; /* Stack pagination below */
+        align-items: center;
+    }
+    
+    /* Mobile: Show only 1 movie at a time */
+    #topPicksContainer .top-picks-card:not(:first-child) {
+        display: none;
+    }
+    
+    /* Skeleton cards also follow mobile rules */
+    .skeleton-card {
+        min-width: 200px;
+        max-width: 280px;
+        width: 100%;
+    }
+    
+    #topPicksContainer .skeleton-card:not(:first-child) {
+        display: none;
+    }
+}
+
 .backButton{
     background-color: #222936;
 }
@@ -52,15 +136,21 @@
     height: 100%;
 }
 
-/* FIXED: Remove transparency on movie cards hover */
+/* FIXED: Movie cards styling with hover effects */
 .movie-card {
     isolation: isolate;
     /* Add solid background colors to ensure no transparency */
     background-color: #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dark .movie-card {
     background-color: #374151;
+}
+
+.movie-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* FIXED: Remove scale hover effect that might cause transparency impression */
@@ -245,5 +335,100 @@ div[tabindex="0"]:focus {
     /* Ensure born/birthplace info is visible */
     #actorDetailsContent .space-y-1 {
         margin-bottom: 1rem !important;
+    }
+}
+
+/* ===== TOP PICKS LOADING SKELETON ANIMATION ===== */
+
+/* Loading Skeleton Animation */
+.skeleton-card {
+    min-width: 200px;
+    flex-shrink: 0;
+    background: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.skeleton-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    animation: skeleton-loading 1.5s infinite;
+    z-index: 1;
+}
+
+@keyframes skeleton-loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.skeleton-poster {
+    width: 100%;
+    height: 280px; /* Desktop default height */
+    background: #e5e7eb;
+}
+
+.skeleton-title {
+    height: 16px;
+    background: #e5e7eb;
+    margin: 12px;
+    border-radius: 4px;
+}
+
+.skeleton-year {
+    height: 12px;
+    width: 60%;
+    background: #e5e7eb;
+    margin: 8px 12px 12px;
+    border-radius: 4px;
+}
+
+/* Dark mode skeleton */
+.dark .skeleton-card {
+    background: #374151;
+}
+
+.dark .skeleton-card::before {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(75, 85, 99, 0.6),
+        transparent
+    );
+}
+
+.dark .skeleton-poster,
+.dark .skeleton-title,
+.dark .skeleton-year {
+    background: #4b5563;
+}
+
+/* Responsive skeleton design */
+@media (max-width: 640px) {
+    .skeleton-card { 
+        min-width: 160px; 
+    }
+    .skeleton-poster { 
+        height: 220px; 
+    }
+}
+
+/* Desktop skeleton poster - matches real cards md:h-64 */
+@media (min-width: 768px) {
+    .skeleton-poster {
+        height: 256px !important; /* md:h-64 equivalent */
+        aspect-ratio: auto !important;
+        min-height: auto !important;
     }
 }

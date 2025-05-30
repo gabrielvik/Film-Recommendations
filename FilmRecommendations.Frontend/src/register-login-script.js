@@ -1,5 +1,7 @@
 import { saveAuthToken, removeAuthToken, isAuthenticated, getUsername } from './auth-utils.js';
 import config from './config.js';
+import { hideTopPicksSection, initializeTopPicks } from './top-picks.js';
+import { clearSearchResults } from './main.js';
 
 // Register modal functionality
 const registerButton = document.getElementById('registerButton');
@@ -216,33 +218,35 @@ loginForm.addEventListener('submit', async (e) => {
     const rememberMe = document.getElementById('rememberMe').checked;
     console.log('Login submitted:', { email, password, rememberMe });
     try {
-        const response = await fetch(`${config.apiBaseUrl}/api/Auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
+      const response = await fetch(`${config.apiBaseUrl}/api/Auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log('Login Success:', data);
         
-        const data = await response.json();
-        
-        if (response.ok) {
-            console.log('Login Success:', data);
-            
-            // Store the JWT token
-            if (data.token) {
-                saveAuthToken(data.token);
-                updateAuthUI();
-                showSuccessAlert('Log in successful');
-            }
-            
-            closeLoginModalFunction();
-            loginForm.reset();
-        } else {
-            console.error('Login Error:', data);
-            // Show error in the modal instead of the global alert
-            showModalError('login', data.message || 'Wrong email or password');
+        // Store the JWT token
+        if (data.token) {
+          saveAuthToken(data.token);
+          updateAuthUI();
+          // Initialize Top Picks after successful login
+          initializeTopPicks();
+          showSuccessAlert('Log in successful');
         }
+        
+        closeLoginModalFunction();
+        loginForm.reset();
+      } else {
+        console.error('Login Error:', data);
+        // Show error in the modal instead of the global alert
+        showModalError('login', data.message || 'Wrong email or password');
+      }
     } catch (error) {
         console.error('Login Error:', error);
         showModalError('login', 'Could not connect to the server. Please try again later');
@@ -356,10 +360,17 @@ function updateAuthUI() {
             movieRecommendations.classList.remove('flex', 'items-center', 'justify-center');
             movieRecommendations.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3');
         }
+
+        // Initialize Top Picks when user is authenticated
+        initializeTopPicks();
     } else {
         // User is not logged in
         loginButton.classList.remove('hidden');
         registerButton.classList.remove('hidden');
+
+        // Hide top picks section and clear search results when not authenticated
+        hideTopPicksSection();
+        clearSearchResults();
 
         // Remove user display, profile picture and logout button if they exist
         if (document.getElementById('userDisplay')) {
@@ -378,6 +389,14 @@ function updateAuthUI() {
 
 // Add logout functionality
 logoutButton.addEventListener('click', () => {
+    // Hide top picks and clear search results with fade effects
+    hideTopPicksSection();
+    clearSearchResults();
+    
+    // Clear any saved search data
+    sessionStorage.removeItem('movieRecommendations');
+    sessionStorage.removeItem('lastSearchQuery');
+    
     removeAuthToken();
     updateAuthUI();
     showSuccessAlert('You have been logged out successfully');
