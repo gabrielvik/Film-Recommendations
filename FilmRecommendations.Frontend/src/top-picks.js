@@ -4,7 +4,24 @@ import { isAuthenticated } from './auth-utils.js';
 // Top Picks functionality
 let topPicksData = [];
 let currentPage = 0;
-const moviesPerPage = 3;
+
+// Dynamic movies per page based on screen size
+function getMoviesPerPage() {
+    return window.innerWidth <= 640 ? 1 : 3; // Mobile: 1, Desktop: 3
+}
+
+// Handle window resize to adjust layout
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        if (topPicksData.length > 0) {
+            // Reset to first page on resize to avoid pagination issues
+            currentPage = 0;
+            displayTopPicks();
+        }
+    }, 250); // Debounce resize events
+});
 
 // Initialize Top Picks on page load
 export function initializeTopPicks() {
@@ -34,8 +51,9 @@ function showLoadingTopPicks() {
         // Clear any existing content
         container.innerHTML = '';
         
-        // Create 3 skeleton cards
-        for (let i = 0; i < 3; i++) {
+        // Create skeleton cards based on screen size
+        const skeletonCount = getMoviesPerPage();
+        for (let i = 0; i < skeletonCount; i++) {
             const skeletonCard = createSkeletonCard();
             container.appendChild(skeletonCard);
         }
@@ -246,7 +264,8 @@ function displayTopPicks() {
     // Update heading to final state
     updateHeading('Top picks for you');
 
-    // Calculate how many pages we need
+    // Calculate how many pages we need (responsive)
+    const moviesPerPage = getMoviesPerPage();
     const totalPages = Math.ceil(topPicksData.length / moviesPerPage);
     
     // Create movie cards for current page
@@ -357,7 +376,7 @@ function createTopPicksMovieCard(movie) {
     const posterImg = document.createElement('img');
     posterImg.src = movie.poster_path;
     posterImg.alt = movie.movie_name;
-    posterImg.classList.add('w-full', 'h-72', 'object-cover');
+    posterImg.classList.add('w-full', 'h-72', 'object-cover'); // Desktop: h-72, Mobile will be overridden by CSS
 
     const titleDiv = document.createElement('div');
     titleDiv.classList.add('p-3');
