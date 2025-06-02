@@ -153,7 +153,7 @@ function showMovieDetails(movie) {
                             <div>
                                 <p class="mb-2 flex items-center font-bold">
                                     <span>${data.vote_average.toString().substring(0, 3)}</span>
-                                    <img src="/src/assets/star.png" alt="Star" class="w-3 h-3 ml-1" />
+                                    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Star" class="w-3 h-3 ml-1" />
                                 </p>
                                 <h2 class="text-3xl font-bold mb-4">${data.original_title} (${data.release_date.substring(0, 4)})</h2>
                                 <p class="mb-2"><span class="font-semibold">${data.genres.$values.map(genre => genre.name).join(', ')}</span></p>
