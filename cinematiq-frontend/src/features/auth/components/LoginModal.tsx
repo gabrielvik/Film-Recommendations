@@ -3,7 +3,7 @@
  * Modal wrapper for the existing LoginForm
  */
 
-import { Modal } from '@/components/ui/modal';
+import { Modal, ModalTitle, ModalDescription } from '@/components/ui/modal';
 import LoginForm from './LoginForm';
 
 interface LoginModalProps {
@@ -19,6 +19,10 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) =>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalTitle className="sr-only">Welcome Back</ModalTitle>
+      <ModalDescription className="sr-only">
+        Sign in to your CinematIQ account to access personalized movie recommendations
+      </ModalDescription>
       <LoginForm 
         onSuccess={handleSuccess} 
         onSwitchToRegister={onSwitchToRegister}

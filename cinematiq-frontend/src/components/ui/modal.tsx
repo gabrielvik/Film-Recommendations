@@ -127,8 +127,26 @@ const DialogDescription = React.forwardRef<
 ))
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
-// Modal alias for Dialog (more intuitive naming)
-const Modal = Dialog
+// Modal wrapper component that accepts isOpen/onClose props
+interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  children: React.ReactNode
+  size?: VariantProps<typeof dialogContentVariants>['size']
+  showCloseButton?: boolean
+}
+
+const Modal = ({ isOpen, onClose, children, size = "default", showCloseButton = true }: ModalProps) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent size={size} showCloseButton={showCloseButton}>
+        {children}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Original Dialog aliases for backwards compatibility
 const ModalTrigger = DialogTrigger
 const ModalContent = DialogContent
 const ModalHeader = DialogHeader
@@ -148,7 +166,7 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-  // Modal aliases
+  // Modal component and aliases
   Modal,
   ModalTrigger,
   ModalContent,

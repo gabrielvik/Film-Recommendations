@@ -3,7 +3,7 @@
  * Modal wrapper for the existing RegisterForm
  */
 
-import { Modal } from '@/components/ui/modal';
+import { Modal, ModalTitle, ModalDescription } from '@/components/ui/modal';
 import RegisterForm from './RegisterForm';
 
 interface RegisterModalProps {
@@ -19,6 +19,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalTitle className="sr-only">Create Account</ModalTitle>
+      <ModalDescription className="sr-only">
+        Join CinematIQ to discover amazing movies with personalized AI recommendations
+      </ModalDescription>
       <RegisterForm 
         onSuccess={handleSuccess} 
         onSwitchToLogin={onSwitchToLogin}
