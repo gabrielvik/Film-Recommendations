@@ -8,7 +8,8 @@ import {
   Home, 
   User, 
   LogIn, 
-  LogOut
+  LogOut,
+  Compass
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ export const Navigation = () => {
 
   const navItems = [
     { to: '/', label: 'Home', icon: Home },
+    { to: '/discover', label: 'Discover', icon: Compass },
     { to: '/movies', label: 'Movies', icon: Film },
     { to: '/search', label: 'Search', icon: Search },
   ]

@@ -9,6 +9,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 const HomePage = lazy(() => import('@/features/home/pages/HomePage'))
 const SearchPage = lazy(() => import('@/features/search/pages/SearchPage'))
 const MoviesPage = lazy(() => import('@/features/movies/pages/MoviesPage'))
+const DiscoverPage = lazy(() => import('@/features/movies/pages/DiscoverPage'))
 const MovieDetailsPage = lazy(() => import('@/features/movies/pages/MovieDetailsPage'))
 const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage'))
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
@@ -60,6 +61,14 @@ export const router = createBrowserRouter([
         element: (
           <PageWrapper>
             <MoviesPage />
+          </PageWrapper>
+        ),
+      },
+      {
+        path: 'discover',
+        element: (
+          <PageWrapper>
+            <DiscoverPage />
           </PageWrapper>
         ),
       },
