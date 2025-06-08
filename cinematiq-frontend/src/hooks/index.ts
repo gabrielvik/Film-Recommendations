@@ -1,7 +1,6 @@
 // Custom hooks exports
-// export { useAuth } from './useAuth';
-// export { useMovies } from './useMovies';
-// export { useLocalStorage } from './useLocalStorage';
+export * from './useAuth';
+export * from './useMovies';
 
 // Hooks will be exported here as they are created
 export {};
