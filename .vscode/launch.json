@@ -25,9 +25,8 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
-        },
-        {
-            "name": "Frontend Launch",
+        },        {
+            "name": "Frontend Launch (Old)",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
@@ -37,14 +36,37 @@
             ],
             "cwd": "${workspaceFolder}/FilmRecommendations.Frontend",
             "console": "integratedTerminal"
-        }
-    ],
+        },
+        {
+            "name": "React Frontend Launch",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
+            "cwd": "${workspaceFolder}/cinematiq-frontend",
+            "console": "integratedTerminal",
+            "serverReadyAction": {
+                "pattern": "Local:.+(https?://localhost:[0-9]+)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        }    ],
     "compounds": [
         {
             "name": "Run Backend and Frontend",
             "configurations": [
                 ".NET Core Launch (web)",
-                "Frontend Launch"
+                "Frontend Launch (Old)"
+            ]
+        },
+        {
+            "name": "Run Backend and React Frontend",
+            "configurations": [
+                ".NET Core Launch (web)",
+                "React Frontend Launch"
             ]
         }
     ]

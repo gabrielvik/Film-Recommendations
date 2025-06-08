@@ -93,13 +93,14 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddTransient<IAiService, AiService>();
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
-// Update CORS policy so that only the frontend on http://localhost:5173 is allowed.
+// Update CORS policy to allow both old and new frontend ports.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:5173",
+            "http://localhost:3000",    // New React frontend (Vite)
+            "http://localhost:5173",    // Old frontend / Vite default
             "https://kind-smoke-050d18e03.6.azurestaticapps.net")
               .AllowAnyHeader()
               .AllowAnyMethod();

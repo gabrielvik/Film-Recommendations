@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { cn } from '@/utils';
+import { cn } from '@/lib/utils';
 
 // ============================================================================
 // Tabs Context
