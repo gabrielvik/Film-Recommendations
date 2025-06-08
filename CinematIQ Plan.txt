@@ -1,0 +1,217 @@
+# CinematIQ Development Plan & Workflow
+
+## Project Overview
+CinematIQ is a modern movie discovery and recommendation platform built with React 19, featuring personalized recommendations, advanced search, and user profile management using cutting-edge architecture patterns.
+
+## Workflow Instructions
+
+### 1. Task Management Process
+- **One card per chat session** - Complete each Trello card fully before moving to next
+- **Sequential dependency handling** - Respect task dependencies (e.g., FE-002 depends on FE-001)
+- **Move cards through stages**: To Do → Doing → Testing → Done
+- **Always test completion** - Verify each feature works independently and integrates with previous work
+- **Commit after card completion** - After moving any card to "Done", immediately commit all changes with the card name as the commit message (e.g., "Complete [FE-001] Project Foundation & Tooling Setup")
+- **Update plan after each card** - Document progress, next steps, and any new discoveries
+
+### 2. Development Standards
+- **Use MCP Tool Chainer** for all multi-step operations
+- **Test everything** - Each feature must be verified working before marking complete
+- **Maintain backward compatibility** - New features shouldn't break existing functionality
+- **Follow React best practices** - Hooks, functional components, proper state management
+- **Use Tailwind CSS** for styling consistency
+
+### 3. Quality Assurance
+- Run development server and verify UI/UX
+- Test responsive design on multiple screen sizes
+- Verify all interactive elements function correctly
+- Check browser console for errors
+- Validate form inputs and error handling
+
+### 🚨 4. CRITICAL: Plan Update Protocol
+- **NEVER REMOVE IMPORTANT INFORMATION** - Always preserve:
+  ✅ Completed card details and outcomes
+  ✅ Technical decisions and architecture notes
+  ✅ Issue resolutions and discoveries
+  ✅ File locations and project structure details
+  ✅ Test results and verification steps
+- **APPEND ONLY POLICY** - Add new info, don't delete existing
+- **PRESERVE HISTORY** - Keep all completion records and technical notes
+- **MAINTAIN CONTEXT** - Ensure future sessions can understand what was done
+
+## Project Status
+
+### Current State: Fresh Start - Modern React 19 Architecture ✅
+- **Rebuild Started**: June 8, 2025
+- **Current Card**: [FE-001] Project Foundation & Tooling Setup ⭐ READY TO START
+- **Architecture**: Feature-based bulletproof-react patterns with React 19
+
+### Ready to Begin: Modern Frontend Rebuild
+**Phase 1: Foundation (High Priority)**
+- [FE-001] Project Foundation & Tooling Setup ⭐ START HERE
+- [FE-002] Configure Bulletproof React Architecture
+- [FE-003] Design System & Component Library Foundation
+- [FE-004] Application Router & Navigation Setup
+- [FE-005] API Service Layer & HTTP Client
+- [FE-006] Authentication Feature Module
+
+**Next Priority**: Complete Phase 1 foundation before moving to core features
+
+## Modern Architecture Decisions
+
+### Tech Stack 2025
+- **React 19** with latest concurrent features and optimizations
+- **TypeScript** for type safety and better developer experience
+- **Vite** for fast build tool and development server
+- **Tailwind CSS** with custom design tokens and dark mode
+- **React Router 7** for client-side routing with modern patterns
+- **React Query** for server state management and caching
+- **Zustand** for client state management (when needed)
+- **ESLint + Prettier** with architectural enforcement rules
+
+### Architecture Patterns
+- **Feature-based folder structure** following bulletproof-react patterns
+- **Unidirectional imports** (shared → features → app)
+- **Component composition** with proper separation of concerns
+- **Custom hooks** for reusable stateful logic
+- **Performance optimizations** (React.memo, lazy loading, code splitting)
+- **Accessibility compliance** (WCAG 2.1 AA standards)
+- **Responsive design** with mobile-first approach
+
+### Folder Structure
+```
+src/
+├── app/              # Application layer
+│   ├── routes/       # Route definitions and guards
+│   ├── providers/    # Global context providers
+│   └── router/       # Router configuration
+├── components/       # Shared UI components
+├── features/         # Feature modules (self-contained)
+│   ├── auth/         # Authentication feature
+│   ├── movies/       # Movie management
+│   ├── profile/      # User profile
+│   └── recommendations/ # Recommendation engine
+├── hooks/            # Shared custom hooks
+├── lib/              # Configured third-party libraries
+├── stores/           # Global state management
+├── types/            # TypeScript type definitions
+├── utils/            # Utility functions
+└── config/           # Configuration files
+```
+
+## Quality Standards
+
+### Definition of Done
+Each task must meet these criteria before completion:
+- ✅ Feature implemented according to specifications
+- ✅ Unit tests written and passing
+- ✅ Integration tests covering user workflows
+- ✅ Accessibility requirements met (WCAG 2.1 AA)
+- ✅ Performance benchmarks achieved
+- ✅ Code review completed
+- ✅ Documentation updated
+- ✅ Responsive design verified
+- ✅ Cross-browser testing passed
+- ✅ Security review completed
+
+### Technical Requirements
+- **TypeScript strict mode** enabled with 95%+ coverage
+- **ESLint rules** enforcing architectural boundaries
+- **Test coverage** minimum 80%
+- **Bundle size** under 500KB gzipped
+- **Lighthouse score** above 90
+- **Zero accessibility violations**
+- **Core Web Vitals** meeting Google standards
+
+## Development Workflow
+
+### Phase Implementation Strategy
+1. **Complete Phase 1** (Foundation) before moving to Phase 2
+2. **Test each task thoroughly** before marking complete
+3. **Update documentation** after each major milestone
+4. **Maintain backward compatibility** throughout development
+5. **Regular performance audits** at end of each phase
+
+### Task Execution Guidelines
+- **One task per development session** for focused work
+- **Follow dependency chain** - complete prerequisite tasks first
+- **Test incrementally** - verify each feature works independently
+- **Commit after each card completion** - Use descriptive commit message with card name
+- **Document decisions** and architectural choices
+
+## Issues & Blockers
+None currently - Fresh start with clean slate
+
+## Notes & Discoveries
+*This section will be populated as development progresses*
+
+## Technical Setup
+```
+📁 D:\Development\CinematIQ\
+├── 🎬 CinematIQ Frontend (to be rebuilt)
+├── 🎯 Trello Board: https://trello.com/b/4LCXVy6W/cinematiq
+├── 📋 Modern React 19 + TypeScript + Vite
+├── 🎨 Tailwind CSS with design system
+├── 🧪 Jest + React Testing Library + Playwright
+└── 🚀 Feature-based architecture (bulletproof-react)
+```
+
+---
+## 🔄 AUTOMATIC PLAN UPDATE PROTOCOL IMPLEMENTED
+
+### ⚠️ CRITICAL INSTRUCTION FOR ALL FUTURE TASK COMPLETIONS:
+
+**ALWAYS COMMIT CHANGES AND UPDATE THIS PLAN WHEN COMPLETING ANY TASK:**
+
+0. 🔄 **COMMIT CHANGES FIRST**
+   - Before moving card to "Done" list
+   - Use card name as commit message (e.g., "Complete [FE-001] Project Foundation & Tooling Setup")
+   - Include all modified/created files in the commit
+   - Push changes to ensure version control history
+
+1. ✅ **Update Project Status**
+   - Change "Current Card" to reflect completion
+   - Move completed card to appropriate section
+   - Update "Next Priority" to the logical next task
+
+2. ✅ **Add Completion Notes**
+   - Document what was implemented
+   - Record any technical decisions
+   - Note any issues resolved
+   - Include test results and verification
+
+3. ✅ **Update Technical Setup**
+   - Add new dependencies or tools
+   - Update server/port information
+   - Document new directory structures
+
+4. ✅ **Set Next Action**
+   - Update the "Next Action" line
+   - Identify ready-to-work cards
+
+### 📝 TEMPLATE FOR TASK COMPLETION:
+```
+### [CARD-ID] Completion (Date) ✅
+- Brief summary of what was implemented
+- Key technical details and decisions
+- Files created or modified
+- Testing results and verification
+- Any issues encountered and resolved
+- Server/port/URL information if applicable
+```
+
+**THIS PROTOCOL ENSURES CONTINUITY ACROSS SESSIONS AND PREVENTS LOST PROGRESS!**
+
+---
+Last Updated: June 8, 2025 - Fresh Start with Modern React 19 Architecture
+Next Action: Begin [FE-001] Project Foundation & Tooling Setup - React 19 + Vite + TypeScript
+
+## 🚀 Ready to Begin Modern Rebuild!
+
+This comprehensive plan provides a roadmap for building a modern, scalable, and maintainable CinematIQ frontend using 2025 best practices. Each task is designed to be:
+
+- **Self-contained** with clear deliverables
+- **Testable** with specific verification criteria
+- **Manageable** in scope for focused development sessions
+- **Progressive** building on previous work
+
+**Start with [FE-001] Project Foundation & Tooling Setup** in your Trello board and follow the dependency chain for optimal results!
