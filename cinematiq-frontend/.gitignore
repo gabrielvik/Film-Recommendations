@@ -22,3 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Coverage Reports
+coverage/
+test-results/
+playwright-report/
+
+# Test Artifacts
+screenshots/
+videos/
+traces/
+
+# Playwright
+/e2e-results/
+/playwright-report/
+/playwright/.cache/
+
+# Vitest
+.vitest/
+
+# Test databases
+*.db-test

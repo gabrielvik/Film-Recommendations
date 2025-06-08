@@ -8,11 +8,15 @@ import { API_CONFIG, IMAGE_SIZES } from '@/config/constants';
 export const formatDate = (dateString: string): string => {
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    if (isNaN(date.getTime())) {
+      return 'Unknown';
+    }
+    const formatted = date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
+    return formatted === 'Invalid Date' ? 'Unknown' : formatted;
   } catch {
     return 'Unknown';
   }
