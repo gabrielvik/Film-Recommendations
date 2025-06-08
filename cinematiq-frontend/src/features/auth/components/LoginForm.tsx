@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
@@ -18,10 +18,11 @@ import SocialLoginButtons from './SocialLoginButtons';
 
 interface LoginFormProps {
   onSuccess?: () => void;
+  onSwitchToRegister?: () => void;
   className?: string;
 }
 
-const LoginForm = ({ onSuccess, className }: LoginFormProps) => {
+const LoginForm = ({ onSuccess, onSwitchToRegister, className }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
@@ -121,12 +122,14 @@ const LoginForm = ({ onSuccess, className }: LoginFormProps) => {
             />
             <span>Remember me</span>
           </label>
-          <Link
-            to="/forgot-password"
+          <a
+            href="/forgot-password"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sm text-primary hover:underline"
           >
             Forgot password?
-          </Link>
+          </a>
         </div>
 
         {/* Submit Button */}
@@ -155,9 +158,19 @@ const LoginForm = ({ onSuccess, className }: LoginFormProps) => {
       {/* Register Link */}
       <div className="text-center text-sm">
         <span className="text-muted-foreground">Don't have an account? </span>
-        <Link to="/register" className="text-primary hover:underline">
-          Create account
-        </Link>
+        {onSwitchToRegister ? (
+          <button 
+            type="button"
+            onClick={onSwitchToRegister} 
+            className="text-primary hover:underline bg-transparent border-none p-0 text-sm cursor-pointer"
+          >
+            Create account
+          </button>
+        ) : (
+          <a href="/register" className="text-primary hover:underline">
+            Create account
+          </a>
+        )}
       </div>
     </Card>
   );

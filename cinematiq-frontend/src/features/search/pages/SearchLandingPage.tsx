@@ -4,9 +4,14 @@ import { useAuth } from '@/features/auth/hooks/useAuth'
 import { useSearch } from '@/features/search/hooks/useSearch'
 import { LoadingIndicator } from '@/features/search/components/LoadingIndicator'
 import { MovieResults } from '@/features/search/components/MovieResults'
+import SuggestionChips from '@/features/search/components/SuggestionChips'
+import LoginModal from '@/features/auth/components/LoginModal'
+import RegisterModal from '@/features/auth/components/RegisterModal'
 
 const SearchLandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
   const { isAuthenticated, user, logout } = useAuth()
   const { movies, isLoading, error, lastQuery, search, clearResults, clearError } = useSearch()
 
@@ -57,25 +62,29 @@ const SearchLandingPage = () => {
   }
 
   const handleLogin = () => {
-    // TODO: Open login modal (RESTORE-005)
-    console.log('Open login modal')
+    setShowRegisterModal(false)
+    setShowLoginModal(true)
   }
 
   const handleRegister = () => {
-    // TODO: Open register modal (RESTORE-005)
-    console.log('Open register modal')
+    setShowLoginModal(false)
+    setShowRegisterModal(true)
+  }
+
+  const handleSwitchToRegister = () => {
+    setShowLoginModal(false)
+    setShowRegisterModal(true)
+  }
+
+  const handleSwitchToLogin = () => {
+    setShowRegisterModal(false)
+    setShowLoginModal(true)
   }
 
   const handleLogout = async () => {
     await logout()
     clearResults() // Clear search results on logout
   }
-
-  const suggestions = [
-    "Movies directed by Christopher Nolan",
-    "Romantic comedy from the 2000s", 
-    "Movies for the whole family"
-  ]
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-200 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
@@ -151,17 +160,10 @@ const SearchLandingPage = () => {
         </div>
 
         {/* Suggested phrases - matching original exactly */}
-        <div className="flex flex-wrap gap-2 justify-center mt-4">
-          {suggestions.map((suggestion, index) => (
-            <span 
-              key={index}
-              onClick={() => handleSuggestionClick(suggestion)}
-              className="suggestion bg-blue-500 dark:bg-blue-900 text-blue-50 dark:text-blue-100 px-3 py-1 rounded-full cursor-pointer hover:bg-blue-600 dark:hover:bg-blue-800 transition"
-            >
-              {suggestion}
-            </span>
-          ))}
-        </div>
+        <SuggestionChips 
+          onSuggestionClick={handleSuggestionClick}
+          className="mt-4"
+        />
 
         {/* Loading indicator */}
         {isLoading && (
@@ -178,6 +180,18 @@ const SearchLandingPage = () => {
           error={error}
         />
       </main>
+
+      {/* Authentication Modals */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+      <RegisterModal 
+        isOpen={showRegisterModal} 
+        onClose={() => setShowRegisterModal(false)}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
     </div>
   )
 }

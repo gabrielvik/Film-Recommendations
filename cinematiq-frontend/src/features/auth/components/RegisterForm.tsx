@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
@@ -19,10 +19,11 @@ import SocialLoginButtons from './SocialLoginButtons';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
+  onSwitchToLogin?: () => void;
   className?: string;
 }
 
-const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
+const RegisterForm = ({ onSuccess, onSwitchToLogin, className }: RegisterFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register, isLoading, error, clearError } = useAuth();
@@ -171,13 +172,13 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
             />
             <span>
               I agree to the{' '}
-              <Link to="/terms" className="text-primary hover:underline">
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                 Terms of Service
-              </Link>{' '}
+              </a>{' '}
               and{' '}
-              <Link to="/privacy" className="text-primary hover:underline">
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                 Privacy Policy
-              </Link>
+              </a>
             </span>
           </label>
           {form.formState.errors.acceptTerms && (
@@ -211,9 +212,19 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
       {/* Login Link */}
       <div className="text-center text-sm">
         <span className="text-muted-foreground">Already have an account? </span>
-        <Link to="/login" className="text-primary hover:underline">
-          Sign in
-        </Link>
+        {onSwitchToLogin ? (
+          <button 
+            type="button"
+            onClick={onSwitchToLogin} 
+            className="text-primary hover:underline bg-transparent border-none p-0 text-sm cursor-pointer"
+          >
+            Sign in
+          </button>
+        ) : (
+          <a href="/login" className="text-primary hover:underline">
+            Sign in
+          </a>
+        )}
       </div>
     </Card>
   );
