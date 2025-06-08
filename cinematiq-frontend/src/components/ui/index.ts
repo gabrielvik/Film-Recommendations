@@ -6,6 +6,7 @@ export * from "./loading"
 export * from "./alert"
 export * from "./card"
 export * from "./badge"
+export * from "./tabs"
 
 // Theme Components
 export * from "./theme-provider"

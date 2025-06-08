@@ -11,6 +11,7 @@ import {
   type PaginatedResponse,
   type Credits,
   type Genre,
+  type Video,
   QUERY_KEYS,
 } from '@/lib/api/types';
 
@@ -103,6 +104,15 @@ export function useRecommendedMovies(movieId: number, page: number = 1): UseQuer
     queryKey: [...QUERY_KEYS.movies.detail(movieId), 'recommendations', page],
     queryFn: () => moviesApi.getRecommendations(movieId, page),
     staleTime: 1000 * 60 * 30, // 30 minutes
+    enabled: !!movieId,
+  });
+}
+
+export function useMovieVideos(movieId: number): UseQueryResult<{ results: Video[] }> {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.movies.detail(movieId), 'videos'],
+    queryFn: () => moviesApi.getVideos(movieId),
+    staleTime: 1000 * 60 * 60, // 1 hour (videos rarely change)
     enabled: !!movieId,
   });
 }

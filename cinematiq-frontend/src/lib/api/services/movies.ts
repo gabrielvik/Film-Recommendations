@@ -11,6 +11,7 @@ import type {
   Credits,
   SearchQuery,
   Genre,
+  Video,
 } from '../types';
 
 // ============================================================================
@@ -101,6 +102,12 @@ export const moviesApi = {
     const response = await apiClient.get(`/movie/${movieId}/recommendations`, {
       params: { page },
     });
+    return response.data;
+  },
+
+  // Get movie videos (trailers, teasers, etc.)
+  getVideos: async (movieId: number): Promise<{ results: Video[] }> => {
+    const response = await apiClient.get(`/movie/${movieId}/videos`);
     return response.data;
   },
 };
