@@ -1,1 +1,225 @@
-{{read_file_result}}
+# CinematIQ Project Plan - React Frontend Restoration
+
+## Overview
+**Project**: CinematIQ - AI-Driven Movie Search Engine  
+**Status**: React Frontend Restoration Phase  
+**Started**: June 8, 2025  
+**Updated**: June 8, 2025 - Evening  
+**Current Focus**: AI Search Integration (RESTORE-003) after completing search-first interface
+
+## Project Vision
+**CORRECTED APPROACH**: The original FilmRecommendations.Frontend already worked perfectly with AI-driven search. We're now restoring that exact functionality in the modern React frontend architecture, replacing the over-engineered Netflix-style interface.
+
+## Current State vs. Target State
+
+### Original Working Frontend (Reference)
+- ✅ **AI Search Interface**: "What kind of movie are you in the mood for?"
+- ✅ **Natural Language Processing**: `/FilmRecomendations/GetFilmRecommendation` endpoint
+- ✅ **Focused Results**: 3-5 movie recommendations with posters
+- ✅ **Suggestion Chips**: "Movies directed by Christopher Nolan", etc.
+- ✅ **Modal Authentication**: Login/register modals, not separate pages
+- ✅ **Session Persistence**: Last search and results stored
+- ✅ **Clean Design**: Simple, search-first interface
+
+### React Frontend (RESTORATION IN PROGRESS)
+- ✅ **Search-First Interface**: Clean landing page matching original exactly
+- ✅ **Navigation Simplified**: Removed Netflix-style complexity
+- ✅ **Theme Toggle**: Positioned correctly in top-right corner
+- ✅ **Authentication Buttons**: Login/Register buttons styled like original
+- ✅ **Suggestion Chips**: Implemented with original text and styling
+- 🔄 **AI Search Integration**: Next priority - connect to working backend API
+- ⏳ **Movie Results Display**: Pending - after AI search works
+- ⏳ **Modal Authentication**: Pending - convert buttons to working modals
+
+### Target State (Original Functionality in React)
+- 🎯 **Exact Match**: React version that works identically to original frontend
+- 🎯 **Same AI Search**: Use existing backend `/FilmRecomendations/GetFilmRecommendation`
+- 🎯 **Same UX Flow**: Search input → AI processing → focused results
+- 🎯 **Same Design**: Clean, search-first interface with suggestion chips
+- 🎯 **Modern Architecture**: React 19 + TypeScript + Tailwind CSS
+
+## Restoration Plan
+
+### TaskMaster Integration
+- **Tasks File**: `tasks/react-restoration-tasks.json` (Created via PRD parsing)
+- **Total Tasks**: 12 structured restoration tasks
+- **Current Task**: 🔄 [RESTORE-003] Implement AI Search Integration (NEXT)
+- **Methodology**: Restore original functionality step-by-step
+
+### Trello Board Integration
+- **Board**: https://trello.com/b/4LCXVy6W/cinematiq
+- **Active Cards**: RESTORE-003 through RESTORE-006 in "To Do"
+- **Status**: RESTORE-001 & RESTORE-002 completed, RESTORE-003 ready to start
+- **Archived**: Old TRANSFORM cards removed (wrong approach)
+
+## Key Restoration Tasks
+
+### ✅ [RESTORE-001] Remove Netflix-Style Components (COMPLETED)
+- **Priority**: HIGH | **Dependencies**: None
+- **Status**: ✅ **COMPLETED** - Netflix components removed, SearchLandingPage created
+- **Changes**: Simplified navigation, removed discovery pages, created search-first foundation
+
+### ✅ [RESTORE-002] Create Search-First Landing Page (COMPLETED)
+- **Priority**: HIGH | **Dependencies**: RESTORE-001
+- **Goal**: Complete search landing page matching original frontend exactly
+- **Status**: ✅ **COMPLETED** - Full-screen search interface implemented
+- **Changes**: 
+  - SearchLandingPage matches original HTML structure exactly
+  - Top-right auth buttons (Login/Register) with original styling
+  - Theme toggle positioned correctly
+  - Clean background with dark/light mode support
+  - Search input with 'Send' button matching original
+  - Three suggestion chips with hover effects and original text
+  - Removed RootLayout from main route to eliminate navigation complexity
+  - Responsive design maintained
+
+### 🔄 [RESTORE-003] Implement AI Search Integration (CURRENT)
+- **Priority**: HIGH | **Dependencies**: RESTORE-002
+- **Goal**: Connect to existing `/FilmRecomendations/GetFilmRecommendation` API
+- **Status**: 🔄 **READY TO START**
+- **Requirements**:
+  - Connect search form to AI recommendation API
+  - Add loading indicators during requests
+  - Handle authentication (show login prompt if not authenticated)
+  - Parse API response for movie recommendations
+  - Add error handling for failed requests
+
+### ⏳ [RESTORE-004] Create Movie Results Grid (NEXT)
+- **Priority**: HIGH | **Dependencies**: RESTORE-003
+- **Goal**: Display 3-5 focused movie results exactly like original
+- **Status**: ⏳ **PENDING** - After AI search integration
+
+### ⏳ [RESTORE-005] Convert to Modal Authentication (PARALLEL)
+- **Priority**: HIGH | **Dependencies**: RESTORE-002
+- **Goal**: Replace route-based auth with modal-based like original
+- **Status**: ⏳ **PENDING** - Can work in parallel with search integration
+
+### ⏳ [RESTORE-006] Add Suggestion Chips Functionality
+- **Priority**: MEDIUM | **Dependencies**: RESTORE-003
+- **Goal**: Make suggestion chips trigger actual searches
+- **Status**: ⏳ **PENDING** - Chips are styled, need functionality
+
+## Backend Integration (ALREADY WORKING)
+
+### Existing API Endpoints
+- **AI Search**: `GET /FilmRecomendations/GetFilmRecommendation?prompt={userPrompt}`
+- **Movie Details**: `GET /FilmRecomendations/GetMovieDetails/{movieId}`
+- **Authentication**: JWT-based auth system
+- **TMDB Integration**: Movie data, posters, cast, trailers
+
+### AI Service (GROK/OpenAI)
+- **Working**: AI service already configured and functional
+- **Endpoint**: Returns JSON array of movie recommendations
+- **Features**: Natural language processing, user preference integration
+
+## Technical Architecture
+
+### Current React Structure (RESTORED)
+```
+cinematiq-frontend/
+├── src/
+│   ├── app/                # Application layer (simplified routing)
+│   │   └── router/         # ✅ Updated: SearchLandingPage as index route
+│   ├── components/         # UI components (preserved)
+│   │   └── ui/             # ✅ ThemeToggle working correctly
+│   ├── features/
+│   │   ├── search/         # ✅ RESTORED: Search-first functionality
+│   │   │   └── pages/SearchLandingPage.tsx (✅ MATCHES ORIGINAL)
+│   │   ├── movies/         # Movie details (preserved)
+│   │   └── auth/           # ⏳ Will convert to modals
+│   ├── lib/                # API integration (existing)
+│   └── utils/              # Utilities (preserved)
+```
+
+### Restoration Changes
+- ✅ **Removed**: Netflix-style discovery pages, complex navigation, route-based main layout
+- ✅ **Kept**: Movie details, UI components, API integration, authentication logic
+- ✅ **Added**: Search-first landing page with original design
+- 🔄 **Next**: AI search integration, modal auth, results grid
+
+## Technology Stack (UNCHANGED)
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS
+- **Backend**: .NET ASP.Core Web API, Entity Framework (WORKING)
+- **Database**: SQL Server (WORKING)
+- **APIs**: TMDB (movies), GROK/OpenAI (AI recommendations) (WORKING)
+- **Authentication**: JWT tokens (WORKING)
+
+## Success Metrics
+1. **Functional Match**: React frontend works identically to original frontend
+2. **AI Search**: Natural language movie search works perfectly
+3. **User Experience**: Same clean, fast, search-first interface
+4. **Backend Integration**: All existing APIs work seamlessly
+5. **Authentication**: Modal-based login/register like original
+
+## Current Progress
+
+### ✅ Completed (Major Milestone)
+- **RESTORE-001**: Netflix-style components removed
+- **RESTORE-002**: Search-first landing page completed
+  - Full-screen interface matching original exactly
+  - Top-right authentication buttons
+  - Theme toggle properly positioned
+  - Clean background with theme support
+  - Search input with proper styling
+  - Suggestion chips with original text
+  - Responsive design maintained
+  - Router simplified to bypass complex navigation
+- **Architecture Analysis**: Original frontend analyzed and documented
+- **TaskMaster Setup**: 12 restoration tasks created via PRD
+- **Trello Integration**: Task tracking with MCP chains
+
+### 🔄 Next Steps (Immediate Priority)
+1. **RESTORE-003**: Connect search form to AI API endpoint
+2. **RESTORE-004**: Display search results in grid format
+3. **RESTORE-005**: Implement modal authentication system
+4. **RESTORE-006**: Make suggestion chips trigger searches
+
+### 📅 Timeline (Updated)
+- **Week 1 Progress**: ✅ RESTORE-001 & RESTORE-002 completed ahead of schedule
+- **Week 1 Remaining**: Complete RESTORE-003 (AI integration) and start RESTORE-004
+- **Week 2**: Complete search results display and modal authentication
+- **Week 3**: Polish, testing, and deployment
+
+## Reference Implementation
+- **Original Frontend**: `FilmRecommendations.Frontend/` (working AI search interface)
+- **Backend API**: `FilmRecomendations.WebApi/` (fully functional)
+- **Target**: Exact functional match in React architecture
+
+## File Structure
+- **Plans**: `CinematIQ Plan.txt`, `scripts/prd.txt`
+- **Tasks**: `tasks/react-restoration-tasks.json` (TaskMaster)
+- **Frontend**: `cinematiq-frontend/` (React project - being restored)
+- **Backend**: `FilmRecomendations.WebApi/` (.NET API - working)
+- **Reference**: `FilmRecommendations.Frontend/` (original working frontend)
+
+## Development Workflow
+1. **Reference**: Use original frontend as exact specification
+2. **Planning**: TaskMaster for task management
+3. **Tracking**: Trello board for visual progress
+4. **Development**: React frontend restoration
+5. **Testing**: Compare with original frontend functionality
+6. **Integration**: Ensure backend APIs work identically
+
+## Recent Changes (June 8, 2025 - Evening)
+
+### Files Modified for RESTORE-002:
+- **`src/features/search/pages/SearchLandingPage.tsx`**: Complete rewrite to match original
+  - Full-screen search interface
+  - Top-right authentication controls
+  - Original styling and layout
+  - Suggestion chips implementation
+  - Theme integration
+- **`src/app/router/index.tsx`**: Simplified routing structure
+  - SearchLandingPage as direct index route
+  - Removed RootLayout from main search page
+  - Preserved complex layout for secondary pages only
+
+### Trello Updates:
+- RESTORE-002 card moved to "Done" list
+- Ready to proceed with RESTORE-003 (AI Search Integration)
+
+---
+*Last Updated: June 8, 2025 - Evening*  
+*Current Milestone: ✅ Search-First Interface Restored*  
+*Next Milestone: 🔄 AI Search Integration (RESTORE-003)*  
+*Goal: Connect React frontend to working AI recommendation backend*
