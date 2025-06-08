@@ -1,175 +1,175 @@
 /**
- * Enhanced Authentication API Service for CinematIQ
- * Comprehensive auth service with JWT token management
+ * Real Authentication API Service for CinematIQ
+ * Integrates with .NET backend authentication endpoints
  */
 
-import type { User, LoginCredentials } from '../types';
-import TokenManager, { type TokenPair } from '@/features/auth/utils/tokenManager';
+import { backendClient } from '../backendClient';
+import type { User } from '../types';
+import TokenManager from '@/features/auth/utils/tokenManager';
 
 // ============================================================================
-// Enhanced Authentication Types
+// Authentication Types matching backend DTOs
 // ============================================================================
 
-interface RegisterCredentials {
-  name: string;
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface RegisterRequest {
+  userName: string;
   email: string;
   password: string;
 }
 
 interface AuthResponse {
-  user: User;
-  tokens: TokenPair;
-}
-
-interface ResetPasswordRequest {
-  email: string;
-}
-
-interface ResetPasswordConfirm {
   token: string;
-  password: string;
+  userId: string;
 }
 
-interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
-
-interface SocialLoginResponse {
+interface AuthResult {
   user: User;
-  tokens: TokenPair;
-  isNewUser: boolean;
+  token: string;
 }
 
 // ============================================================================
-// Enhanced Authentication Service
+// Real Authentication Service
 // ============================================================================
 
 export const authApi = {
   /**
-   * Enhanced login with JWT tokens
+   * Login with email and password
    */
-  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock validation
-    if (credentials.username === 'demo' && credentials.password === 'password') {
+  login: async (credentials: { username: string; password: string }): Promise<AuthResult> => {
+    try {
+      const loginRequest: LoginRequest = {
+        email: credentials.username, // Assuming username is email
+        password: credentials.password
+      };
+
+      const response = await backendClient.post<AuthResponse>('/api/Auth/login', loginRequest);
+      const { token, userId } = response.data;
+
+      // Create user object from token claims
+      const userInfo = TokenManager.getUserFromToken(token);
       const mockUser: User = {
-        id: '1',
-        username: credentials.username,
-        email: 'demo@cinematiq.com',
+        id: userId,
+        username: userInfo?.name || credentials.username,
+        email: userInfo?.email || credentials.username,
         avatar_path: undefined,
         preferences: {
           adult_content: false,
           language: 'en',
           country: 'US',
-          genres: [28, 12, 16, 35, 80],
+          genres: [],
         },
-        created_at: '2024-01-01T00:00:00.000Z',
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
-      const tokens = TokenManager.generateMockTokens({
-        id: mockUser.id,
-        email: mockUser.email,
-        role: 'user',
-      });
-      
-      // Store tokens securely
-      TokenManager.setTokens(tokens);
+      // Store token
+      localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(mockUser));
       
-      return { user: mockUser, tokens };
+      console.log('✅ Login successful');
+      return { user: mockUser, token };
+
+    } catch (error: any) {
+      console.error('❌ Login failed:', error);
+      
+      if (error.response?.status === 401) {
+        throw new Error('Invalid email or password');
+      } else if (error.response?.status >= 500) {
+        throw new Error('Server error. Please try again later.');
+      } else {
+        throw new Error(error.response?.data?.message || error.message || 'Login failed');
+      }
     }
-    
-    throw new Error('Invalid credentials');
   },
 
   /**
-   * Enhanced register with JWT tokens
+   * Register new user
    */
-  register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock user creation
-    const mockUser: User = {
-      id: Date.now().toString(),
-      username: credentials.email.split('@')[0],
-      email: credentials.email,
-      avatar_path: undefined,
-      preferences: {
-        adult_content: false,
-        language: 'en',
-        country: 'US',
-        genres: [],
-      },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    const tokens = TokenManager.generateMockTokens({
-      id: mockUser.id,
-      email: mockUser.email,
-      role: 'user',
-    });
-    
-    TokenManager.setTokens(tokens);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    return { user: mockUser, tokens };
+  register: async (credentials: { name: string; email: string; password: string }): Promise<AuthResult> => {
+    try {
+      const registerRequest: RegisterRequest = {
+        userName: credentials.name,
+        email: credentials.email,
+        password: credentials.password
+      };
+
+      const response = await backendClient.post<AuthResponse>('/api/Auth/register', registerRequest);
+      const { token, userId } = response.data;
+
+      // Create user object
+      const mockUser: User = {
+        id: userId,
+        username: credentials.name,
+        email: credentials.email,
+        avatar_path: undefined,
+        preferences: {
+          adult_content: false,
+          language: 'en',
+          country: 'US',
+          genres: [],
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Store token
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      console.log('✅ Registration successful');
+      return { user: mockUser, token };
+
+    } catch (error: any) {
+      console.error('❌ Registration failed:', error);
+      
+      if (error.response?.status === 400) {
+        const errors = error.response?.data?.errors;
+        if (Array.isArray(errors)) {
+          throw new Error(errors.join(', '));
+        } else {
+          throw new Error('Registration failed. Please check your information.');
+        }
+      } else if (error.response?.status >= 500) {
+        throw new Error('Server error. Please try again later.');
+      } else {
+        throw new Error(error.response?.data?.message || error.message || 'Registration failed');
+      }
+    }
   },
 
   /**
-   * Enhanced logout with token cleanup
+   * Logout - clear local storage
    */
   logout: async (): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    TokenManager.clearTokens();
+    localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    console.log('✅ Logout successful');
   },
 
   /**
-   * Refresh access token
-   */
-  refreshToken: async (): Promise<TokenPair> => {
-    const refreshToken = TokenManager.getRefreshToken();
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mock token refresh
-    const userInfo = TokenManager.getUserFromToken(refreshToken);
-    if (!userInfo) {
-      throw new Error('Invalid refresh token');
-    }
-
-    const newTokens = TokenManager.generateMockTokens(userInfo);
-    TokenManager.setTokens(newTokens);
-    
-    return newTokens;
-  },
-  /**
-   * Get current user from token
+   * Get current user from localStorage
    */
   getCurrentUser: async (): Promise<User | null> => {
-    const accessToken = TokenManager.getAccessToken();
-    if (!accessToken) return null;
+    const token = localStorage.getItem('authToken');
+    if (!token) return null;
 
-    const userInfo = TokenManager.getUserFromToken(accessToken);
-    if (!userInfo) return null;
+    // Check if token is expired
+    if (TokenManager.isTokenExpired(token)) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      return null;
+    }
 
-    // Try to get user from localStorage first
     const userJson = localStorage.getItem('user');
     if (userJson) {
       try {
         return JSON.parse(userJson) as User;
       } catch {
-        // If parsing fails, clear invalid data
         localStorage.removeItem('user');
       }
     }
@@ -181,122 +181,54 @@ export const authApi = {
    * Check if user is authenticated
    */
   isAuthenticated: (): boolean => {
-    const accessToken = TokenManager.getAccessToken();
-    if (!accessToken) return false;
+    const token = localStorage.getItem('authToken');
+    if (!token) return false;
 
-    return !TokenManager.isTokenExpired(accessToken);
+    return !TokenManager.isTokenExpired(token);
   },
 
   /**
-   * Check if token needs refresh
+   * Get auth token for API calls
    */
+  getAuthToken: (): string | null => {
+    return localStorage.getItem('authToken');
+  },
+
+  // Legacy methods for compatibility - not used with real backend
+  refreshToken: async () => {
+    throw new Error('Token refresh not implemented for real backend');
+  },
+  
   needsRefresh: (): boolean => {
-    return TokenManager.needsRefresh();
+    return false; // Real backend handles this differently
   },
 
-  /**
-   * Forgot password request
-   */
-  forgotPassword: async (request: ResetPasswordRequest): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock email sending
-    console.log(`Password reset email sent to: ${request.email}`);
+  // Placeholder methods for features not yet implemented
+  forgotPassword: async (request: { email: string }): Promise<void> => {
+    throw new Error('Password reset not implemented yet');
   },
-  /**
-   * Reset password confirmation
-   */
-  resetPassword: async (request: ResetPasswordConfirm): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock password reset
-    console.log(`Password reset for token: ${request.token}`);
+  
+  resetPassword: async (request: { token: string; password: string }): Promise<void> => {
+    throw new Error('Password reset not implemented yet');
   },
-
-  /**
-   * Change password
-   */
-  changePassword: async (request: ChangePasswordRequest): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock password change
-    console.log('Password changed successfully');
+  
+  changePassword: async (request: { currentPassword: string; newPassword: string }): Promise<void> => {
+    throw new Error('Change password not implemented yet');
   },
-
-  /**
-   * Social login (Google)
-   */
-  loginWithGoogle: async (googleToken: string): Promise<SocialLoginResponse> => {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock Google login
-    const mockUser: User = {
-      id: 'google_' + Date.now().toString(),
-      username: 'google_user',
-      email: 'google@example.com',
-      avatar_path: 'https://lh3.googleusercontent.com/a/default-user',
-      preferences: {
-        adult_content: false,
-        language: 'en',
-        country: 'US',
-        genres: [],
-      },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    const tokens = TokenManager.generateMockTokens({
-      id: mockUser.id,
-      email: mockUser.email,
-      role: 'user',
-    });
-    
-    TokenManager.setTokens(tokens);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    return { user: mockUser, tokens, isNewUser: true };
+  
+  loginWithGoogle: async (googleToken: string) => {
+    throw new Error('Google login not implemented yet');
   },
-  /**
-   * Social login (Facebook)
-   */
-  loginWithFacebook: async (facebookToken: string): Promise<SocialLoginResponse> => {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock Facebook login
-    const mockUser: User = {
-      id: 'facebook_' + Date.now().toString(),
-      username: 'facebook_user',
-      email: 'facebook@example.com',
-      avatar_path: 'https://graph.facebook.com/me/picture',
-      preferences: {
-        adult_content: false,
-        language: 'en',
-        country: 'US',
-        genres: [],
-      },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    const tokens = TokenManager.generateMockTokens({
-      id: mockUser.id,
-      email: mockUser.email,
-      role: 'user',
-    });
-    
-    TokenManager.setTokens(tokens);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    return { user: mockUser, tokens, isNewUser: false };
+  
+  loginWithFacebook: async (facebookToken: string) => {
+    throw new Error('Facebook login not implemented yet');
   },
 };
 
 // Export types
 export type {
-  RegisterCredentials,
+  LoginRequest,
+  RegisterRequest,
   AuthResponse,
-  ResetPasswordRequest,
-  ResetPasswordConfirm,
-  ChangePasswordRequest,
-  SocialLoginResponse,
+  AuthResult,
 };

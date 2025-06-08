@@ -1,19 +1,59 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { useSearch } from '@/features/search/hooks/useSearch'
+import { LoadingIndicator } from '@/features/search/components/LoadingIndicator'
+import { MovieResults } from '@/features/search/components/MovieResults'
 
 const SearchLandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { isAuthenticated, user, logout } = useAuth()
+  const { movies, isLoading, error, lastQuery, search, clearResults, clearError } = useSearch()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Restore previous search on page load
+  useEffect(() => {
+    const savedQuery = sessionStorage.getItem('lastSearchQuery')
+    const savedMovies = sessionStorage.getItem('movieRecommendations')
+    
+    if (savedQuery) {
+      setSearchQuery(savedQuery)
+    }
+    
+    // If we have saved movies but no current movies, this indicates page refresh
+    if (savedMovies && !movies.length && !isLoading) {
+      try {
+        const parsedMovies = JSON.parse(savedMovies)
+        if (parsedMovies.length > 0) {
+          // Re-trigger search to restore state properly
+          if (savedQuery) {
+            search(savedQuery)
+          }
+        }
+      } catch (e) {
+        // Clear invalid saved data
+        sessionStorage.removeItem('movieRecommendations')
+        sessionStorage.removeItem('lastSearchQuery')
+      }
+    }
+  }, [movies.length, isLoading, search])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement AI search integration (RESTORE-003)
-    console.log('Search query:', searchQuery)
+    const query = searchQuery.trim()
+    
+    if (!query) return
+    
+    // Clear previous error
+    clearError()
+    
+    // Perform AI search
+    await search(query)
   }
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchQuery(suggestion)
+    // Automatically search when suggestion is clicked
+    search(suggestion)
   }
 
   const handleLogin = () => {
@@ -28,6 +68,7 @@ const SearchLandingPage = () => {
 
   const handleLogout = async () => {
     await logout()
+    clearResults() // Clear search results on logout
   }
 
   const suggestions = [
@@ -97,12 +138,14 @@ const SearchLandingPage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="T.ex. 'I want to see a thriller...'"
               className="flex-grow rounded border border-gray-300 dark:border-gray-700 px-3 py-2 focus:outline-none focus:border-blue-500 transition bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-none"
+              disabled={isLoading}
             />
             <button 
               type="submit" 
-              className="bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-600 transition dark:bg-blue-600 dark:hover:bg-blue-700"
+              disabled={isLoading || !searchQuery.trim()}
+              className="bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-600 transition dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send
+              {isLoading ? '...' : 'Send'}
             </button>
           </form>
         </div>
@@ -120,10 +163,20 @@ const SearchLandingPage = () => {
           ))}
         </div>
 
-        {/* Movie recommendations container - will be populated in RESTORE-004 */}
-        <div id="movieRecommendations" className="w-full max-w-xl mt-6 mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* Results will be rendered here */}
-        </div>
+        {/* Loading indicator */}
+        {isLoading && (
+          <LoadingIndicator 
+            className="mt-8" 
+            message="Getting AI-powered movie recommendations..."
+          />
+        )}
+
+        {/* Movie recommendations */}
+        <MovieResults 
+          movies={movies}
+          isLoading={isLoading}
+          error={error}
+        />
       </main>
     </div>
   )
