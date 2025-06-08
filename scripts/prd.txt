@@ -1,0 +1,63 @@
+# CinematIQ React Frontend Restoration - Product Requirements Document
+
+## Overview
+CinematIQ is an AI-driven movie search engine that provides personalized movie recommendations based on natural language queries. The original frontend worked perfectly with AI-powered search functionality, but the current React version was over-engineered with Netflix-style components that need to be removed and replaced with the original simple, search-first interface.
+
+**Problem**: The React frontend was transformed into a complex Netflix-style browsing interface, losing the core AI search functionality that made the original version valuable.
+
+**Solution**: Restore the exact functionality of the original working frontend in modern React architecture, focusing on AI-driven search as the primary feature.
+
+**Target Users**: Movie enthusiasts who want personalized recommendations through natural language queries rather than browsing categories.
+
+## Core Features
+
+### 1. AI-Powered Natural Language Search
+- **What**: Users input natural language queries like "What kind of movie are you in the mood for?" or "Movies like Inception but funnier"
+- **Why**: This is the core differentiator - AI understands context and mood rather than just keywords
+- **How**: Connects to existing `/FilmRecomendations/GetFilmRecommendation` API endpoint using GROK/OpenAI integration
+
+### 2. Focused Movie Results Display
+- **What**: Display 3-5 carefully selected movie recommendations with posters, titles, and brief descriptions
+- **Why**: Quality over quantity - fewer, better recommendations rather than overwhelming grids
+- **How**: Clean grid layout with movie cards showing poster, title, year, and brief AI explanation
+
+### 3. Suggestion Chips
+- **What**: Clickable suggestion buttons like "Movies directed by Christopher Nolan", "Feel-good comedies", "Mind-bending sci-fi"
+- **Why**: Helps users discover the AI search capabilities and provides quick starting points
+- **How**: Pre-defined chips that trigger search queries when clicked
+
+### 4. Modal-Based Authentication
+- **What**: Login/register forms appear in modals over the search interface
+- **Why**: Keeps users focused on search without navigating away from the main interface
+- **How**: Overlay modals triggered by auth buttons, not separate routes
+
+### 5. Session Persistence
+- **What**: Remember last search query and results when user returns
+- **Why**: Provides continuity and shows the system "remembers" user preferences
+- **How**: Store search state and results in session/local storage
+
+## Development Roadmap
+
+### Phase 1: Foundation Cleanup (RESTORE-001 to RESTORE-003)
+**Goal**: Remove Netflix components and establish search-first foundation
+- Remove Netflix-style discovery pages and complex navigation
+- Create simple search-first landing page with prominent input
+- Implement AI search integration with existing API
+- Basic loading states and error handling
+
+### Phase 2: Core Search Experience (RESTORE-004 to RESTORE-006)
+**Goal**: Complete the search experience with results and suggestions
+- Implement focused movie results grid (3-5 recommendations)
+- Add suggestion chips for search inspiration
+- Enhance movie cards with AI explanation snippets
+- Responsive design optimization
+
+### Phase 3: Authentication & Polish (RESTORE-007 to RESTORE-009)
+**Goal**: Modal authentication and user experience polish
+- Convert route-based auth to modal system
+- Implement session persistence for search state
+- Add user feedback and loading animations
+- Cross-browser testing and optimization
+
+---
+*This PRD focuses specifically on restoring the proven AI search functionality in modern React architecture, avoiding the complexity that led to the Netflix-style over-engineering.*
