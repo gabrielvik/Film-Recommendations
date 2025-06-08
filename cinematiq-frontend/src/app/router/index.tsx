@@ -13,6 +13,7 @@ const MovieDetailsPage = lazy(() => import('@/features/movies/pages/MovieDetails
 const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage'))
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/features/auth/pages/RegisterPage'))
+const ForgotPasswordPage = lazy(() => import('@/features/auth/pages/ForgotPasswordPage'))
 const NotFoundPage = lazy(() => import('@/features/common/pages/NotFoundPage'))
 
 // Loading wrapper component
@@ -93,6 +94,14 @@ export const router = createBrowserRouter([
         element: (
           <PageWrapper>
             <RegisterPage />
+          </PageWrapper>
+        ),
+      },
+      {
+        path: 'forgot-password',
+        element: (
+          <PageWrapper>
+            <ForgotPasswordPage />
           </PageWrapper>
         ),
       },

@@ -5,6 +5,7 @@
 
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { handleAPIError } from './errors';
+import TokenManager from '@/features/auth/utils/tokenManager';
 
 // ============================================================================
 // Configuration
@@ -39,8 +40,8 @@ apiClient.interceptors.request.use(
       ...config.params,
     };
 
-    // Add authentication token if available
-    const token = localStorage.getItem('auth_token');
+    // Add authentication token from TokenManager
+    const token = TokenManager.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -69,6 +70,36 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
+    const originalRequest = error.config;
+
+    // Handle token refresh for 401 errors
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // Try to refresh the token
+        const refreshToken = TokenManager.getRefreshToken();
+        if (refreshToken && !TokenManager.isTokenExpired(refreshToken)) {
+          // Import authApi dynamically to avoid circular dependency
+          const { authApi } = await import('./services/auth');
+          const newTokens = await authApi.refreshToken();
+          
+          // Update the authorization header and retry the request
+          originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+          return apiClient(originalRequest);
+        } else {
+          // Refresh token is invalid, redirect to login
+          TokenManager.clearTokens();
+          window.location.href = '/login';
+        }
+      } catch (refreshError) {
+        // Refresh failed, redirect to login
+        TokenManager.clearTokens();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
     const apiError = handleAPIError(error);
     
     console.error('❌ API Error:', {
