@@ -1,3 +1,242 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* CinematIQ Brand Colors */
+    --brand-primary: 240 73% 58%; /* Rich Blue-Purple */
+    --brand-secondary: 45 93% 58%; /* Golden Yellow */
+    --brand-accent: 349 89% 60%; /* Deep Red */
+
+    /* Core Design System Colors - Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 240 73% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 240 73% 58%;
+    
+    /* Status Colors - Light Mode */
+    --success: 142 76% 36%;
+    --success-foreground: 355.7 100% 97.3%;
+    --warning: 45 93% 58%;
+    --warning-foreground: 26 83.3% 14.1%;
+    --error: 0 84.2% 60.2%;
+    --error-foreground: 210 40% 98%;
+    --info: 204 94% 94%;
+    --info-foreground: 213.3 31% 9.8%;
+
+    /* Border Radius */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Core Design System Colors - Dark Mode */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 240 73% 58%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 240 73% 58%;
+    
+    /* Status Colors - Dark Mode */
+    --success: 142 76% 36%;
+    --success-foreground: 355.7 100% 97.3%;
+    --warning: 45 93% 58%;
+    --warning-foreground: 26 83.3% 14.1%;
+    --error: 0 62.8% 30.6%;
+    --error-foreground: 210 40% 98%;
+    --info: 204 94% 94%;
+    --info-foreground: 213.3 31% 9.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Enhanced focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* Selection styles */
+  ::selection {
+    @apply bg-primary/20 text-primary-foreground;
+  }
+
+  /* Reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* CinematIQ Custom Component Styles */
+  .movie-card {
+    @apply bg-card border border-border rounded-lg shadow-soft hover:shadow-medium transition-all duration-300;
+  }
+
+  .movie-card:hover {
+    @apply transform hover:scale-[1.02] hover:shadow-glow;
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-md bg-background/80 border border-border/50;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-brand-primary to-brand-accent;
+  }
+
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-brand-secondary to-brand-primary;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-accent;
+  }
+
+  /* Loading skeletons */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Interactive states */
+  .interactive {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .interactive:hover {
+    @apply scale-105;
+  }
+
+  .interactive:active {
+    @apply scale-95;
+  }
+}
+
+@layer utilities {
+  /* CinematIQ Utility Classes */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Focus utilities */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Spacing utilities */
+  .space-y-section > * + * {
+    @apply mt-16;
+  }
+
+  .space-y-component > * + * {
+    @apply mt-8;
+  }
+
+  /* Container utilities */
+  .container-section {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Typography utilities */
+  .text-heading-1 {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+
+  .text-heading-2 {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight;
+  }
+
+  .text-heading-3 {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight;
+  }
+
+  .text-heading-4 {
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight;
+  }
+
+  .text-body-large {
+    @apply text-lg sm:text-xl font-normal leading-relaxed;
+  }
+
+  .text-body {
+    @apply text-base font-normal leading-relaxed;
+  }
+
+  .text-body-small {
+    @apply text-sm font-normal leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-xs font-medium tracking-wide uppercase;
+  }
+}

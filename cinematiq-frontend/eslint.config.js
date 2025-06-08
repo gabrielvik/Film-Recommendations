@@ -26,15 +26,36 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      
       // TypeScript strict rules
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'error',
+      
       // React best practices
       'react-hooks/exhaustive-deps': 'warn',
+      
       // General code quality  
       'no-console': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      
+      // Import organization
+      'sort-imports': ['error', {
+        'ignoreCase': true,
+        'ignoreDeclarationSort': true,
+        'memberSyntaxSortOrder': ['none', 'all', 'multiple', 'single']
+      }],
+
+      // Architectural boundaries (manual enforcement)
+      'no-restricted-imports': ['error', {
+        'patterns': [
+          {
+            'group': ['../../../*'],
+            'message': 'Relative imports should not go up more than 2 levels. Use absolute imports with @/ instead.'
+          }
+        ]
+      }],
     },
   },
 )
