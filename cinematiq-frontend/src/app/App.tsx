@@ -1,12 +1,14 @@
-import { ThemeProvider } from "@/components/ui"
-import ComponentDemo from "@/components/demo/ComponentDemo"
+import { RouterProvider } from 'react-router-dom'
+import { ThemeProvider } from '@/components/ui'
+import { AuthProvider } from '@/features/auth/context/AuthContext'
+import { router } from '@/app/router'
 
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="cinematiq-ui-theme">
-      <div className="min-h-screen bg-background font-sans antialiased">
-        <ComponentDemo />
-      </div>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ThemeProvider>
   )
 }
