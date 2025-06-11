@@ -12,7 +12,7 @@ echo Waiting 10 seconds for backend to initialize...
 timeout /t 10 /nobreak
 echo.
 echo 2. Starting Frontend on http://localhost:5173
-start "CinematIQ Frontend" cmd /k "cd /d D:\Development\CinematIQ\cinematiq-frontend && npm run dev"
+start "CinematIQ Frontend" cmd /k "cd /d D:\Development\CinematIQ\FilmRekommendations.React && npm run dev"
 echo.
 echo Both servers are starting in separate windows.
 echo Backend: http://localhost:5291

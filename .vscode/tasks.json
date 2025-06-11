@@ -43,7 +43,7 @@
             "command": "npm",
             "args": ["install"],
             "options": {
-                "cwd": "${workspaceFolder}/cinematiq-frontend"
+                "cwd": "${workspaceFolder}/FilmRekommendations.React"
             },
             "group": "build",
             "presentation": {

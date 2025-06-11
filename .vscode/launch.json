@@ -25,7 +25,8 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
-        },        {
+        },
+        {
             "name": "Frontend Launch (Old)",
             "type": "node",
             "request": "launch",
@@ -46,14 +47,15 @@
                 "run",
                 "dev"
             ],
-            "cwd": "${workspaceFolder}/cinematiq-frontend",
+            "cwd": "${workspaceFolder}/FilmRekommendations.React",
             "console": "integratedTerminal",
             "serverReadyAction": {
                 "pattern": "Local:.+(https?://localhost:[0-9]+)",
                 "uriFormat": "%s",
                 "action": "openExternally"
             }
-        }    ],
+        }
+    ],
     "compounds": [
         {
             "name": "Run Backend and Frontend",

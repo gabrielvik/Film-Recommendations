@@ -11,7 +11,7 @@ import { authTokens } from './authTokens';
 // Configuration
 // ============================================================================
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7295/api';
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7103/api';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
 // ============================================================================
