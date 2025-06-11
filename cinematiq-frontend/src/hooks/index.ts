@@ -1,6 +1,4 @@
 // Custom hooks exports
-export * from './useAuth';
-export * from './useMovies';
+// No hooks exported currently - React Query hooks removed
 
-// Hooks will be exported here as they are created
 export {};

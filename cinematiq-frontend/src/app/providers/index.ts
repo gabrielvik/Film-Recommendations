@@ -3,4 +3,5 @@
  * Central export point for all application providers
  */
 
-export { QueryProvider } from './QueryProvider';
+// No providers exported currently - QueryProvider removed
+export {};

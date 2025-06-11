@@ -1,1 +1,4 @@
-export { useInfiniteMovies, useMovieFilters } from './useInfiniteMovies';
+// Movie hooks exports
+// useInfiniteMovies removed - not needed for core search functionality
+
+export {};
