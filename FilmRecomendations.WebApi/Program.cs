@@ -64,7 +64,6 @@ builder.Services.AddDbContext<FilmDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<FilmDbContext>()
         .AddDefaultTokenProviders();
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -88,20 +87,19 @@ builder.Services.AddAuthentication(options =>
         });
 
 // Register services
-
-
 builder.Services.AddTransient<IAiService, AiService>();
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
-// Update CORS policy to allow both old and new frontend ports.
+// Update CORS policy to allow frontend ports.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
             "http://localhost:3000",    // New React frontend (Vite)
-            "http://localhost:5173",    // Old frontend / Vite default
-            "https://kind-smoke-050d18e03.6.azurestaticapps.net")
+            "http://localhost:3001",    // Alternative frontend port  
+            "http://localhost:3002",    // Another alternative frontend port
+            "http://localhost:5173")    // Old frontend / Vite default
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -110,7 +108,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient<ITMDBService, TMDBService>();
 
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -128,10 +125,9 @@ app.UseSwaggerUI(c =>
 string webRootPath = builder.Environment.WebRootPath;
 if (string.IsNullOrEmpty(webRootPath))
 {
-    webRootPath = builder.Environment.ContentRootPath; // Fallback to project root
+    webRootPath = builder.Environment.ContentRootPath;
     Console.WriteLine($"WebRootPath is null, falling back to ContentRootPath: {webRootPath}");
 }
-
 var uploadsPath = Path.Combine(webRootPath, "Uploads");
 if (!Directory.Exists(uploadsPath))
 {
@@ -149,7 +145,12 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseRouting();
 app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
+// Only use HTTPS redirection in production (fixes CORS issues in development)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 

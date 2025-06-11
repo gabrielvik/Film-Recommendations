@@ -47,7 +47,7 @@ export const authApi = {
         password: credentials.password
       };
 
-      const response = await backendClient.post<AuthResponse>('/api/Auth/login', loginRequest);
+      const response = await backendClient.post<AuthResponse>('/Auth/login', loginRequest);
       const { token, userId } = response.data;
 
       // Create user object from token claims
@@ -98,10 +98,8 @@ export const authApi = {
         password: credentials.password
       };
 
-      const response = await backendClient.post<AuthResponse>('/api/Auth/register', registerRequest);
-      const { token, userId } = response.data;
-
-      // Create user object
+      const response = await backendClient.post<AuthResponse>('/Auth/register', registerRequest);
+      const { token, userId } = response.data;      // Create user object
       const mockUser: User = {
         id: userId,
         username: credentials.name,

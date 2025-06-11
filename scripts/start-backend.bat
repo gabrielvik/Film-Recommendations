@@ -1,0 +1,13 @@
+@echo off
+echo Starting CinematIQ Backend API...
+cd /d "D:\Development\CinematIQ\FilmRecomendations.WebApi"
+echo Building project...
+dotnet build
+if %errorlevel% neq 0 (
+    echo Build failed! Press any key to exit...
+    pause
+    exit /b %errorlevel%
+)
+echo Starting server on http://localhost:5291...
+dotnet run --urls="http://localhost:5291"
+pause
